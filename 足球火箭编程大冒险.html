@@ -181,7 +181,22 @@
   <header>
     <h1>🚀⚽ 包涵的编程大冒险</h1>
     <div class="sub">看演示学一招 → 拆解成小步骤 → 自己敲代码 → 独立完成作业</div>
+    <button class="btn btn-ghost btn-small" style="margin-top:8px;" onclick="openReport()">📊 学习报告（家长用）</button>
   </header>
+
+  <!-- 学习报告弹窗 -->
+  <div id="report-mask" class="hidden" style="position:fixed;inset:0;background:rgba(5,8,25,.85);display:flex;align-items:center;justify-content:center;z-index:80;padding:16px;">
+    <div style="background:linear-gradient(160deg,#16204e,#0d1330);border:2px solid #6ea8ff;border-radius:20px;max-width:600px;width:100%;padding:22px;max-height:88vh;overflow:auto;">
+      <h2 style="color:#cfe1ff;font-size:20px;text-align:center;margin-bottom:4px;">📊 包涵的学习报告</h2>
+      <div style="text-align:center;color:#8ea0d8;font-size:13px;margin-bottom:14px;">点下方「一键复制」，粘贴发给 AI 教练即可分析调整</div>
+      <textarea id="report-text" readonly style="width:100%;height:340px;background:#0d1330;color:#d8e6ff;border:1px solid rgba(140,170,255,.3);border-radius:12px;padding:14px;font-family:Consolas,monospace;font-size:13px;line-height:1.7;resize:none;"></textarea>
+      <div style="display:flex;gap:10px;justify-content:center;margin-top:14px;">
+        <button class="btn btn-run" onclick="copyReport()">📋 一键复制</button>
+        <button class="btn btn-ghost" onclick="document.getElementById('report-mask').classList.add('hidden')">关闭</button>
+      </div>
+      <div id="copy-ok" style="text-align:center;color:#4ade80;font-size:13px;margin-top:8px;display:none;">✓ 已复制！去粘贴发给 AI 教练吧</div>
+    </div>
+  </div>
 
   <!-- 星际地图 -->
   <section id="map">
@@ -310,6 +325,28 @@ let curLevel = 0, runAttempts = 0, stuckCount = 0;
 let phase = 'demo';      // demo -> break -> imitate -> homework
 let peeked = false;      // 本环节是否偷看过
 let isHomework = false;  // 当前是否在独立作业
+
+/* =========================================================
+   学习数据埋点（存 localStorage，供一键导出报告）
+   ========================================================= */
+let track = loadTrack();
+function loadTrack(){ try{ return JSON.parse(localStorage.getItem('bh_track')||'{}'); }catch(e){ return {}; } }
+function persistTrack(){ localStorage.setItem('bh_track', JSON.stringify(track)); }
+// 每关的数据结构
+function LV(i){
+  if(!track[i]) track[i] = {
+    name: (LEVELS[i] ? `第${i+1}关·${LEVELS[i].name}` : `第${i+1}关`),
+    startTime: null, endTime: null,
+    demoPlay: 0, codeClick: 0,          // 看演示次数、点代码看解释次数
+    breakTry: 0,                          // 拆解尝试次数
+    imitateStuck: 0, imitatePeek: 0, imitateRun: 0,   // 模仿写：卡/偷看/运行
+    hwTry: 0, hwStuck: 0,                // 独立作业：尝试/卡
+    errors: {},                           // 报错类型统计 {类型:次数}
+    done: false
+  };
+  return track[i];
+}
+function trackErr(type){ const d=LV(curLevel); d.errors[type]=(d.errors[type]||0)+1; persistTrack(); }
 
 function rad(d){ return d*Math.PI/180; }
 function toPx(x,y){ return [CX + x, CY - y]; }
@@ -652,6 +689,10 @@ function runCode(){
   coachReset();
   if(res.error){
     stuckCount++;
+    // 埋点：报错统计 + 卡顿
+    const errType = res.error.html.match(/小笔误/) ? '拼写错误' : res.error.html.match(/括号/) ? '括号问题' : res.error.html.match(/数字/) ? '缺数字' : '指令不认识';
+    trackErr(errType);
+    const d=LV(curLevel); if(isHomework){d.hwStuck++;}else{d.imitateStuck++;} persistTrack();
     showErr(res.error.html);
     coachOops("哎呀，代码里有个小地方要修一修。看下面的提示，改一改再运行！");
     document.getElementById('btn-check').disabled = true;
@@ -661,6 +702,8 @@ function runCode(){
   coachSay("代码读明白啦，看它动！","");
   queue = res.ops.slice();
   runAttempts++;
+  // 埋点：运行次数
+  const d2=LV(curLevel); if(isHomework){d2.hwTry++;}else{d2.imitateRun++;} persistTrack();
   document.getElementById('btn-check').disabled = false;
   playQueue();
 }
@@ -736,6 +779,8 @@ function onHomeworkWin(){
   const lv = LEVELS[curLevel];
   save.progress[curLevel] = true; persist();
   const hw = lv.homework;
+  // 埋点：完成本关
+  const d=LV(curLevel); d.done=true; d.endTime=Date.now(); persistTrack();
   document.getElementById('win-emoji').textContent = '⚽';
   document.getElementById('win-title').textContent = lv.name + " · 全部完成！";
   document.getElementById('win-text').textContent = hw.win;
@@ -838,6 +883,7 @@ function renderDemoStatic(){
 function clickCodeLine(stepIdx){
   const lv=LEVELS[curLevel];
   const step=lv.demo[stepIdx];
+  const d=LV(curLevel); d.codeClick++; persistTrack(); // 埋点
   if(step && step.k){
     showKnowledge(step.k.tag, step.k.title, step.k.body, null);
     highlightStep(stepIdx);
@@ -861,6 +907,7 @@ function playDemo(){
   const lv=LEVELS[curLevel];
   if(demoPlaying){ stopDemo(); renderDemoStatic(); return; }
   demoPlaying=true;
+  const d=LV(curLevel); d.demoPlay++; persistTrack(); // 埋点：看演示次数
   dT={x:0,y:0,a:90}; dTrail=[[0,0]]; demoDraw();
   let stepIdx=0;
   (function doStep(){
@@ -941,6 +988,7 @@ function placeBreakCard(origIdx, cardEl){
     slot.classList.add('wrong');
     setTimeout(()=>{ cardEl.classList.remove('wrong'); slot.classList.remove('wrong'); }, 400);
     stuckCount++;
+    const d=LV(curLevel); d.breakTry++; persistTrack(); // 埋点：拆解尝试
     coachOops(`🤔 嗯，「${lv.breakSteps[origIdx]}」是第 ${slotIdx+1} 步吗？再想想：最先要做什么？`);
   }
 }
@@ -976,6 +1024,7 @@ function startImitate(){
 // 偷看演示
 function peekDemo(){
   peeked=true;
+  const d=LV(curLevel); d.imitatePeek++; persistTrack(); // 埋点：偷看次数
   document.getElementById('peek-tip').classList.remove('hidden');
   document.getElementById('demo-panel').classList.remove('hidden');
   renderDemoStatic();
@@ -1075,6 +1124,8 @@ function openLevel(i){
   curLevel=i; runAttempts=0; stuckCount=0;
   phase='demo'; isHomework=false; peeked=false;
   const lv=LEVELS[i];
+  // 埋点：记录进入本关时间
+  const d=LV(i); if(!d.startTime){ d.startTime=Date.now(); persistTrack(); }
   document.getElementById('map').classList.add('hidden');
   document.getElementById('stage').classList.remove('hidden');
   document.getElementById('lv-label').textContent=`第${i+1}关 · ${lv.concept}`;
@@ -1098,6 +1149,53 @@ function goMap(){
   document.getElementById('stage').classList.add('hidden');
   document.getElementById('map').classList.remove('hidden');
   buildMap();
+}
+
+/* =========================================================
+   📊 学习报告：生成 + 一键复制
+   ========================================================= */
+function openReport(){
+  document.getElementById('report-text').value = buildReportText();
+  document.getElementById('copy-ok').style.display='none';
+  document.getElementById('report-mask').classList.remove('hidden');
+}
+function buildReportText(){
+  const now = new Date();
+  const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+  let out = `📊 包涵学习报告 · ${dateStr}\n`;
+  out += `═══════════════════════════════\n`;
+  const keys = Object.keys(track).map(Number).sort((a,b)=>a-b);
+  if(keys.length===0){ return out + `（还没有学习记录，先让包涵玩一关吧）\n`; }
+  keys.forEach(i=>{
+    const d = track[i];
+    const lvName = LEVELS[i] ? `第${i+1}关 · ${LEVELS[i].name}（${LEVELS[i].concept}）` : `第${i+1}关`;
+    out += `\n【${lvName}】${d.done?'✅已完成':'🔄进行中'}\n`;
+    out += `  ①看演示：播放${d.demoPlay}次｜点代码看解释${d.codeClick}次\n`;
+    out += `  ②拆解：尝试${d.breakTry}次${d.breakTry===0?'（一次排对）':''}\n`;
+    out += `  ③模仿写：卡${d.imitateStuck}次｜偷看${d.imitatePeek}次｜运行${d.imitateRun}次成功\n`;
+    out += `  ④独立作业：尝试${d.hwTry}次｜卡${d.hwStuck}次\n`;
+    const errKeys = Object.keys(d.errors||{});
+    if(errKeys.length){
+      out += `  报错集中：${errKeys.map(k=>`${k}(${d.errors[k]}次)`).join('、')}\n`;
+    }
+    if(d.startTime && d.endTime){
+      const mins = Math.round((d.endTime-d.startTime)/60000);
+      out += `  用时：约${mins}分钟\n`;
+    }
+  });
+  out += `═══════════════════════════════\n`;
+  out += `（请 AI 教练根据以上数据，分析包涵的掌握情况并调整后续教学大纲/关卡难度）\n`;
+  return out;
+}
+function copyReport(){
+  const ta = document.getElementById('report-text');
+  ta.select(); ta.setSelectionRange(0, 99999);
+  const done = ()=>{ document.getElementById('copy-ok').style.display='block'; setTimeout(()=>{document.getElementById('copy-ok').style.display='none';},2500); };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(ta.value).then(done).catch(()=>{ document.execCommand('copy'); done(); });
+  } else {
+    document.execCommand('copy'); done();
+  }
 }
 
 /* ---------- 初始化 ---------- */
