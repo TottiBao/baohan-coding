@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🚀⚽ 包涵的编程大冒险</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body{ height:100%; }
+  body{
+    font-family:"Microsoft YaHei","PingFang SC",sans-serif;
+    background:linear-gradient(180deg,#0b1030 0%,#1a2350 60%,#101736 100%);
+    color:#eaf0ff; min-height:100vh;
+  }
+  #app{ max-width:1220px; margin:0 auto; padding:14px; }
+  .hidden{ display:none !important; }
+
+  header{ text-align:center; padding:8px 0 4px; }
+  header h1{ font-size:28px; letter-spacing:2px; text-shadow:0 0 18px rgba(120,180,255,.6); }
+  header .sub{ color:#8ea0d8; font-size:13px; margin-top:3px; }
+
+  /* ===== 地图 ===== */
+  #map{ padding:16px 6px 26px; }
+  .map-title{ text-align:center; color:#ffd66b; font-size:18px; margin-bottom:16px; letter-spacing:1px; }
+  #levels{ display:flex; flex-direction:column; gap:13px; max-width:660px; margin:0 auto; }
+  .level-card{ display:flex; align-items:center; gap:16px; background:rgba(255,255,255,.06); border:2px solid rgba(140,170,255,.25); border-radius:18px; padding:15px 18px; cursor:pointer; transition:.15s; position:relative; }
+  .level-card:hover:not(.locked){ transform:translateX(6px); border-color:#ffd66b; background:rgba(255,255,255,.1); }
+  .level-card .planet{ font-size:40px; filter:drop-shadow(0 0 8px rgba(255,255,255,.3)); }
+  .level-card .info{ flex:1; }
+  .level-card .info .name{ font-size:19px; font-weight:bold; }
+  .level-card .info .concept{ display:inline-block; margin-top:4px; font-size:12px; background:#2a3a7a; padding:2px 10px; border-radius:10px; color:#bcd0ff; }
+  .level-card .info .desc{ font-size:13px; color:#9fb0e0; margin-top:5px; }
+  .level-card .badge{ font-size:24px; }
+  .level-card.locked{ opacity:.4; cursor:not-allowed; }
+  .level-card.done{ border-color:#4ade80; }
+
+  #stage{ display:flex; flex-direction:column; gap:12px; }
+  #stage-topbar{ display:flex; justify-content:space-between; align-items:center; }
+
+  .btn{ border:none; cursor:pointer; border-radius:12px; padding:11px 20px; font-size:16px; font-weight:bold; transition:.12s; box-shadow:0 4px 0 rgba(0,0,0,.3); font-family:inherit; }
+  .btn:hover:not(:disabled){ transform:translateY(-2px); }
+  .btn:active:not(:disabled){ transform:translateY(2px); box-shadow:0 1px 0 rgba(0,0,0,.3); }
+  .btn:disabled{ opacity:.4; cursor:not-allowed; }
+  .btn-run{ background:linear-gradient(160deg,#34d399,#059669); color:#fff; }
+  .btn-check{ background:linear-gradient(160deg,#fbbf24,#d97706); color:#3a2503; }
+  .btn-ghost{ background:rgba(255,255,255,.12); color:#dbe4ff; box-shadow:none; }
+  .btn-back{ background:rgba(255,255,255,.12); color:#dbe4ff; box-shadow:none; padding:8px 14px; font-size:14px; }
+  .btn-small{ padding:7px 12px; font-size:13px; }
+  .btn-demo{ background:linear-gradient(160deg,#6ea8ff,#3b6fe0); color:#fff; }
+
+  /* 演示主按钮：大而显眼，带呼吸光效 */
+  .btn-playdemo{
+    background:linear-gradient(160deg,#5b8cff,#2f5fe0); color:#fff; font-size:19px; padding:13px 26px;
+    border-radius:15px; font-weight:bold; letter-spacing:1px; position:relative; overflow:visible;
+    box-shadow:0 5px 0 rgba(0,0,0,.35), 0 0 0 0 rgba(110,168,255,.7);
+    animation:demoPulse 1.8s ease-in-out infinite;
+  }
+  .btn-playdemo:hover{ transform:translateY(-3px) scale(1.04); }
+  .btn-playdemo:active{ transform:translateY(2px); box-shadow:0 1px 0 rgba(0,0,0,.3); }
+  @keyframes demoPulse{
+    0%,100%{ box-shadow:0 5px 0 rgba(0,0,0,.35), 0 0 0 0 rgba(110,168,255,.65); }
+    50%{ box-shadow:0 5px 0 rgba(0,0,0,.35), 0 0 0 14px rgba(110,168,255,0); }
+  }
+  .btn-playdemo .play-emoji{ font-size:22px; margin-right:6px; }
+
+  /* 任务卡 */
+  #mission{ display:flex; align-items:center; gap:14px; background:linear-gradient(90deg,rgba(255,214,107,.12),rgba(255,214,107,.03)); border:1px solid rgba(255,214,107,.3); border-radius:16px; padding:13px 16px; }
+  #mission .m-emoji{ font-size:36px; }
+  #mission .m-body{ flex:1; }
+  #mission .m-title{ font-weight:bold; font-size:17px; color:#ffe9ad; }
+  #mission .m-text{ font-size:14px; color:#e6e9ff; margin-top:2px; line-height:1.5; }
+
+  /* 步骤指示条 */
+  #stepbar{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .step-dot{ font-size:13px; padding:5px 12px; border-radius:20px; background:rgba(255,255,255,.08); color:#8ea0d8; border:1px solid transparent; }
+  .step-dot.cur{ background:rgba(255,214,107,.2); color:#ffe9ad; border-color:#ffd66b; font-weight:bold; }
+  .step-dot.done{ background:rgba(74,222,128,.15); color:#b7f7cf; }
+
+  /* ===== 演示区 ===== */
+  #demo-panel{ background:rgba(110,168,255,.07); border:2px solid rgba(110,168,255,.35); border-radius:18px; padding:14px; }
+  #demo-panel .dp-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+  #demo-panel .dp-title{ font-size:15px; color:#bcd4ff; font-weight:bold; letter-spacing:1px; }
+  #demo-grid{ display:grid; grid-template-columns:290px 1fr 250px; gap:14px; align-items:stretch; }
+  @media (max-width:980px){ #demo-grid{ grid-template-columns:1fr; } }
+  #demo-cv-wrap{ background:#0a0f2c; border-radius:14px; border:1px solid rgba(140,170,255,.25); overflow:hidden; display:flex; align-items:center; justify-content:center; }
+  #demo-cv{ width:100%; display:block; }
+  #demo-code{ background:#0d1330; border-radius:14px; border:1px solid rgba(140,170,255,.25); padding:14px 16px; font-family:"Consolas","Courier New",monospace; }
+  .dline{ padding:6px 12px; border-radius:10px; color:#8ea0d8; font-size:23px; line-height:1.5; transition:.25s; white-space:pre; font-weight:600; letter-spacing:.5px; cursor:pointer; }
+  .dline:hover{ background:rgba(110,168,255,.12); color:#cfe1ff; }
+  .dline.on{ background:rgba(255,214,107,.2); color:#ffe9ad; box-shadow:inset 4px 0 0 #ffd66b; transform:translateX(4px); }
+  .dline .cm{ color:#46538c; font-size:15px; margin-right:8px; }
+  #knowledge{ background:linear-gradient(160deg,rgba(255,214,107,.14),rgba(255,214,107,.04)); border:1px solid rgba(255,214,107,.4); border-radius:14px; padding:12px 14px; }
+  #knowledge .k-tag{ display:inline-block; font-size:12px; background:#ffd66b; color:#3a2503; font-weight:bold; padding:3px 10px; border-radius:9px; margin-bottom:8px; }
+  #knowledge .k-title{ font-size:17px; font-weight:bold; color:#ffe9ad; margin-bottom:6px; }
+  #knowledge .k-body{ font-size:14px; color:#f2f0e6; line-height:1.65; }
+  #knowledge .k-scratch{ margin-top:9px; font-size:12.5px; color:#9fd8ff; background:rgba(80,140,255,.12); padding:7px 10px; border-radius:9px; line-height:1.5; }
+
+  /* ===== 拆解环节 ===== */
+  #break-panel{ background:rgba(74,222,128,.06); border:2px solid rgba(74,222,128,.3); border-radius:18px; padding:16px; }
+  #break-panel .bp-title{ font-size:15px; color:#b7f7cf; font-weight:bold; margin-bottom:6px; }
+  #break-panel .bp-sub{ font-size:13px; color:#9fb0e0; margin-bottom:14px; }
+  #break-slots{ display:flex; flex-direction:column; gap:9px; margin-bottom:14px; }
+  .break-slot{ display:flex; align-items:center; gap:12px; background:rgba(13,19,48,.7); border:2px dashed rgba(140,170,255,.35); border-radius:13px; padding:11px 14px; min-height:52px; }
+  .break-slot .num{ font-size:20px; font-weight:bold; color:#ffd66b; min-width:28px; }
+  .break-slot .slot-body{ flex:1; color:#5a6ba8; font-size:15px; }
+  .break-slot.filled{ border-style:solid; border-color:#4ade80; }
+  .break-slot.filled .slot-body{ color:#eaf0ff; }
+  .break-slot.wrong{ border-color:#ff7b7b; animation:shake .3s; }
+  @keyframes shake{ 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+  #break-pool{ display:flex; gap:9px; flex-wrap:wrap; }
+  .break-card{ background:linear-gradient(160deg,#3b82f6,#1d4ed8); color:#fff; font-size:15px; padding:12px 16px; border-radius:12px; cursor:pointer; box-shadow:0 3px 0 rgba(0,0,0,.3); transition:.12s; border:none; font-family:inherit; }
+  .break-card:hover:not(:disabled){ transform:translateY(-3px) scale(1.03); }
+  .break-card:disabled{ opacity:.25; cursor:not-allowed; box-shadow:none; }
+
+  /* ===== 工作区（模仿写/独立作业共用） ===== */
+  #work-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  @media (max-width:900px){ #work-grid{ grid-template-columns:1fr; } }
+  .panel{ background:rgba(255,255,255,.05); border:1px solid rgba(140,170,255,.2); border-radius:16px; padding:14px; }
+  .panel h3{ font-size:15px; color:#bcd0ff; margin-bottom:10px; letter-spacing:1px; }
+  #editor{ width:100%; height:220px; background:#0d1330; color:#e8f0ff; border:1px solid rgba(140,170,255,.35); border-radius:12px; padding:14px; font-family:"Consolas","Courier New",monospace; font-size:19px; line-height:1.9; resize:none; outline:none; letter-spacing:.5px; font-weight:600; }
+  #editor:focus{ border-color:#ffd66b; box-shadow:0 0 0 3px rgba(255,214,107,.18); }
+  #editor::placeholder{ color:#46538c; font-size:15px; font-weight:400; }
+  #err-tip{ margin-top:9px; font-size:14px; line-height:1.6; border-radius:11px; padding:0; overflow:hidden; transition:.2s; }
+  #err-tip.show{ padding:11px 13px; }
+  #err-tip.err{ background:rgba(255,120,120,.12); border:1px solid rgba(255,120,120,.4); color:#ffd0d0; }
+  #err-tip.warn{ background:rgba(255,214,107,.1); border:1px solid rgba(255,214,107,.35); color:#ffe9ad; }
+  #err-tip .err-line{ font-family:"Consolas",monospace; background:rgba(0,0,0,.3); padding:2px 8px; border-radius:6px; color:#ffb3b3; }
+  #err-tip .err-fix{ font-family:"Consolas",monospace; background:rgba(74,222,128,.15); padding:2px 8px; border-radius:6px; color:#b7f7cf; }
+  #helper-zone{ margin-top:11px; }
+  #helper-toggle{ font-size:13px; color:#8ea0d8; background:none; border:1px dashed rgba(140,170,255,.4); border-radius:9px; padding:5px 11px; cursor:pointer; }
+  #helper-toggle:hover{ color:#bcd0ff; border-color:#6ea8ff; }
+  #palette{ display:flex; flex-wrap:wrap; gap:7px; margin-top:9px; }
+  .blk{ background:linear-gradient(160deg,#3b82f6,#1d4ed8); border:none; color:#fff; font-size:13px; padding:7px 11px; border-radius:9px; cursor:pointer; box-shadow:0 3px 0 rgba(0,0,0,.3); transition:.1s; font-family:"Consolas",monospace; }
+  .blk:hover{ transform:translateY(-2px); }
+  .blk.loop{ background:linear-gradient(160deg,#f59e0b,#b45309); }
+  #action-bar{ display:flex; gap:10px; margin-top:12px; flex-wrap:wrap; align-items:center; }
+  #cv{ width:100%; background:linear-gradient(180deg,#101736,#0a0f2c); border-radius:12px; display:block; border:1px solid rgba(140,170,255,.25); }
+  #speed-row{ display:flex; align-items:center; gap:10px; margin-top:10px; font-size:13px; color:#9fb0e0; }
+  #speed{ flex:1; accent-color:#ffd66b; }
+
+  /* 偷看按钮 */
+  #peek-btn{ margin-top:9px; font-size:13px; color:#8ea0d8; background:none; border:1px dashed rgba(255,214,107,.4); border-radius:9px; padding:5px 11px; cursor:pointer; }
+  #peek-btn:hover{ color:#ffe9ad; }
+  #peek-tip{ margin-top:8px; font-size:13px; color:#ffe9ad; background:rgba(255,214,107,.1); border-radius:9px; padding:8px 11px; }
+
+  /* 第三步：拆解结果参照条（照着写） */
+  #ref-steps{ background:rgba(74,222,128,.08); border:1px solid rgba(74,222,128,.35); border-radius:12px; padding:11px 13px; margin-bottom:11px; }
+  #ref-steps .rs-title{ font-size:13px; color:#b7f7cf; font-weight:bold; margin-bottom:8px; }
+  #ref-steps .rs-step{ display:flex; align-items:center; gap:10px; padding:6px 4px; font-size:15.5px; color:#eaf0ff; border-bottom:1px dashed rgba(74,222,128,.15); }
+  #ref-steps .rs-step:last-child{ border-bottom:none; }
+  #ref-steps .rs-num{ font-size:16px; font-weight:bold; color:#ffd66b; min-width:24px; }
+
+  /* 教练 */
+  #coach{ display:flex; gap:12px; background:rgba(120,180,255,.08); border:1px solid rgba(120,180,255,.3); border-radius:16px; padding:13px 16px; min-height:70px; align-items:flex-start; }
+  #coach .avatar{ font-size:36px; animation:bob 2.4s ease-in-out infinite; }
+  @keyframes bob{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
+  #coach .bubble{ flex:1; }
+  #coach .bubble .who{ font-size:12px; color:#8ea0d8; margin-bottom:3px; }
+  #coach .bubble .say{ font-size:15.5px; line-height:1.65; color:#f2f6ff; white-space:pre-wrap; }
+  #coach.good .say{ color:#b7f7cf; }
+  #coach.think .say{ color:#ffe9ad; }
+  #coach.oops .say{ color:#ffc9c9; }
+
+  /* 通关弹窗 */
+  #win-mask{ position:fixed; inset:0; background:rgba(5,8,25,.8); display:flex; align-items:center; justify-content:center; z-index:50; }
+  #win-card{ background:linear-gradient(160deg,#1c2a63,#0f1638); border:2px solid #ffd66b; border-radius:24px; padding:32px 40px; text-align:center; max-width:440px; box-shadow:0 0 60px rgba(255,214,107,.4); animation:pop .4s cubic-bezier(.2,1.6,.4,1); }
+  @keyframes pop{ from{transform:scale(.6); opacity:0} to{transform:scale(1); opacity:1} }
+  #win-card .big{ font-size:66px; }
+  #win-card h2{ color:#ffe9ad; margin:10px 0 6px; }
+  #win-card p{ color:#c9d6ff; font-size:14px; line-height:1.6; }
+  #win-card .medal{ margin:14px 0; font-size:15px; background:rgba(255,214,107,.15); border-radius:12px; padding:10px; color:#ffe9ad; }
+  #win-card .btn-row{ display:flex; gap:10px; justify-content:center; margin-top:18px; }
+
+  footer{ text-align:center; color:#5a6ba8; font-size:12px; padding:16px 0 8px; }
+  .star-ctx{ position:fixed; pointer-events:none; font-size:26px; animation:fly 1s ease-out forwards; z-index:60; }
+  @keyframes fly{ to{ transform:translateY(-140px) scale(1.6); opacity:0; } }
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1>🚀⚽ 包涵的编程大冒险</h1>
+    <div class="sub">看演示学一招 → 拆解成小步骤 → 自己敲代码 → 独立完成作业</div>
+  </header>
+
+  <!-- 星际地图 -->
+  <section id="map">
+    <div class="map-title">🌌 逻 辑 星 际 航 线 图 🌌</div>
+    <div id="levels"></div>
+  </section>
+
+  <!-- 关卡舞台 -->
+  <section id="stage" class="hidden">
+    <div id="stage-topbar">
+      <button class="btn btn-back" onclick="goMap()">← 返回星图</button>
+      <div id="stepbar"></div>
+      <div id="lv-label" style="color:#8ea0d8; font-size:14px;"></div>
+    </div>
+
+    <!-- 任务卡 -->
+    <div id="mission">
+      <div class="m-emoji" id="m-emoji">🚀</div>
+      <div class="m-body">
+        <div class="m-title" id="m-title"></div>
+        <div class="m-text" id="m-text"></div>
+      </div>
+    </div>
+
+    <!-- ① 演示区（常驻，可点代码看解释） -->
+    <div id="demo-panel">
+      <div class="dp-head">
+        <div class="dp-title">👀 第一步：看演示 · 点代码能看解释</div>
+        <button class="btn btn-playdemo" onclick="playDemo()"><span class="play-emoji">▶</span>播放演示</button>
+      </div>
+      <div id="demo-grid">
+        <div id="demo-cv-wrap"><canvas id="demo-cv" width="290" height="235"></canvas></div>
+        <div id="demo-code"></div>
+        <div id="knowledge">
+          <div class="k-tag" id="k-tag">知识点</div>
+          <div class="k-title" id="k-title"></div>
+          <div class="k-body" id="k-body"></div>
+          <div class="k-scratch hidden" id="k-scratch"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ② 拆解环节 -->
+    <div id="break-panel" class="hidden">
+      <div class="bp-title">🧩 第二步：把任务拆成小步骤</div>
+      <div class="bp-sub">工程师遇到大问题，会先把它拆成一个个小步骤。点下面的卡片，按正确顺序把任务排好吧！</div>
+      <div id="break-slots"></div>
+      <div id="break-pool"></div>
+    </div>
+
+    <!-- ③ 工作区（模仿写 / 独立作业） -->
+    <div id="work-wrap" class="hidden">
+      <div id="work-grid">
+        <div class="panel">
+          <h3 id="work-title">⌨️ 第三步：自己敲代码</h3>
+          <!-- 第三步：显示他排好的拆解步骤，照着翻译成代码 -->
+          <div id="ref-steps" class="hidden">
+            <div class="rs-title">🧩 你刚才拆解的步骤（照着翻译成代码）：</div>
+            <div id="ref-steps-list"></div>
+          </div>
+          <textarea id="editor" spellcheck="false" placeholder="把任务拆解成步骤，一步一步敲成代码……"></textarea>
+          <div id="err-tip"></div>
+          <div id="helper-zone">
+            <button id="helper-toggle" onclick="toggleHelper()">🧩 不会拼？点我打开小积木</button>
+            <div id="palette" class="hidden"></div>
+          </div>
+          <div id="peek-zone">
+            <button id="peek-btn" onclick="peekDemo()">💡 想起来了再看一眼演示</button>
+            <div id="peek-tip" class="hidden">💡 偷看了一次哦～ 尽量自己多想想，你一定可以的！</div>
+          </div>
+          <div id="action-bar">
+            <button class="btn btn-run" id="btn-run" onclick="runCode()">▶ 运行</button>
+            <button class="btn btn-check" id="btn-check" onclick="checkAnswer()" disabled>🔍 检查</button>
+            <button class="btn btn-ghost btn-small" onclick="clearPath()">🧹 清除</button>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>🌠 发射场 / 球场</h3>
+          <canvas id="cv" width="520" height="380"></canvas>
+          <div id="speed-row">
+            🐢 慢速回放
+            <input type="range" id="speed" min="1" max="20" value="9">
+            🚀 飞快
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 教练 -->
+    <div id="coach">
+      <div class="avatar" id="coach-avatar">🤖</div>
+      <div class="bubble">
+        <div class="who">逻辑教练 · 小航</div>
+        <div class="say" id="coach-say">先点上面的「▶ 播放演示」看我怎么做！</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 通关弹窗 -->
+  <div id="win-mask" class="hidden">
+    <div id="win-card">
+      <div class="big" id="win-emoji">🏆</div>
+      <h2 id="win-title">挑战成功！</h2>
+      <p id="win-text"></p>
+      <div class="medal" id="win-medal"></div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="closeWin()">再玩一次</button>
+        <button class="btn btn-run" id="win-next" onclick="nextLevel()">完成本关 →</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.4</footer>
+</div>
+
+<script>
+/* =========================================================
+   核心引擎
+   ========================================================= */
+const cv = document.getElementById('cv');
+const ctx = cv.getContext('2d');
+const CX = cv.width/2, CY = cv.height/2;
+let T = { x:0, y:0, a:90 };
+let trail = [], queue = [], running = false, animTimer = null;
+let curLevel = 0, runAttempts = 0, stuckCount = 0;
+let phase = 'demo';      // demo -> break -> imitate -> homework
+let peeked = false;      // 本环节是否偷看过
+let isHomework = false;  // 当前是否在独立作业
+
+function rad(d){ return d*Math.PI/180; }
+function toPx(x,y){ return [CX + x, CY - y]; }
+function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+/* =========================================================
+   关卡数据（演示 + 拆解 + 模仿 + 独立作业）
+   ========================================================= */
+const LEVELS = [
+  {
+    name:"直线冲刺", emoji:"🚀", concept:"顺序", planet:"🪐",
+    desc:"让火箭按顺序：先直走 100 步，右转 90 度，再直走 80 步。",
+    title:"任务：火箭 L 形升空",
+    text:"代码从上往下、一条一条执行，这叫「顺序」。先看演示，再拆解，最后自己敲！",
+    concept_knowledge:{ title:"本关学：顺序（Sequence）", body:"电脑读代码，就像我们读故事书——从上往下，一行一行来。先写的先执行，后写的后执行。这个顺序可不能乱哦！", scratch:"💡 这就像 Scratch 里积木从上往下拼：最上面的积木先动，然后才轮到下面的。" },
+    demo:[
+      {code:"forward(100)", cap:"先让火箭向上飞 100 步", k:{tag:"指令", title:"forward = 前进", body:"forward 是「前进」的意思。括号里的数字 100，就是告诉火箭要飞 100 步那么远。"}, ops:[{cmd:'forward',val:100}]},
+      {code:"right(90)", cap:"再让火箭向右转身 90 度", k:{tag:"指令", title:"right = 向右转", body:"right 是「向右转」。90 是一个角度，90 度正好是一个直角，转完火箭就朝向右边啦。"}, ops:[{cmd:'right',val:90}]},
+      {code:"forward(80)", cap:"转身后再向前飞 80 步，L 形完成！", k:{tag:"指令", title:"顺序执行", body:"你看，三行代码按从上往下的顺序执行：先前进、再转弯、再前进。这就是「顺序」！"}, ops:[{cmd:'forward',val:80}]}
+    ],
+    // 拆解：中文步骤卡片排序
+    breakSteps:["🚀 火箭向前飞 100 步","↩️ 向右转 90 度","🚀 再向前飞 80 步"],
+    palette:["forward(100)","right(90)","forward(80)","left(90)","forward(50)"],
+    check(path){
+      if(path.length < 2) return {ok:false, why:"too_short"};
+      const xs = path.map(p=>p[0]), ys = path.map(p=>p[1]);
+      const rangeX = Math.max(...xs)-Math.min(...xs), rangeY = Math.max(...ys)-Math.min(...ys);
+      if(rangeY>70 && rangeX>50 && turns(path)===1) return {ok:true};
+      if(turns(path)===0) return {ok:false, why:"no_turn"};
+      if(rangeY>70 && rangeX<20) return {ok:false, why:"only_straight"};
+      return {ok:false, why:"shape_off"};
+    },
+    hints:[
+      "火箭要先往上飞，再拐个弯。你的代码里有没有让它「转弯」的那一行呀？",
+      "顺序很关键：先 forward(100)，然后 right(90) 让它转身，最后 forward(80)。",
+      "想一想：如果少了 right(90)，火箭会一直往前冲，拐不了弯哦。"
+    ],
+    win:"你让火箭画出了漂亮的 L 形！代码就是一条接一条、按顺序执行的指令。",
+    medal:"🎖️ 顺序小达人",
+    // 独立作业：足球 L 形过人跑位（同结构换皮肤 + 变化）
+    homework:{
+      title:"⚽ 独立作业：连续 2 次 L 形过人",
+      text:"看右边的战术图！让球员带球连过两名防守队员。\n照着图上的路线和距离，自己写出代码。",
+      stepsHint:"照着图拆解：先向前跑 80，过第 1 个防守队员（右转 90）再跑 80；过第 2 个防守队员（再右转 90）再跑 80 射门！",
+      emoji:"⚽",
+      // 战术示意图：球场、起点、防守队员、终点、距离标注
+      diagram:{
+        // 球员路线（相对坐标，单位=步），画成虚线示意
+        route:[[0,0],[0,80],[80,80],[80,160]],
+        // 每一段的中点标注距离
+        segLabels:[{at:[-30,40],text:"80"},{at:[40,95],text:"80"},{at:[50,120],text:"80"}],
+        // 防守队员位置（在拐点，要过人的位置）
+        defenders:[[10,80],[90,160]],
+        // 终点（球门）
+        goal:[80,205],
+        // 轨迹校验的目标路径也用这个 route
+      },
+      check(path){
+        // 连续2次L形：至少2个拐角，且每段都有位移
+        if(path.length < 4) return {ok:false, why:"too_short"};
+        const t = turns(path);
+        if(t>=2) return {ok:true};
+        if(t===1) return {ok:false, why:"only_one_L"};
+        return {ok:false, why:"no_turn"};
+      },
+      win:"漂亮！你自己独立完成了连续过人，还会自己拆解和选择方法（写两遍或用循环），没有靠任何提示！",
+      medal:"⚽ 过人王"
+    }
+  },
+  {
+    name:"正方形轨道", emoji:"🛰️", concept:"循环", planet:"🌍",
+    desc:"用 for 循环让卫星绕正方形轨道飞 4 条边，不用写 4 遍！",
+    title:"任务：绕正方形轨道",
+    text:"卫星要绕一个正方形飞。用「循环」for i in range(4): 让电脑自动重复 4 次！",
+    concept_knowledge:{ title:"本关学：循环（Loop）", body:"要重复做好几遍的事，不用一遍遍写。用 for 循环告诉电脑「把这几步重复 4 次」，电脑就会乖乖照做！", scratch:"💡 这就像 Scratch 的「重复4次」积木：把要做的动作装进重复积木里。" },
+    demo:[
+      {code:"for i in range(4):", cap:"这行是「循环头」：告诉电脑要重复 4 次", k:{tag:"新指令", title:"for 循环", body:"for i in range(4): 意思是「把下面缩进的代码，重复 4 次」。结尾的冒号 : 就像在说「注意，下面要开始重复咯」。"}, ops:[]},
+      {code:"    forward(100)", cap:"循环里第一条：前进 100 步（注意前面空了4格，叫缩进）", k:{tag:"重点", title:"缩进 = 装进循环", body:"forward 前面空了 4 格，这叫「缩进」。缩进的代码才会被循环重复执行。就像把积木「装进」重复积木里面。"}, ops:[{cmd:'forward',val:100}]},
+      {code:"    right(90)", cap:"循环里第二条：转弯 90 度，也缩进在循环里", k:{tag:"重点", title:"循环体", body:"right 也缩进了，所以它和 forward 一起被重复。前进+转弯，重复 4 次，正好画出一个正方形！"}, ops:[{cmd:'right',val:90},{cmd:'forward',val:100},{cmd:'right',val:90},{cmd:'forward',val:100},{cmd:'right',val:90},{cmd:'forward',val:100},{cmd:'right',val:90}]}
+    ],
+    breakSteps:["🔁 告诉电脑：重复 4 次","🛰️ 向前飞 100 步（缩进）","↩️ 转弯 90 度（缩进）"],
+    palette:["for i in range(4):","    forward(100)","    right(90)","forward(100)","right(90)"],
+    check(path){
+      if(path.length < 3) return {ok:false, why:"too_short"};
+      const t = turns(path);
+      const closed = dist(path[0], path[path.length-1]) < 25;
+      if(t>=3 && closed) return {ok:true};
+      if(t>=3 && !closed) return {ok:false, why:"not_closed"};
+      if(t<3) return {ok:false, why:"too_few_turns"};
+      return {ok:false, why:"shape_off"};
+    },
+    hints:[
+      "正方形有几条边？几条边就重复几次哦。",
+      "记得把 forward 和 right 都「缩进」到循环里面（前面空4格），它们才会被重复执行！",
+      "range(4) 里的 4 就是重复的次数。如果卫星只飞了一条边，是不是循环没把它们包住呀？"
+    ],
+    win:"太棒了！你用循环让卫星画出了正方形。把重复交给循环，你就不用写 4 遍啦。",
+    medal:"🎖️ 循环魔法师",
+    homework:{
+      title:"⚽ 独立作业：球员绕场热身",
+      text:"独立作战！让球员绕着球场跑一个正方形热身（用循环，别写 4 遍哦）。",
+      stepsHint:"拆解：绕场跑圈要重复几次？每次做什么动作？",
+      emoji:"⚽",
+      check(path){
+        if(path.length < 3) return {ok:false, why:"too_short"};
+        const t = turns(path);
+        const closed = dist(path[0], path[path.length-1]) < 30;
+        if(t>=3 && closed) return {ok:true};
+        if(t>=3 && !closed) return {ok:false, why:"not_closed"};
+        return {ok:false, why:"too_few_turns"};
+      },
+      win:"太厉害了！你自己用循环让球员绕场跑了一圈，完全独立！",
+      medal:"⚽ 独立小球星"
+    }
+  },
+  {
+    name:"足球绕桩", emoji:"⚽", concept:"循环进阶", planet:"🏟️",
+    desc:"折返跑训练：用循环让球员走出「之」字形路线。",
+    title:"任务：之字形绕桩",
+    text:"球员要：直走、右转、直走、左转回来……重复 3 次，画出「之」字形。用循环 for i in range(3): 来帮球员省力！",
+    concept_knowledge:{ title:"本关学：循环进阶", body:"循环里不只能装 2 步，还能装一整套动作！把「直走→转弯→直走→转回来」这一整套装进循环，就能画出复杂的「之」字形。", scratch:"💡 这就像 Scratch 的「重复3次」，里面装了一整套「走+转+走+转回」的动作。" },
+    demo:[
+      {code:"for i in range(3):", cap:"循环头：这套动作要重复 3 次", k:{tag:"循环", title:"重复一整套动作", body:"这次循环里要装 6 步动作。range(3) 表示把这一整套重复 3 次。"}, ops:[]},
+      {code:"    forward(60)\n    right(60)\n    forward(60)\n    left(120)", cap:"循环里的动作：直走→右转→直走→左转回来", k:{tag:"动作", title:"绕一个桩", body:"直走 60，右转 60 度，再直走 60，然后左转 120 度转回来——这一整套正好绕过了一个桩！"}, ops:[{cmd:'forward',val:60},{cmd:'right',val:60},{cmd:'forward',val:60},{cmd:'left',val:120}]},
+      {code:"    forward(60)\n    right(60)", cap:"补上最后两步，然后循环自动重复 3 遍", k:{tag:"重点", title:"重复出「之」字", body:"再加上 forward(60) 和 right(60)，把这一整套重复 3 次，球员就会绕来绕去，画出「之」字形！"}, ops:[{cmd:'forward',val:60},{cmd:'right',val:60},{cmd:'forward',val:60},{cmd:'right',val:60},{cmd:'forward',val:60},{cmd:'left',val:120},{cmd:'forward',val:60},{cmd:'right',val:60}]}
+    ],
+    breakSteps:["🔁 告诉电脑：重复 3 次","⚽ 直走→右转→直走→左转回来（绕一个桩）","⚽ 再直走、右转（完成一套）"],
+    palette:["for i in range(3):","    forward(60)","    right(60)","    left(120)"],
+    check(path){
+      if(path.length < 5) return {ok:false, why:"too_short"};
+      const t = turns(path);
+      if(t>=4) return {ok:true};
+      if(t>=2) return {ok:false, why:"more_zigzag"};
+      return {ok:false, why:"too_few_turns"};
+    },
+    hints:[
+      "「之」字形要转好几次弯，数一数你需要重复几遍？",
+      "右转和左转要搭配好，球员才会「绕来绕去」而不是跑成一条直线。",
+      "把「直走→转弯→直走→转回来」这一组动作装进循环里，重复 3 次试试！"
+    ],
+    win:"哇，漂亮的之字形！你已经会用循环让球员完成一整套重复动作了！",
+    medal:"🎖️ 绕桩小球星",
+    homework:{
+      title:"⚽ 独立作业：绕 4 个桩训练",
+      text:"终极挑战！球场上有 4 个桩，让球员用「之」字形绕桩跑，重复 4 次。\n用循环 for 来帮球员省力，别写 4 遍哦！",
+      stepsHint:"拆解：绕一个桩要做哪些动作？（直走→转弯→直走→转回来）把这一套装进循环，重复 4 次。",
+      emoji:"⚽",
+      check(path){
+        if(path.length < 6) return {ok:false, why:"too_short"};
+        const t = turns(path);
+        if(t>=6) return {ok:true};
+        if(t>=4) return {ok:false, why:"more_zigzag"};
+        return {ok:false, why:"too_few_turns"};
+      },
+      win:"不可思议！你自己用循环完成了绕 4 个桩的之字形训练，还会自己拆解动作，你已经是小程序员了！",
+      medal:"⚽ 绕桩王"
+    }
+  }
+];
+
+/* ---------- 几何辅助 ---------- */
+function dist(a,b){ const dx=a[0]-b[0], dy=a[1]-b[1]; return Math.hypot(dx,dy); }
+function turns(path){
+  let t=0;
+  for(let i=1;i<path.length-1;i++){
+    const a1=Math.atan2(path[i][1]-path[i-1][1], path[i][0]-path[i-1][0]);
+    const a2=Math.atan2(path[i+1][1]-path[i][1], path[i+1][0]-path[i][0]);
+    if(Math.abs(a2-a1) > 0.3) t++;
+  }
+  return t;
+}
+
+/* =========================================================
+   代码解析 + 逐行纠错
+   ========================================================= */
+function compile(src){
+  const lines = src.split('\n');
+  const ops = []; let warn = null; let loopStack = null;
+  for(let n=0;n<lines.length;n++){
+    let raw = lines[n]; let line = raw.trim();
+    if(!line || line.startsWith('#')) continue;
+    let fixed = line.replace(/（/g,'(').replace(/）/g,')').replace(/：/g,':').replace(/，/g,',');
+    if(fixed !== line){ warn = warn || {line:n+1, text:`第 ${n+1} 行：我帮你把中文标点换成了英文标点。`}; line = fixed; }
+    let m = line.match(/^for\s+\w+\s+in\s+range\((\d+)\)\s*:?$/);
+    if(m){
+      if(!/:\s*$/.test(line)){ warn = warn || {line:n+1, text:`第 ${n+1} 行：循环后面要戴个小帽子（冒号 :），我帮你加上啦。`}; }
+      if(loopStack){ for(let k=0;k<loopStack.times;k++) ops.push(...loopStack.body); }
+      loopStack = { times: parseInt(m[1]), body: [], lineNo:n+1 };
+      continue;
+    }
+    const op = parseCmd(line, n+1);
+    if(op.error) return { error: op.error };
+    if(loopStack){
+      const indented = /^(\s{2,}|\t)/.test(raw);
+      if(indented){ loopStack.body.push(op); continue; }
+      else { for(let k=0;k<loopStack.times;k++) ops.push(...loopStack.body); loopStack = null; ops.push(op); continue; }
+    }
+    ops.push(op);
+  }
+  if(loopStack){ for(let k=0;k<loopStack.times;k++) ops.push(...loopStack.body); }
+  return { ops, warn };
+}
+function parseCmd(line, lineNo){
+  let m;
+  if(m = line.match(/^forward\((-?\d+)\)$/)) return {cmd:'forward', val:+m[1]};
+  if(m = line.match(/^left\((-?\d+)\)$/))   return {cmd:'left', val:+m[1]};
+  if(m = line.match(/^right\((-?\d+)\)$/))  return {cmd:'right', val:+m[1]};
+  const show = `<span class="err-line">${escapeHtml(line)}</span>`;
+  let sp = line.match(/^([a-z]+)\s*\(/i);
+  const word = sp ? sp[1].toLowerCase() : line.split(/[\s(]/)[0];
+  for(const k of ['forward','left','right']){
+    if(word!==k && lev(word,k)<=2){
+      return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行有个小笔误哦：${show}<br>我不认识 <b>${escapeHtml(word)}</b>。你是不是想写 <span class="err-fix">${k}</span>（${k==='forward'?'前进':k==='left'?'向左转':'向右转'}）？<br>对比拼写：<b>${k.split('').join('-')}</b>，检查你哪里打错啦。` }};
+    }
+  }
+  if(/^[a-z]+\(-?\d+$/.test(line)) return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：${show}<br>括号要成对出现哦，你这里少了右边的 <span class="err-fix">)</span>。在最后补上一个 <b>)</b> 就好啦。` }};
+  if(/^[a-z]+-?\d+\)$/.test(line)) return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：${show}<br>数字前面少了左边的 <span class="err-fix">(</span> 哦。应该是 <span class="err-fix">指令(数字)</span> 这样。` }};
+  if(/^[a-z]+\(\s*\)$/.test(line)) return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：${show}<br>括号里要填一个数字，告诉它走几步 / 转多少度。比如 <span class="err-fix">forward(100)</span>。` }};
+  return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：${show}<br>我看不懂 <b>${escapeHtml(word)}</b> 这个口令。<br>目前我只会：<span class="err-fix">forward(步数)</span>、<span class="err-fix">left(角度)</span>、<span class="err-fix">right(角度)</span>，还有 <span class="err-fix">for 循环</span>。` }};
+}
+function lev(a,b){
+  const dp=Array.from({length:a.length+1},(_,i)=>[i,...Array(b.length).fill(0)]);
+  for(let j=0;j<=b.length;j++) dp[0][j]=j;
+  for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)
+    dp[i][j]=Math.min(dp[i-1][j]+1, dp[i][j-1]+1, dp[i-1][j-1]+(a[i-1]===b[j-1]?0:1));
+  return dp[a.length][b.length];
+}
+
+/* =========================================================
+   运行与动画
+   ========================================================= */
+function resetTurtle(){ T={x:0,y:0,a:90}; trail=[[0,0]]; }
+function clearPath(){ resetTurtle(); draw(); }
+function drawBg(){
+  ctx.clearRect(0,0,cv.width,cv.height);
+  // 作业模式：画球场战术示意图
+  if(isHomework && LEVELS[curLevel].homework && LEVELS[curLevel].homework.diagram){
+    drawTacticsBoard(LEVELS[curLevel].homework.diagram);
+    return;
+  }
+  // 普通模式：星空背景
+  ctx.fillStyle='rgba(255,255,255,.06)';
+  for(let i=0;i<40;i++){ ctx.fillRect((i*97)%cv.width,(i*57)%cv.height,2,2); }
+  const [sx,sy]=toPx(0,0);
+  ctx.fillStyle='rgba(120,255,170,.35)';
+  ctx.beginPath(); ctx.arc(sx,sy,9,0,7); ctx.fill();
+}
+
+/* 画球场战术示意图：球场 + 路线虚线 + 距离标注 + 防守队员 + 球门 */
+function drawTacticsBoard(dg){
+  // 球场背景（绿色）
+  ctx.fillStyle='#1c6e2f';
+  ctx.fillRect(0,0,cv.width,cv.height);
+  // 球场线条
+  ctx.strokeStyle='rgba(255,255,255,.25)'; ctx.lineWidth=2;
+  ctx.strokeRect(20,20,cv.width-40,cv.height-40);
+  // 中线
+  ctx.beginPath(); ctx.moveTo(20,CY); ctx.lineTo(cv.width-20,CY); ctx.stroke();
+  ctx.beginPath(); ctx.arc(CX,CY,40,0,7); ctx.stroke();
+
+  // 目标路线（虚线示意）
+  if(dg.route && dg.route.length>1){
+    ctx.strokeStyle='rgba(255,255,150,.8)'; ctx.lineWidth=3; ctx.setLineDash([8,7]);
+    ctx.beginPath();
+    dg.route.forEach((p,i)=>{ const [x,y]=toPx(p[0],p[1]); i?ctx.lineTo(x,y):ctx.moveTo(x,y); });
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+  // 距离标注
+  if(dg.segLabels){
+    ctx.fillStyle='#fff'; ctx.font='bold 16px "Microsoft YaHei"'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    dg.segLabels.forEach(L=>{
+      const [x,y]=toPx(L.at[0],L.at[1]);
+      // 白底小气泡
+      ctx.fillStyle='rgba(0,0,0,.55)';
+      const w=34;
+      roundRect(x-w/2,y-12,w,24,8); ctx.fill();
+      ctx.fillStyle='#ffe9ad';
+      ctx.fillText(L.text+"步", x, y);
+    });
+  }
+  // 起点（⚽）
+  const start = dg.route ? dg.route[0] : [0,0];
+  const [sx,sy]=toPx(start[0],start[1]);
+  ctx.font='26px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('⚽', sx, sy);
+  // 起点标签
+  ctx.fillStyle='#b7f7cf'; ctx.font='bold 13px "Microsoft YaHei"';
+  ctx.fillText('起点', sx, sy+22);
+  // 防守队员（🧍）
+  if(dg.defenders){
+    ctx.font='28px serif';
+    dg.defenders.forEach(d=>{
+      const [x,y]=toPx(d[0],d[1]);
+      ctx.fillText('🧍', x, y);
+      ctx.fillStyle='#ffb3b3'; ctx.font='bold 12px "Microsoft YaHei"';
+      ctx.fillText('防守', x, y+22);
+      ctx.font='28px serif';
+    });
+  }
+  // 球门（🥅）+ 终点
+  if(dg.goal){
+    const [gx,gy]=toPx(dg.goal[0],dg.goal[1]);
+    ctx.font='32px serif';
+    ctx.fillText('🥅', gx, gy);
+    ctx.fillStyle='#ffe9ad'; ctx.font='bold 13px "Microsoft YaHei"';
+    ctx.fillText('射门!', gx, gy+24);
+  }
+}
+/* 圆角矩形辅助 */
+function roundRect(x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.arcTo(x+w,y,x+w,y+h,r);
+  ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r);
+  ctx.arcTo(x,y,x+w,y,r);
+  ctx.closePath();
+}
+function draw(){
+  drawBg();
+  if(trail.length>1){
+    ctx.strokeStyle='#7ef0c0'; ctx.lineWidth=3; ctx.lineJoin='round';
+    ctx.beginPath();
+    trail.forEach((p,i)=>{ const [x,y]=toPx(p[0],p[1]); i?ctx.lineTo(x,y):ctx.moveTo(x,y); });
+    ctx.stroke();
+  }
+  const [tx,ty]=toPx(T.x,T.y);
+  ctx.save(); ctx.translate(tx,ty); ctx.rotate(rad(90-T.a));
+  ctx.font='30px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(currentEmoji(),0,0);
+  ctx.restore();
+}
+function currentEmoji(){ return isHomework ? '⚽' : LEVELS[curLevel].emoji; }
+
+function runCode(){
+  const src = document.getElementById('editor').value;
+  stopAnim(); resetTurtle(); hideErr();
+  const res = compile(src);
+  coachReset();
+  if(res.error){
+    stuckCount++;
+    showErr(res.error.html);
+    coachOops("哎呀，代码里有个小地方要修一修。看下面的提示，改一改再运行！");
+    document.getElementById('btn-check').disabled = true;
+    return;
+  }
+  if(res.warn){ showWarn(res.warn.text); }
+  coachSay("代码读明白啦，看它动！","");
+  queue = res.ops.slice();
+  runAttempts++;
+  document.getElementById('btn-check').disabled = false;
+  playQueue();
+}
+function playQueue(){
+  running = true;
+  const speed = +document.getElementById('speed').value;
+  const delay = 300 - (speed*14);
+  function step(){
+    if(!queue.length){ running=false; draw(); onRunEnd(); return; }
+    const op = queue.shift();
+    applyOp(op, ()=>{ draw(); animTimer=setTimeout(step, delay); }, delay);
+  }
+  step();
+}
+function applyOp(op, done, delay){
+  if(op.cmd==='left'){ T.a += op.val; done(); }
+  else if(op.cmd==='right'){ T.a -= op.val; done(); }
+  else if(op.cmd==='forward'){
+    const steps=Math.max(1,Math.round(Math.abs(op.val)/4)); let i=0; const dir=op.val>=0?1:-1;
+    (function mv(){
+      if(i>=steps){ done(); return; }
+      T.x+=Math.cos(rad(T.a))*4*dir; T.y+=Math.sin(rad(T.a))*4*dir;
+      trail.push([T.x,T.y]); draw(); i++;
+      animTimer=setTimeout(mv, Math.max(6, delay/steps));
+    })();
+  }
+}
+function stopAnim(){ running=false; if(animTimer){clearTimeout(animTimer); animTimer=null;} }
+function onRunEnd(){ coachSay("落地啦！觉得画对了吗？点「🔍 检查」让我看看～",""); }
+
+function showErr(html){ const e=document.getElementById('err-tip'); e.innerHTML=html; e.className='show err'; }
+function showWarn(text){ const e=document.getElementById('err-tip'); e.innerHTML='✨ '+text; e.className='show warn'; }
+function hideErr(){ const e=document.getElementById('err-tip'); e.innerHTML=''; e.className=''; }
+
+/* ---------- 检查答案 ---------- */
+function checkAnswer(){
+  const lv = LEVELS[curLevel];
+  const checkFn = isHomework ? lv.homework.check : lv.check;
+  const result = checkFn(trail);
+  if(result.ok){ isHomework ? onHomeworkWin() : onImitateWin(); }
+  else { stuckCount++; detectiveMode(result.why); }
+}
+function detectiveMode(why){
+  const lv = LEVELS[curLevel];
+  const hint = isHomework ? "这是你的独立作业，我不多说提示哦～ 先自己拆解一下：第一步要做什么？再想想代码怎么写。" : pickHint(lv);
+  coachThink(`🕵️ 嗯，还差一点点！别急，我们当回侦探。\n${hint}\n\n💡 把「慢速回放」调慢一点，再点运行，仔细看是哪一步走歪的？`);
+  flashTrail();
+}
+function pickHint(lv){
+  const idx = Math.min(stuckCount-1, lv.hints.length-1);
+  return lv.hints[Math.max(0,idx)];
+}
+function flashTrail(){
+  let n=0;
+  const t=setInterval(()=>{
+    ctx.strokeStyle = n%2? '#ff7b7b':'#7ef0c0';
+    if(trail.length>1){
+      ctx.lineWidth=3; ctx.beginPath();
+      trail.forEach((p,i)=>{ const [x,y]=toPx(p[0],p[1]); i?ctx.lineTo(x,y):ctx.moveTo(x,y); });
+      ctx.stroke();
+    }
+    if(++n>5){ clearInterval(t); draw(); }
+  },160);
+}
+
+/* ---------- 通关（模仿写 / 独立作业） ---------- */
+function onImitateWin(){
+  coachGood("🎉 模仿成功！现在进入最后的独立作业——这次全靠你自己！");
+  // 进入独立作业
+  setTimeout(startHomework, 1500);
+}
+function onHomeworkWin(){
+  const lv = LEVELS[curLevel];
+  save.progress[curLevel] = true; persist();
+  const hw = lv.homework;
+  document.getElementById('win-emoji').textContent = '⚽';
+  document.getElementById('win-title').textContent = lv.name + " · 全部完成！";
+  document.getElementById('win-text').textContent = hw.win;
+  let medalText = lv.medal + " ＋ " + hw.medal;
+  if(stuckCount>=2) medalText += " ＋ 🕵️ 不放弃勋章";
+  if(!peeked) medalText += "<br>🌟 全程没偷看，全靠自己想！";
+  document.getElementById('win-medal').innerHTML = medalText;
+  // 试玩模式：只有1关时，隐藏"完成本关/下一关"按钮
+  const hasNext = (curLevel < LEVELS.length-1) && (curLevel+1 < 1); // 1=试玩可见关数
+  document.getElementById('win-next').style.display = hasNext?'':'none';
+  document.getElementById('win-mask').classList.remove('hidden');
+  burstStars();
+  coachGood("🎉 " + hw.win);
+}
+function closeWin(){ document.getElementById('win-mask').classList.add('hidden'); }
+function nextLevel(){ closeWin(); openLevel(curLevel+1); }
+function burstStars(){
+  for(let i=0;i<10;i++){
+    const s=document.createElement('div');
+    s.className='star-ctx'; s.textContent=['⭐','✨','🎉','💫'][i%4];
+    s.style.left=(innerWidth/2 + (Math.random()*300-150))+'px';
+    s.style.top=(innerHeight/2)+'px';
+    document.body.appendChild(s);
+    setTimeout(()=>s.remove(),1000);
+  }
+}
+
+/* ---------- 教练 ---------- */
+const coachEl=document.getElementById('coach');
+const coachSayEl=document.getElementById('coach-say');
+const coachAvatar=document.getElementById('coach-avatar');
+function coachReset(){ coachEl.className=''; }
+function coachSay(msg){ coachReset(); coachAvatar.textContent='🤖'; coachSayEl.textContent=msg; }
+function coachGood(msg){ coachReset(); coachEl.classList.add('good'); coachAvatar.textContent='🥳'; coachSayEl.textContent=msg; }
+function coachThink(msg){ coachReset(); coachEl.classList.add('think'); coachAvatar.textContent='🧐'; coachSayEl.textContent=msg; }
+function coachOops(msg){ coachReset(); coachEl.classList.add('oops'); coachAvatar.textContent='😵'; coachSayEl.textContent=msg; }
+function askHint(){ stuckCount++; detectiveMode('manual'); }
+
+/* =========================================================
+   演示区（动画 + 大字代码可点击 + 知识点卡）
+   ========================================================= */
+const demoCv = document.getElementById('demo-cv');
+const demoCtx = demoCv.getContext('2d');
+const DCX = demoCv.width/2, DCY = demoCv.height/2;
+let dT={x:0,y:0,a:90}, dTrail=[], dTimer=null, demoPlaying=false;
+
+function dToPx(x,y){ return [DCX+x, DCY-y]; }
+function demoDrawBg(){
+  demoCtx.clearRect(0,0,demoCv.width,demoCv.height);
+  demoCtx.fillStyle='rgba(255,255,255,.06)';
+  for(let i=0;i<20;i++){ demoCtx.fillRect((i*67)%demoCv.width,(i*43)%demoCv.height,2,2); }
+  const [sx,sy]=dToPx(0,0);
+  demoCtx.fillStyle='rgba(120,255,170,.35)';
+  demoCtx.beginPath(); demoCtx.arc(sx,sy,6,0,7); demoCtx.fill();
+}
+function demoDraw(){
+  demoDrawBg();
+  if(dTrail.length>1){
+    demoCtx.strokeStyle='#7ef0c0'; demoCtx.lineWidth=2.5; demoCtx.lineJoin='round';
+    demoCtx.beginPath();
+    dTrail.forEach((p,i)=>{ const [x,y]=dToPx(p[0],p[1]); i?demoCtx.lineTo(x,y):demoCtx.moveTo(x,y); });
+    demoCtx.stroke();
+  }
+  const [tx,ty]=dToPx(dT.x,dT.y);
+  demoCtx.save(); demoCtx.translate(tx,ty); demoCtx.rotate(rad(90-dT.a));
+  demoCtx.font='22px serif'; demoCtx.textAlign='center'; demoCtx.textBaseline='middle';
+  demoCtx.fillText(LEVELS[curLevel].emoji==='⚽'?'⚽':'🚀',0,0);
+  demoCtx.restore();
+}
+function demoApplyOps(ops, done){
+  let i=0;
+  (function next(){
+    if(i>=ops.length){ done(); return; }
+    const op=ops[i++];
+    if(op.cmd==='left'){ dT.a+=op.val; next(); }
+    else if(op.cmd==='right'){ dT.a-=op.val; next(); }
+    else if(op.cmd==='forward'){
+      const steps=Math.max(1,Math.round(Math.abs(op.val)/5)); let j=0; const dir=op.val>=0?1:-1;
+      (function mv(){
+        if(j>=steps){ next(); return; }
+        dT.x+=Math.cos(rad(dT.a))*5*dir; dT.y+=Math.sin(rad(dT.a))*5*dir;
+        dTrail.push([dT.x,dT.y]); demoDraw(); j++;
+        dTimer=setTimeout(mv, 35);
+      })();
+    }
+  })();
+}
+
+function renderDemoStatic(){
+  const lv=LEVELS[curLevel];
+  const codeEl=document.getElementById('demo-code');
+  let lines=[];
+  lv.demo.forEach((s,i)=>{ s.code.split('\n').forEach(c=>lines.push({txt:c, step:i})); });
+  codeEl.innerHTML = lines.map((l,i)=>
+    `<div class="dline" id="dline-${i}" data-step="${l.step}" onclick="clickCodeLine(${l.step})"><span class="cm">${i+1}</span>${escapeHtml(l.txt)}</div>`
+  ).join('');
+  showKnowledge('知识点', lv.concept_knowledge.title, lv.concept_knowledge.body, lv.concept_knowledge.scratch);
+}
+// ① 点击代码行看对应解释
+function clickCodeLine(stepIdx){
+  const lv=LEVELS[curLevel];
+  const step=lv.demo[stepIdx];
+  if(step && step.k){
+    showKnowledge(step.k.tag, step.k.title, step.k.body, null);
+    highlightStep(stepIdx);
+    coachSay("📖 "+step.cap, "");
+  }
+}
+function showKnowledge(tag,title,body,scratch){
+  document.getElementById('k-tag').textContent=tag;
+  document.getElementById('k-title').textContent=title;
+  document.getElementById('k-body').textContent=body;
+  const ks=document.getElementById('k-scratch');
+  if(scratch){ ks.textContent=scratch; ks.classList.remove('hidden'); }
+  else { ks.classList.add('hidden'); }
+}
+function highlightStep(stepIdx){
+  document.querySelectorAll('.dline').forEach(el=>{
+    el.classList.toggle('on', +el.dataset.step===stepIdx);
+  });
+}
+function playDemo(){
+  const lv=LEVELS[curLevel];
+  if(demoPlaying){ stopDemo(); renderDemoStatic(); return; }
+  demoPlaying=true;
+  dT={x:0,y:0,a:90}; dTrail=[[0,0]]; demoDraw();
+  let stepIdx=0;
+  (function doStep(){
+    if(stepIdx>=lv.demo.length){
+      showKnowledge('知识点', lv.concept_knowledge.title, lv.concept_knowledge.body, lv.concept_knowledge.scratch);
+      coachSay("看完啦！点任意一行代码能看它的解释。明白了就往下做「拆解」吧！","");
+      demoPlaying=false;
+      // 演示放完，自动进入拆解环节
+      setTimeout(startBreak, 600);
+      return;
+    }
+    const step=lv.demo[stepIdx];
+    highlightStep(stepIdx);
+    if(step.k) showKnowledge(step.k.tag, step.k.title, step.k.body, null);
+    coachSay("👀 "+step.cap, "");
+    demoApplyOps(step.ops, ()=>{ stepIdx++; dTimer=setTimeout(doStep, 700); });
+  })();
+}
+function stopDemo(){ if(dTimer){clearTimeout(dTimer); dTimer=null;} demoPlaying=false; }
+
+/* =========================================================
+   ② 拆解环节：中文步骤卡片排序
+   ========================================================= */
+let breakFilled = [];
+function startBreak(){
+  phase='break';
+  updateStepbar();
+  const lv=LEVELS[curLevel];
+  document.getElementById('break-panel').classList.remove('hidden');
+  buildBreak(lv);
+  coachThink("🧩 现在考考你的「拆解」能力！工程师遇到大问题，会先把它拆成小步骤。点下面的卡片，按正确顺序排进上面的框框里。");
+  document.getElementById('break-panel').scrollIntoView({behavior:'smooth', block:'center'});
+}
+function buildBreak(lv){
+  breakFilled = new Array(lv.breakSteps.length).fill(null);
+  // 渲染空槽
+  const slots=document.getElementById('break-slots'); slots.innerHTML='';
+  lv.breakSteps.forEach((_,i)=>{
+    const slot=document.createElement('div');
+    slot.className='break-slot'; slot.id='slot-'+i;
+    slot.innerHTML=`<div class="num">${i+1}</div><div class="slot-body">点下面的卡片，填到这里</div>`;
+    slots.appendChild(slot);
+  });
+  // 渲染打乱的卡片池
+  const pool=document.getElementById('break-pool'); pool.innerHTML='';
+  const shuffled = lv.breakSteps.map((s,i)=>i).sort(()=>Math.random()-0.5);
+  shuffled.forEach(origIdx=>{
+    const card=document.createElement('button');
+    card.className='break-card'; card.textContent=lv.breakSteps[origIdx];
+    card.onclick=()=>placeBreakCard(origIdx, card);
+    pool.appendChild(card);
+  });
+}
+function placeBreakCard(origIdx, cardEl){
+  const lv=LEVELS[curLevel];
+  // 找第一个空槽
+  const slotIdx = breakFilled.findIndex(v=>v===null);
+  if(slotIdx<0) return;
+  // 校验：这张卡片是否正好是这个位置的正确步骤
+  if(origIdx === slotIdx){
+    breakFilled[slotIdx]=origIdx;
+    cardEl.disabled=true;
+    const slot=document.getElementById('slot-'+slotIdx);
+    slot.classList.add('filled');
+    slot.querySelector('.slot-body').textContent=lv.breakSteps[origIdx];
+    coachSay(`✅ 对！第 ${slotIdx+1} 步是「${lv.breakSteps[origIdx]}」`,"");
+    // 全部填完
+    if(breakFilled.every(v=>v!==null)){
+      setTimeout(()=>{
+        coachGood("🎉 拆解成功！你已经把大任务拆成了一个个小步骤。现在去把它写成代码吧！");
+        setTimeout(startImitate, 1200);
+      }, 300);
+    }
+  } else {
+    // 排错了
+    cardEl.classList.add('wrong');
+    const slot=document.getElementById('slot-'+slotIdx);
+    slot.classList.add('wrong');
+    setTimeout(()=>{ cardEl.classList.remove('wrong'); slot.classList.remove('wrong'); }, 400);
+    stuckCount++;
+    coachOops(`🤔 嗯，「${lv.breakSteps[origIdx]}」是第 ${slotIdx+1} 步吗？再想想：最先要做什么？`);
+  }
+}
+
+/* =========================================================
+   ③ 模仿写（隐藏演示代码，但显示他排好的拆解步骤作参照）
+   ========================================================= */
+function startImitate(){
+  phase='imitate'; isHomework=false; peeked=false;
+  updateStepbar();
+  const lv=LEVELS[curLevel];
+  document.getElementById('demo-panel').classList.add('hidden'); // 隐藏演示代码
+  document.getElementById('break-panel').classList.add('hidden'); // 隐藏互动排序区
+  document.getElementById('work-wrap').classList.remove('hidden');
+  document.getElementById('work-title').textContent='⌨️ 第三步：自己敲代码（照着你拆解的步骤写）';
+  document.getElementById('m-emoji').textContent=lv.emoji;
+  document.getElementById('m-title').textContent=lv.title;
+  document.getElementById('m-text').textContent=lv.text;
+  // 显示参照步骤条（他刚才排好的中文步骤，A方案：只显示中文，让他自己翻译成代码）
+  const rs=document.getElementById('ref-steps');
+  rs.classList.remove('hidden');
+  document.getElementById('ref-steps-list').innerHTML = lv.breakSteps.map((s,i)=>
+    `<div class="rs-step"><span class="rs-num">${i+1}</span><span>${escapeHtml(s)}</span></div>`
+  ).join('');
+  document.getElementById('editor').value='';
+  document.getElementById('peek-tip').classList.add('hidden');
+  document.getElementById('palette').classList.add('hidden');
+  buildPalette(lv);
+  resetTurtle(); draw(); hideErr();
+  coachThink("演示藏起来啦！上面是你自己拆解好的步骤——照着它们，一步翻译成一行代码。比如「向前飞」就是 forward。实在想不起来，可以点「💡 想起来了再看一眼演示」。");
+  document.getElementById('work-wrap').scrollIntoView({behavior:'smooth', block:'start'});
+}
+// 偷看演示
+function peekDemo(){
+  peeked=true;
+  document.getElementById('peek-tip').classList.remove('hidden');
+  document.getElementById('demo-panel').classList.remove('hidden');
+  renderDemoStatic();
+  coachThink("看一眼就好哦～ 看完凭自己的理解写出来，才是真本事！");
+  document.getElementById('demo-panel').scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+/* =========================================================
+   ④ 独立作业（足球主题，全程自己拆解+写）
+   ========================================================= */
+function startHomework(){
+  phase='homework'; isHomework=true; peeked=false;
+  updateStepbar();
+  const lv=LEVELS[curLevel];
+  const hw=lv.homework;
+  document.getElementById('demo-panel').classList.add('hidden');
+  document.getElementById('break-panel').classList.add('hidden');
+  document.getElementById('work-wrap').classList.remove('hidden');
+  document.getElementById('work-title').textContent='⚽ 第四步：独立作业（全靠你自己！）';
+  document.getElementById('m-emoji').textContent=hw.emoji;
+  document.getElementById('m-title').textContent=hw.title;
+  document.getElementById('m-text').textContent=hw.text+"\n\n💪 "+hw.stepsHint;
+  // 独立作业：隐藏参照步骤条（这次要自己想、自己拆解）
+  document.getElementById('ref-steps').classList.add('hidden');
+  document.getElementById('editor').value='';
+  document.getElementById('peek-tip').classList.add('hidden');
+  resetTurtle(); draw(); hideErr();
+  coachThink(`⚽ ${hw.title}！\n这次没有演示、没有步骤提示，全靠你自己。先在心里把任务拆解成小步骤，再一步一步写成代码。运行后能看到球员跑动的结果哦！我相信你能行！`);
+  document.getElementById('work-wrap').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+/* ---------- 积木辅助 ---------- */
+function toggleHelper(){
+  const pal=document.getElementById('palette');
+  const tog=document.getElementById('helper-toggle');
+  pal.classList.toggle('hidden');
+  tog.textContent = pal.classList.contains('hidden') ? '🧩 不会拼？点我打开小积木' : '🧩 收起小积木';
+}
+function buildPalette(lv){
+  const pal=document.getElementById('palette'); pal.innerHTML='';
+  lv.palette.forEach(cmd=>{
+    const b=document.createElement('button');
+    b.className='blk'+(cmd.includes('for')?' loop':'');
+    b.textContent=cmd.trim();
+    b.onclick=()=>insertCmd(cmd);
+    pal.appendChild(b);
+  });
+}
+function insertCmd(cmd){
+  const ed=document.getElementById('editor');
+  const pos=ed.selectionStart;
+  const before=ed.value.slice(0,pos), after=ed.value.slice(pos);
+  const ins = cmd + '\n';
+  ed.value = before + ins + after;
+  ed.focus();
+  ed.selectionStart = ed.selectionEnd = pos + ins.length;
+}
+
+/* ---------- 步骤指示条 ---------- */
+function updateStepbar(){
+  const steps=[['demo','👀 看演示'],['break','🧩 拆解'],['imitate','⌨️ 模仿写'],['homework','⚽ 独立作业']];
+  const order=['demo','break','imitate','homework'];
+  const cur=order.indexOf(phase);
+  document.getElementById('stepbar').innerHTML = steps.map(([k,label],i)=>{
+    const cls = i<cur?'done':(i===cur?'cur':'');
+    return `<span class="step-dot ${cls}">${label}</span>`;
+  }).join('');
+}
+
+/* ---------- 关卡/地图管理 ---------- */
+const save = load();
+function load(){ try{ return JSON.parse(localStorage.getItem('bh_py')||'{"progress":{}}'); }catch(e){ return {progress:{}}; } }
+function persist(){ localStorage.setItem('bh_py', JSON.stringify(save)); }
+
+function buildMap(){
+  const wrap=document.getElementById('levels'); wrap.innerHTML='';
+  // 试玩模式：只显示第1关，其余隐藏（LEVELS_VISIBLE 控制）
+  const VISIBLE = 1; // 只放第1关给包涵试玩
+  LEVELS.slice(0, VISIBLE).forEach((lv,i)=>{
+    const unlocked = i===0 || save.progress[i-1];
+    const done = save.progress[i];
+    const card=document.createElement('div');
+    card.className='level-card'+(done?' done':'')+(!unlocked?' locked':'');
+    card.innerHTML=`
+      <div class="planet">${lv.planet}</div>
+      <div class="info">
+        <div class="name">第${i+1}关 · ${lv.name}</div>
+        <span class="concept">${lv.concept}</span>
+        <div class="desc">${unlocked?lv.desc:'🔒 先通过上一关来解锁'}</div>
+      </div>
+      <div class="badge">${done?'🏅':unlocked?'▶':'🔒'}</div>`;
+    if(unlocked) card.onclick=()=>openLevel(i);
+    wrap.appendChild(card);
+  });
+}
+function openLevel(i){
+  curLevel=i; runAttempts=0; stuckCount=0;
+  phase='demo'; isHomework=false; peeked=false;
+  const lv=LEVELS[i];
+  document.getElementById('map').classList.add('hidden');
+  document.getElementById('stage').classList.remove('hidden');
+  document.getElementById('lv-label').textContent=`第${i+1}关 · ${lv.concept}`;
+  document.getElementById('m-emoji').textContent=lv.emoji;
+  document.getElementById('m-title').textContent=lv.title;
+  document.getElementById('m-text').textContent=lv.text;
+  // 重置各环节显示
+  document.getElementById('demo-panel').classList.remove('hidden');
+  document.getElementById('break-panel').classList.add('hidden');
+  document.getElementById('work-wrap').classList.add('hidden');
+  document.getElementById('editor').value='';
+  document.getElementById('btn-check').disabled=true;
+  updateStepbar();
+  resetTurtle(); draw(); coachReset(); hideErr();
+  renderDemoStatic();
+  coachSay(`欢迎来到「${lv.name}」！先点「▶ 播放演示」看我怎么做。看完演示，点代码还能看每一行的解释哦！`,"");
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function goMap(){
+  stopAnim(); stopDemo();
+  document.getElementById('stage').classList.add('hidden');
+  document.getElementById('map').classList.remove('hidden');
+  buildMap();
+}
+
+/* ---------- 初始化 ---------- */
+buildMap();
+resetTurtle();
+</script>
+</body>
+</html>
