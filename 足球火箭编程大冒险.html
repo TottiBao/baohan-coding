@@ -150,6 +150,13 @@
   #ref-steps .rs-step:last-child{ border-bottom:none; }
   #ref-steps .rs-num{ font-size:16px; font-weight:bold; color:#ffd66b; min-width:24px; }
 
+  /* 大任务：我的拆解（空白步骤卡，自己写） */
+  #plan-zone{ background:rgba(255,214,107,.07); border:1px solid rgba(255,214,107,.4); border-radius:12px; padding:11px 13px; margin-bottom:11px; }
+  #plan-zone .pz-title{ font-size:13px; color:#ffe9ad; font-weight:bold; margin-bottom:8px; }
+  .plan-input{ width:100%; background:rgba(13,19,48,.7); border:1px solid rgba(140,170,255,.35); border-radius:9px; color:#eaf0ff; font-size:14px; padding:8px 11px; margin-bottom:7px; outline:none; font-family:inherit; }
+  .plan-input:focus{ border-color:#ffd66b; }
+  .plan-input::placeholder{ color:#46538c; }
+
   /* 教练 */
   #coach{ display:flex; gap:12px; background:rgba(120,180,255,.08); border:1px solid rgba(120,180,255,.3); border-radius:16px; padding:13px 16px; min-height:70px; align-items:flex-start; }
   #coach .avatar{ font-size:36px; animation:bob 2.4s ease-in-out infinite; }
@@ -257,6 +264,14 @@
             <div class="rs-title">🧩 你刚才拆解的步骤（照着翻译成代码）：</div>
             <div id="ref-steps-list"></div>
           </div>
+          <!-- 大任务：我的拆解（自己写步骤） -->
+          <div id="plan-zone" class="hidden">
+            <div class="pz-title">🧠 先把大任务拆成小模块（用中文写，不写代码）：</div>
+            <input class="plan-input" placeholder="第1步：先……（比如：带球向前跑）">
+            <input class="plan-input" placeholder="第2步：然后……（比如：绕过3个桩）">
+            <input class="plan-input" placeholder="第3步：接着……（比如：遇到防守变向）">
+            <input class="plan-input" placeholder="第4步：最后……（比如：射门！）">
+          </div>
           <textarea id="editor" spellcheck="false" placeholder="把任务拆解成步骤，一步一步敲成代码……"></textarea>
           <div id="err-tip"></div>
           <div id="helper-zone">
@@ -309,7 +324,7 @@
     </div>
   </div>
 
-  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.4</footer>
+  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.5（暑期全7关）</footer>
 </div>
 
 <script>
@@ -321,6 +336,7 @@ const ctx = cv.getContext('2d');
 const CX = cv.width/2, CY = cv.height/2;
 let T = { x:0, y:0, a:90 };
 let trail = [], queue = [], running = false, animTimer = null;
+let segMarks = [];   // 每条指令在 trail 中的起始下标（用于"分段长度"判定，如变量递增）
 let curLevel = 0, runAttempts = 0, stuckCount = 0;
 let phase = 'demo';      // demo -> break -> imitate -> homework
 let peeked = false;      // 本环节是否偷看过
@@ -463,46 +479,222 @@ const LEVELS = [
     }
   },
   {
-    name:"足球绕桩", emoji:"⚽", concept:"循环进阶", planet:"🏟️",
-    desc:"折返跑训练：用循环让球员走出「之」字形路线。",
-    title:"任务：之字形绕桩",
-    text:"球员要：直走、右转、直走、左转回来……重复 3 次，画出「之」字形。用循环 for i in range(3): 来帮球员省力！",
-    concept_knowledge:{ title:"本关学：循环进阶", body:"循环里不只能装 2 步，还能装一整套动作！把「直走→转弯→直走→转回来」这一整套装进循环，就能画出复杂的「之」字形。", scratch:"💡 这就像 Scratch 的「重复3次」，里面装了一整套「走+转+走+转回」的动作。" },
+    name:"螺旋花园", emoji:"🌸", concept:"嵌套循环", planet:"🌺",
+    desc:"循环里套循环：外层画几个，内层画一个，画出旋转花朵。",
+    title:"任务：画一朵螺旋花",
+    text:"大圈套小圈：外层循环管「画几个正方形」，内层循环管「画一个正方形」。\n两层循环套起来，就能画出旋转的花朵！",
+    concept_knowledge:{ title:"本关学：嵌套循环", body:"大圈（外层）每走 1 步，小圈（内层）要完整跑 1 圈。就像：每一节课（外），都要做一整套绕桩（内）。", scratch:"💡 这就像 Scratch 里把「重复4次」装进「重复4次」里面——里面那层跑完一圈，外面那层才走一步。" },
     demo:[
-      {code:"for i in range(3):", cap:"循环头：这套动作要重复 3 次", k:{tag:"循环", title:"重复一整套动作", body:"这次循环里要装 6 步动作。range(3) 表示把这一整套重复 3 次。"}, ops:[]},
-      {code:"    forward(60)\n    right(60)\n    forward(60)\n    left(120)", cap:"循环里的动作：直走→右转→直走→左转回来", k:{tag:"动作", title:"绕一个桩", body:"直走 60，右转 60 度，再直走 60，然后左转 120 度转回来——这一整套正好绕过了一个桩！"}, ops:[{cmd:'forward',val:60},{cmd:'right',val:60},{cmd:'forward',val:60},{cmd:'left',val:120}]},
-      {code:"    forward(60)\n    right(60)", cap:"补上最后两步，然后循环自动重复 3 遍", k:{tag:"重点", title:"重复出「之」字", body:"再加上 forward(60) 和 right(60)，把这一整套重复 3 次，球员就会绕来绕去，画出「之」字形！"}, ops:[{cmd:'forward',val:60},{cmd:'right',val:60},{cmd:'forward',val:60},{cmd:'right',val:60},{cmd:'forward',val:60},{cmd:'left',val:120},{cmd:'forward',val:60},{cmd:'right',val:60}]}
+      {code:"for j in range(4):", cap:"外层循环：要画 4 个正方形", k:{tag:"新招式", title:"嵌套循环", body:"for j 是外层，管「画几个」。外层每走一步，里面会发生一整套事情。"}, ops:[]},
+      {code:"    for i in range(4):\n        forward(60)\n        right(90)", cap:"内层循环：画一个正方形（注意缩进了两次，装进外层里）", k:{tag:"重点", title:"两层缩进", body:"内层 for 和它身体都缩进在外层里。电脑先把内层的 4 条边画完，外层才走下一步。"}, ops:[{cmd:'forward',val:60},{cmd:'right',val:90},{cmd:'forward',val:60},{cmd:'right',val:90},{cmd:'forward',val:60},{cmd:'right',val:90},{cmd:'forward',val:60},{cmd:'right',val:90}]},
+      {code:"    right(90)", cap:"画完一个正方形后，外层转 90 度，再画下一个——花朵出现啦！", k:{tag:"哇", title:"花纹诞生", body:"外层每转一个角度，内层就画一个新正方形。4 次之后，就变成旋转的花朵！"}, ops:[{cmd:'right',val:90},{cmd:'forward',val:60},{cmd:'right',val:90},{cmd:'forward',val:60},{cmd:'right',val:90},{cmd:'forward',val:60},{cmd:'right',val:90},{cmd:'forward',val:60},{cmd:'right',val:90},{cmd:'right',val:90},{cmd:'forward',val:60},{cmd:'right',val:90},{cmd:'forward',val:60},{cmd:'right',val:90},{cmd:'forward',val:60},{cmd:'right',val:90},{cmd:'forward',val:60},{cmd:'right',val:90},{cmd:'right',val:90},{cmd:'forward',val:60},{cmd:'right',val:90},{cmd:'forward',val:60},{cmd:'right',val:90},{cmd:'forward',val:60},{cmd:'right',val:90},{cmd:'forward',val:60},{cmd:'right',val:90},{cmd:'right',val:90}]}
     ],
-    breakSteps:["🔁 告诉电脑：重复 3 次","⚽ 直走→右转→直走→左转回来（绕一个桩）","⚽ 再直走、右转（完成一套）"],
-    palette:["for i in range(3):","    forward(60)","    right(60)","    left(120)"],
+    breakSteps:["🔁 外层：重复 4 次（画 4 个正方形）","🔁 内层：每次画 1 个正方形（重复 4 次 前进+转弯）","↩️ 画完一个，外层转 90 度"],
+    palette:["for j in range(4):","    for i in range(4):","        forward(60)","        right(90)","    right(90)"],
     check(path){
-      if(path.length < 5) return {ok:false, why:"too_short"};
+      if(path.length < 20) return {ok:false, why:"too_short"};
       const t = turns(path);
-      if(t>=4) return {ok:true};
-      if(t>=2) return {ok:false, why:"more_zigzag"};
+      if(t>=12) return {ok:true};
+      if(t>=6) return {ok:false, why:"more_flower"};
       return {ok:false, why:"too_few_turns"};
     },
     hints:[
-      "「之」字形要转好几次弯，数一数你需要重复几遍？",
-      "右转和左转要搭配好，球员才会「绕来绕去」而不是跑成一条直线。",
-      "把「直走→转弯→直走→转回来」这一组动作装进循环里，重复 3 次试试！"
+      "大圈套小圈：外层管「画几个」，内层管「画一个」。你的代码里有几个 for 呀？",
+      "内层的 for 和它的身体要缩进两次（空更多格），才表示装进外层里面。",
+      "内层画完一个正方形后，外层要转个角度（比如90度）再画下一个，不然全叠在一起啦。"
     ],
-    win:"哇，漂亮的之字形！你已经会用循环让球员完成一整套重复动作了！",
-    medal:"🎖️ 绕桩小球星",
+    win:"太神奇了！你用嵌套循环画出了旋转花朵。外层走一步、内层跑一圈——你掌握了最难的循环招式！",
+    medal:"🌸 嵌套魔法师",
     homework:{
-      title:"⚽ 独立作业：绕 4 个桩训练",
-      text:"终极挑战！球场上有 4 个桩，让球员用「之」字形绕桩跑，重复 4 次。\n用循环 for 来帮球员省力，别写 4 遍哦！",
-      stepsHint:"拆解：绕一个桩要做哪些动作？（直走→转弯→直走→转回来）把这一套装进循环，重复 4 次。",
+      title:"⚽ 独立作业：设计队徽花纹",
+      text:"球队要一个新队徽！用嵌套循环画一朵「足球花纹」：\n外层重复 6 次，内层画一个五边形（for i in range(5): forward(50) right(72)）。",
+      stepsHint:"拆解：画几个花瓣？（外层）每个花瓣是什么形状？（内层五边形，转角72度）",
       emoji:"⚽",
+      diagram:{
+        route:[[40,0],[12,38],[-30,24],[-30,-24],[12,-38],[40,0]],
+        segLabels:[{at:[0,0],text:"五边形花瓣"},{at:[0,60],text:"转60度再画"}],
+      },
       check(path){
-        if(path.length < 6) return {ok:false, why:"too_short"};
+        if(path.length < 30) return {ok:false, why:"too_short"};
         const t = turns(path);
-        if(t>=6) return {ok:true};
-        if(t>=4) return {ok:false, why:"more_zigzag"};
+        if(t>=20) return {ok:true};
+        if(t>=10) return {ok:false, why:"more_flower"};
         return {ok:false, why:"too_few_turns"};
       },
-      win:"不可思议！你自己用循环完成了绕 4 个桩的之字形训练，还会自己拆解动作，你已经是小程序员了！",
-      medal:"⚽ 绕桩王"
+      win:"哇！你自己设计出了六瓣足球花纹队徽，嵌套循环完全被你想明白啦！",
+      medal:"🌸 队徽设计师"
+    }
+  },
+  {
+    name:"守门员的判断", emoji:"🧍", concept:"条件", planet:"🥅",
+    desc:"用 if 让程序做决定：遇到防守队员就转弯过人。",
+    title:"任务：遇防守就转弯",
+    text:"球员带球跑 6 步，第 3 步会遇到一名防守队员。\n用 if 告诉程序：如果 i == 2（第3步），就转弯过人！",
+    concept_knowledge:{ title:"本关学：条件（if）", body:"if 是「如果」。程序只在条件成立时才做缩进里的事，不成立就跳过。就像裁判：看到犯规才吹哨，没犯规就不吹。", scratch:"💡 这就像 Scratch 的「如果…那么」积木——碰到条件才执行，和 if 一模一样！" },
+    demo:[
+      {code:"for i in range(6):", cap:"球员要跑 6 步", k:{tag:"复习", title:"循环", body:"for i in range(6): 让下面的动作重复 6 次。i 是计数器：第1步 i=0、第2步 i=1、第3步 i=2……"}, ops:[]},
+      {code:"    if i == 2:\n        right(90)", cap:"关键一步！第3步(i=2)遇到防守队员，if 让程序判断：如果 i 等于 2，就转弯", k:{tag:"新招式", title:"if 条件", body:"if i == 2: 意思是「如果 i 是 2」。程序跑到这一步会检查：成立就做缩进里的事（转弯），不成立就跳过去。注意是两个等号 == 哦！"}, ops:[{cmd:'forward',val:60},{cmd:'forward',val:60},{cmd:'right',val:90}]},
+      {code:"    forward(60)", cap:"不管转没转弯，每步都要前进。if 只管转弯那一下", k:{tag:"重点", title:"条件+循环", body:"forward 不缩进在 if 里，所以每一步都会执行。只有 right 缩进在 if 里，只在 i==2 时才做。"}, ops:[{cmd:'forward',val:60},{cmd:'forward',val:60},{cmd:'forward',val:60},{cmd:'forward',val:60}]}
+    ],
+    breakSteps:["🔁 球员跑 6 步（循环）","🧍 第3步遇到防守 → 如果 i==2 就转弯（条件）","⚽ 每一步都前进 60"],
+    palette:["for i in range(6):","    if i == 2:","        right(90)","    forward(60)"],
+    check(path){
+      if(path.length < 20) return {ok:false, why:"too_short"};
+      const t = turns(path);
+      if(t===1) return {ok:true};
+      if(t===0) return {ok:false, why:"no_turn"};
+      return {ok:false, why:"too_many_turns"};
+    },
+    hints:[
+      "守门员怎么知道往哪边扑？程序也一样：要用 if 告诉它「什么情况做什么」。",
+      "i 是循环的计数器，第1步 i=0、第2步 i=1……遇到防守的是第3步，i 是几呢？",
+      "if i == 2: 后面要缩进写 right(90)。注意判断相等是两个等号 == 哦。"
+    ],
+    win:"太棒了！你让程序学会了「做决定」——遇到防守队员就转弯。if 是编程里最重要的招式之一！",
+    medal:"🧤 判断小门神",
+    homework:{
+      title:"⚽ 独立作业：突破两道防线",
+      text:"前方有两名防守队员！球员跑 8 步，第 3 步（i=2）和第 6 步（i=5）各遇到一名防守队员，都要变向过人。\n照着战术图，自己用两个 if 写出来！",
+      stepsHint:"拆解：两个防守队员分别在第几步？i 分别是几？第一次右转、第二次要转回来（左转）哦。",
+      emoji:"⚽",
+      diagram:{
+        route:[[0,0],[0,100],[150,100],[150,250]],
+        segLabels:[{at:[-30,50],text:"100步"},{at:[75,115],text:"150步"},{at:[180,175],text:"150步"}],
+        defenders:[[15,100],[165,100]],
+        goal:[150,290]
+      },
+      check(path){
+        if(path.length < 30) return {ok:false, why:"too_short"};
+        const t = turns(path);
+        if(t>=2) return {ok:true};
+        if(t===1) return {ok:false, why:"only_one_def"};
+        return {ok:false, why:"no_turn"};
+      },
+      win:"漂亮！你用两个 if 突破了两道防线，程序的判断力就是你给的！",
+      medal:"⚽ 突破之王"
+    }
+  },
+  {
+    name:"反应训练", emoji:"🏃", concept:"条件进阶", planet:"⚡",
+    desc:"if/else 非此即彼：单数步向左、双数步向右。",
+    title:"任务：左右反应训练",
+    text:"教练手势随机变，球员要快速反应：单数步向左带、双数步向右带。\n用 if/else 让程序「非此即彼」地做选择！",
+    concept_knowledge:{ title:"本关学：if / else", body:"else 是「否则」。if 和 else 像岔路口：要么走这条、要么走那条，不会都不走，也不会都走。", scratch:"💡 这就像 Scratch 的「如果…那么…否则」积木，就是 if/else！" },
+    demo:[
+      {code:"for i in range(6):", cap:"球员跑 6 步", k:{tag:"复习", title:"循环+计数器", body:"i 从 0 数到 5。i % 2 是「i 除以 2 的余数」：双数步余 0，单数步余 1。"}, ops:[]},
+      {code:"    if i % 2 == 0:\n        left(60)", cap:"如果 i 是双数（余数是0），就向左带", k:{tag:"新招式", title:"% 求余", body:"i % 2 == 0 是判断「i 是不是双数」的好办法：除以 2 余 0 就是双数。"}, ops:[{cmd:'left',val:60},{cmd:'forward',val:50}]},
+      {code:"    else:\n        right(60)\n    forward(50)", cap:"否则（单数步）就向右带。然后每步都前进", k:{tag:"新招式", title:"else 否则", body:"else 紧跟在 if 后面：条件不成立时做 else 里的事。双数向左、单数向右，球员就左右晃起来啦！"}, ops:[{cmd:'right',val:60},{cmd:'forward',val:50},{cmd:'left',val:60},{cmd:'forward',val:50},{cmd:'right',val:60},{cmd:'forward',val:50},{cmd:'left',val:60},{cmd:'forward',val:50},{cmd:'right',val:60},{cmd:'forward',val:50}]}
+    ],
+    breakSteps:["🔁 跑 6 步（循环）","👈 双数步(i%2==0)向左带（if）","👉 单数步(否则)向右带（else）","⚽ 每步前进 50"],
+    palette:["for i in range(6):","    if i % 2 == 0:","        left(60)","    else:","        right(60)","    forward(50)"],
+    check(path){
+      if(path.length < 20) return {ok:false, why:"too_short"};
+      const s = turnSigns(path);
+      if(s.pos>=1 && s.neg>=1 && (s.pos+s.neg)>=4) return {ok:true};
+      if((s.pos+s.neg)<2) return {ok:false, why:"too_few_turns"};
+      return {ok:false, why:"one_side_only"};
+    },
+    hints:[
+      "双数步和单数步动作不一样，要用 if 和 else 分开。",
+      "i % 2 == 0 能判断双数：除以2余0就是双数步。",
+      "else 后面也要加冒号，它要做的事也要缩进。"
+    ],
+    win:"太棒了！你用 if/else 让球员左右灵活变向，像真的在做反应训练！",
+    medal:"🏃 反应小猎豹",
+    homework:{
+      title:"⚽ 独立作业：哨声折返跑",
+      text:"教练吹哨！球员跑 8 步：前 4 步（i<4）向左带，后 4 步（否则）向右带，画出折返路线。\n自己用 if/else 写出来！",
+      stepsHint:"拆解：前一半 i 是几到几？用 i < 4 判断；后一半用 else。转弯角度可以试试 45 度。",
+      emoji:"⚽",
+      diagram:{
+        route:[[0,0],[-90,110],[0,220]],
+        segLabels:[{at:[-70,55],text:"前半向左"},{at:[-30,165],text:"后半向右"}],
+        goal:[0,260]
+      },
+      check(path){
+        if(path.length < 25) return {ok:false, why:"too_short"};
+        const s = turnSigns(path);
+        if(s.pos>=2 && s.neg>=2 && (s.pos+s.neg)>=5) return {ok:true};
+        return {ok:false, why:"one_side_only"};
+      },
+      win:"完美！你的折返跑又标准又漂亮，if/else 已经被你用得滚瓜烂熟！",
+      medal:"⚽ 折返小飞侠"
+    }
+  },
+  {
+    name:"记分牌", emoji:"📊", concept:"变量", planet:"🎯",
+    desc:"变量是会变的盒子：每次射门，力度都大一点。",
+    title:"任务：越来越有力",
+    text:"射门训练要逐步加力！做一个叫 x 的盒子装力度，每射一次门，盒子里的数就加一点。\n用变量让射门一次比一次有力！",
+    concept_knowledge:{ title:"本关学：变量（Variable）", body:"变量就是一个有名字的盒子，里面装着会变的数。x 是盒子的名字，你可以看它、换它。这是编程里最抽象也最强大的概念！", scratch:"💡 这就像 Scratch 的「变量」积木盒子！「将变量增加1」就是 x = x + 15。" },
+    demo:[
+      {code:"x = 20", cap:"先做一个叫 x 的盒子，装进 20（第一次射门的力度）", k:{tag:"新概念", title:"变量 = 盒子", body:"x = 20 的意思：做一个叫 x 的盒子，把 20 装进去。以后说 x，就是指盒子里的数。"}, ops:[]},
+      {code:"for i in range(4):\n    forward(x)", cap:"射 4 次门，每次用盒子里的 x 当力度", k:{tag:"重点", title:"用变量", body:"forward(x) 不写死数字，而是看盒子里现在装的是几。盒子变了，走得远近就跟着变。"}, ops:[{cmd:'forward',val:20}]},
+      {code:"    x = x + 15", cap:"每射一次，盒子里的数加 15——下一次射门更有力！", k:{tag:"关键", title:"变量会变", body:"x = x + 15 的意思：把 x 原来的值加 15，再存回盒子。只写 x + 15 不存回去，盒子里的数不会变哦！"}, ops:[{cmd:'forward',val:35},{cmd:'forward',val:50},{cmd:'forward',val:65}]}
+    ],
+    breakSteps:["📦 做个盒子 x，先装 20","🔁 射 4 次门（循环）","⚽ 每次用 x 当力度 forward(x)","📈 每次射完，x 加 15"],
+    palette:["x = 20","for i in range(4):","    forward(x)","    x = x + 15"],
+    check(path){
+      if(path.length < 16) return {ok:false, why:"too_short"};
+      if(segsIncreasing(path,4)) return {ok:true};
+      return {ok:false, why:"not_increasing"};
+    },
+    hints:[
+      "先做个盒子装第一次的力度：x = 20。",
+      "forward(x) 用盒子里的数；每次射完别忘了 x = x + 15 存回去。",
+      "如果只写 x + 15 没写 x = ，数就没存回盒子，力度不会变哦。"
+    ],
+    win:"你掌握了编程里最重要的概念——变量！盒子里的数会变，程序就有了「记性」。",
+    medal:"📊 变量小管家",
+    homework:{
+      title:"⚽ 独立作业：点球大战",
+      text:"点球大战开始！射 5 次门，第一次力度 15，每次增加 10，让球一次比一次飞得远。\n自己用变量写出来！",
+      stepsHint:"拆解：先 x = 15，循环 5 次，每次 forward(x)，然后 x = x + 10。",
+      emoji:"⚽",
+      diagram:{
+        route:[[0,0],[0,175]],
+        segLabels:[{at:[22,8],text:"15"},{at:[22,28],text:"25"},{at:[22,58],text:"35"},{at:[22,98],text:"45"},{at:[22,148],text:"55"}],
+        goal:[0,215]
+      },
+      check(path){
+        if(path.length < 20) return {ok:false, why:"too_short"};
+        if(segsIncreasing(path,5)) return {ok:true};
+        return {ok:false, why:"not_increasing"};
+      },
+      win:"五连射，一次比一次有力！你已经能熟练用变量控制程序啦！",
+      medal:"⚽ 点球射手王"
+    }
+  },
+  {
+    name:"足球进攻演练", emoji:"🏆", concept:"综合项目", planet:"⭐",
+    desc:"大任务：顺序+循环+嵌套+条件，设计一次完整进攻！",
+    title:"⭐ 大任务：设计一次进攻",
+    text:"",
+    project:true,
+    concept_knowledge:{ title:"大任务：综合用上全部招式", body:"这次没有演示、没有提示。你要把学过的顺序、循环、嵌套、条件全用上，自己拆解、自己完成一次漂亮的进攻！", scratch:"💡 这就是你在 Scratch 做「鸡生蛋」游戏时做的事：把大游戏拆成小场景。" },
+    homework:{
+      title:"⭐ 大任务：足球进攻演练",
+      text:"设计一次完整进攻：球员从中线出发，先带球向前，绕过大桩区的 3 个桩（想想循环/嵌套），遇到防守队员变向过人（想想 if），最后冲向球门射门！",
+      stepsHint:"先在上面「我的拆解」里写出 4 个模块（带球→绕桩→过人→射门），再逐个写成代码。可以重复 2 次进攻回合哦。",
+      emoji:"⚽",
+      diagram:{
+        route:[[0,0],[0,80],[-60,80],[-60,140],[60,140],[60,220]],
+        segLabels:[{at:[-25,40],text:"带球80"},{at:[-90,110],text:"绕桩"},{at:[60,180],text:"过人"}],
+        defenders:[[70,150]],
+        cones:[[-70,95],[-45,110],[-70,125]],
+        goal:[60,260]
+      },
+      check(path){
+        if(path.length < 40) return {ok:false, why:"too_short"};
+        const t = turns(path);
+        const end = path[path.length-1];
+        const nearGoal = dist(end, [60,220]) < 90;
+        if(t>=3 && nearGoal) return {ok:true};
+        if(t>=3) return {ok:false, why:"not_goal"};
+        return {ok:false, why:"too_simple"};
+      },
+      win:"不可思议的进球！你自己拆解、自己设计、自己完成了一次完整进攻——你已经是真正的足球指挥官兼小程序员了！",
+      medal:"🏆 进攻指挥官"
     }
   }
 ];
@@ -518,42 +710,215 @@ function turns(path){
   }
   return t;
 }
+/* 转弯方向统计：{pos:左转数, neg:右转数}（用于 if/else 关卡判定"两侧都有转向"） */
+function turnSigns(path){
+  let pos=0, neg=0;
+  for(let i=1;i<path.length-1;i++){
+    const a1=Math.atan2(path[i][1]-path[i-1][1], path[i][0]-path[i-1][0]);
+    const a2=Math.atan2(path[i+1][1]-path[i][1], path[i+1][0]-path[i][0]);
+    let d=a2-a1;
+    while(d>Math.PI) d-=2*Math.PI;
+    while(d<-Math.PI) d+=2*Math.PI;
+    if(d>0.3) pos++;
+    else if(d<-0.3) neg++;
+  }
+  return {pos, neg};
+}
+/* 路径均分 n 段，检查每段跨度是否递增（用于变量关卡"力度递增"判定） */
+function chunksIncreasing(path, n){
+  if(path.length < n*3) return false;
+  const size = Math.floor(path.length/n);
+  let prev = -1;
+  for(let c=0;c<n;c++){
+    const chunk = path.slice(c*size,(c+1)*size);
+    let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
+    chunk.forEach(p=>{ minX=Math.min(minX,p[0]); maxX=Math.max(maxX,p[0]); minY=Math.min(minY,p[1]); maxY=Math.max(maxY,p[1]); });
+    const span = Math.hypot(maxX-minX, maxY-minY);
+    if(span <= prev+1) return false;
+    prev = span;
+  }
+  return true;
+}
+/* 按 segMarks 求每条指令的真实分段长度（跳过近零长度的转向段） */
+function segLens(path){
+  const lens=[];
+  for(let k=0;k<segMarks.length;k++){
+    const a=segMarks[k], b=(k+1<segMarks.length ? segMarks[k+1] : path.length);
+    let len=0;
+    for(let i=a+1;i<b;i++) len+=dist(path[i-1],path[i]);
+    if(len>1) lens.push(len);
+  }
+  return lens;
+}
+/* 分段长度是否逐段递增（变量关卡判定） */
+function segsIncreasing(path, minSegs){
+  const lens = segLens(path);
+  if(lens.length < minSegs) return false;
+  for(let i=1;i<lens.length;i++){ if(lens[i] <= lens[i-1]*1.02) return false; }
+  return true;
+}
 
 /* =========================================================
    代码解析 + 逐行纠错
    ========================================================= */
+/* =========================================================
+   迷你解释器：把孩子的代码"执行"成动作队列
+   支持：forward/left/right(n或变量) · for i in range(n): · if/else · 变量(x=40, x=x+20) · % 求余 · 嵌套
+   ========================================================= */
 function compile(src){
-  const lines = src.split('\n');
-  const ops = []; let warn = null; let loopStack = null;
-  for(let n=0;n<lines.length;n++){
-    let raw = lines[n]; let line = raw.trim();
-    if(!line || line.startsWith('#')) continue;
-    let fixed = line.replace(/（/g,'(').replace(/）/g,')').replace(/：/g,':').replace(/，/g,',');
-    if(fixed !== line){ warn = warn || {line:n+1, text:`第 ${n+1} 行：我帮你把中文标点换成了英文标点。`}; line = fixed; }
-    let m = line.match(/^for\s+\w+\s+in\s+range\((\d+)\)\s*:?$/);
-    if(m){
-      if(!/:\s*$/.test(line)){ warn = warn || {line:n+1, text:`第 ${n+1} 行：循环后面要戴个小帽子（冒号 :），我帮你加上啦。`}; }
-      if(loopStack){ for(let k=0;k<loopStack.times;k++) ops.push(...loopStack.body); }
-      loopStack = { times: parseInt(m[1]), body: [], lineNo:n+1 };
-      continue;
+  const rawLines = src.split('\n');
+  let warn = null;
+  // 预处理：全角→半角（善意降级）
+  const list = rawLines.map((raw,idx)=>{
+    let text = raw.replace(/（/g,'(').replace(/）/g,')').replace(/：/g,':').replace(/，/g,',');
+    if(text !== raw && !warn){ warn = {line:idx+1, text:`第 ${idx+1} 行：我帮你把中文标点换成了英文标点。`}; }
+    const indent = (raw.match(/^(\s*)/)[1]||'').replace(/\t/g,'    ').length;
+    return { raw, text, indent, n: idx+1 };
+  });
+  const ops = [];
+  const vars = {};   // 变量盒子（编译期展开求值，语言是确定的）
+
+  /* 执行一块语句（同一缩进层级），返回 {error} 或 null */
+  function execBlock(block){
+    let i = 0;
+    while(i < block.length){
+      const item = block[i];
+      const line = item.text.trim();
+      if(!line || line.startsWith('#')){ i++; continue; }
+      const myIndent = item.indent;
+      // 收集本语句的缩进体（比当前行缩进更深的连续行）
+      function collectBody(from){
+        const body = [];
+        let j = from;
+        while(j < block.length && block[j].indent > myIndent){ body.push(block[j]); j++; }
+        return { body, next: j };
+      }
+
+      // ---- for 循环 ----
+      let m = line.match(/^for\s+([a-zA-Z_]\w*)\s+in\s+range\((\d+)\)\s*:?$/);
+      if(m){
+        if(!/:\s*$/.test(line) && !warn){ warn = {line:item.n, text:`第 ${item.n} 行：循环后面要戴个小帽子（冒号 :），我帮你加上啦。`}; }
+        const { body, next } = collectBody(i+1);
+        if(body.length===0) return { error:{ line:item.n, html:`🔍 第 ${item.n} 行：循环下面是空的哦。把要做的事<b>缩进</b>（空4格）写到 for 的下一行，装进循环里。` }};
+        const times = parseInt(m[2]), varName = m[1];
+        for(let k=0;k<times;k++){
+          vars[varName] = k;
+          const r = execBlock(body);
+          if(r && r.error) return r;
+        }
+        i = next;
+        continue;
+      }
+
+      // ---- if 条件 ----
+      m = line.match(/^if\s+(.+?)\s*:?$/);
+      if(m && !/^if\s*$/.test(line)){
+        const { body, next } = collectBody(i+1);
+        // 检查 else（与 if 同缩进、紧随其后）
+        let elseBody = null, afterElse = next;
+        if(next < block.length && block[next].indent === myIndent && /^else\s*:?\s*$/.test(block[next].text.trim())){
+          const r2 = (function(){
+            const elseLine = block[next];
+            const body2 = [];
+            let j = next+1;
+            while(j < block.length && block[j].indent > elseLine.indent){ body2.push(block[j]); j++; }
+            return { body2, next2: j };
+          })();
+          elseBody = r2.body2; afterElse = r2.next2;
+        }
+        const cond = evalCond(m[1], vars, item.n);
+        if(cond.error) return { error: cond.error };
+        if(cond.val){
+          if(body.length===0) return { error:{ line:item.n, html:`🔍 第 ${item.n} 行：if 下面是空的哦。把条件成立要做的事缩进写进去。` }};
+          const r = execBlock(body); if(r && r.error) return r;
+        } else if(elseBody){
+          const r = execBlock(elseBody); if(r && r.error) return r;
+        }
+        i = afterElse;
+        continue;
+      }
+
+      // ---- else 没有配对的 if ----
+      if(/^else\s*:?\s*$/.test(line)){
+        return { error:{ line:item.n, html:`🔍 第 ${item.n} 行：else 找不到它的 if 朋友哦。else 要紧紧跟在 if 的后面，而且和 if 对齐（缩进一样）。` }};
+      }
+
+      // ---- 变量赋值：x = 40 / x = x + 20 ----
+      m = line.match(/^([a-zA-Z_]\w*)\s*=\s*(.+)$/);
+      if(m && !/^==/.test(m[2])){
+        const val = evalExpr(m[2], vars, item.n);
+        if(val.error) return { error: val.error };
+        vars[m[1]] = val.val;
+        i++;
+        continue;
+      }
+
+      // ---- 普通指令 ----
+      const op = parseCmd(line, item.n, vars);
+      if(op.error) return { error: op.error };
+      ops.push(op);
+      i++;
     }
-    const op = parseCmd(line, n+1);
-    if(op.error) return { error: op.error };
-    if(loopStack){
-      const indented = /^(\s{2,}|\t)/.test(raw);
-      if(indented){ loopStack.body.push(op); continue; }
-      else { for(let k=0;k<loopStack.times;k++) ops.push(...loopStack.body); loopStack = null; ops.push(op); continue; }
-    }
-    ops.push(op);
+    return null;
   }
-  if(loopStack){ for(let k=0;k<loopStack.times;k++) ops.push(...loopStack.body); }
+
+  const err = execBlock(list);
+  if(err && err.error) return { error: err.error };
   return { ops, warn };
 }
-function parseCmd(line, lineNo){
+
+/* 条件求值：i == n / i < n / i > n / i % a == b（i 可换成任意变量） */
+function evalCond(condStr, vars, lineNo){
+  const show = `<span class="err-line">if ${escapeHtml(condStr)}</span>`;
+  // 单等号误用
+  if(/[^=!<>]=[^=]/.test(condStr)){
+    return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：${show}<br>判断"相等"要用<b>两个等号</b> <span class="err-fix">==</span> 哦！一个 = 是"装东西"（赋值），两个 == 才是"比一比"。` }};
+  }
   let m;
-  if(m = line.match(/^forward\((-?\d+)\)$/)) return {cmd:'forward', val:+m[1]};
-  if(m = line.match(/^left\((-?\d+)\)$/))   return {cmd:'left', val:+m[1]};
-  if(m = line.match(/^right\((-?\d+)\)$/))  return {cmd:'right', val:+m[1]};
+  // i % a == b
+  if(m = condStr.match(/^([a-zA-Z_]\w*)\s*%\s*(\d+)\s*==\s*(\d+)$/)){
+    const v = getVar(m[1], vars, lineNo); if(v.error) return v;
+    return { val: (v.val % parseInt(m[2])) === parseInt(m[3]) };
+  }
+  // x == n / x < n / x > n / x >= n / x <= n
+  if(m = condStr.match(/^([a-zA-Z_]\w*)\s*(==|<|>|>=|<=)\s*(-?\d+)$/)){
+    const v = getVar(m[1], vars, lineNo); if(v.error) return v;
+    const n = parseInt(m[3]);
+    const r = {'==':v.val===n,'<':v.val<n,'>':v.val>n,'>=':v.val>=n,'<=':v.val<=n}[m[2]];
+    return { val: r };
+  }
+  return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：${show}<br>这个条件我看不懂。目前会判断：<span class="err-fix">i == 2</span>、<span class="err-fix">i &lt; 3</span>、<span class="err-fix">i &gt; 3</span>、<span class="err-fix">i % 2 == 0</span> 这样的。` }};
+}
+
+/* 表达式求值：数字 / 变量 / a + b / a - b（操作数=数字或变量） */
+function evalExpr(expr, vars, lineNo){
+  expr = expr.trim();
+  const show = `<span class="err-line">${escapeHtml(expr)}</span>`;
+  if(/^-?\d+$/.test(expr)) return { val: parseInt(expr) };
+  if(/^([a-zA-Z_]\w*)$/.test(expr)) return getVar(expr, vars, lineNo);
+  let m = expr.match(/^(.+?)\s*([+-])\s*(.+)$/);
+  if(m){
+    const a = evalExpr(m[1], vars, lineNo); if(a.error) return a;
+    const b = evalExpr(m[3], vars, lineNo); if(b.error) return b;
+    return { val: m[2]==='+' ? a.val + b.val : a.val - b.val };
+  }
+  return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：${show}<br>我看不懂这个式子。目前会：<span class="err-fix">x = 40</span>、<span class="err-fix">x = x + 20</span> 这样的。` }};
+}
+
+/* 取变量（未声明则给专属提示） */
+function getVar(name, vars, lineNo){
+  if(name in vars) return { val: vars[name] };
+  return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：我不认识 <b>${escapeHtml(name)}</b> 这个盒子哦。<br>先用 <span class="err-fix">${escapeHtml(name)} = 数字</span> 做个盒子装个数，再用它。` }};
+}
+
+/* 普通指令解析（参数可为数字或变量） */
+function parseCmd(line, lineNo, vars){
+  let m;
+  if(m = line.match(/^(forward|left|right)\((-?\d+)\)$/)) return {cmd:m[1], val:+m[2]};
+  if(m = line.match(/^(forward|left|right)\(([a-zA-Z_]\w*)\)$/)){
+    const v = getVar(m[2], vars, lineNo); if(v.error) return v;
+    return {cmd:m[1], val:v.val};
+  }
   const show = `<span class="err-line">${escapeHtml(line)}</span>`;
   let sp = line.match(/^([a-z]+)\s*\(/i);
   const word = sp ? sp[1].toLowerCase() : line.split(/[\s(]/)[0];
@@ -562,11 +927,15 @@ function parseCmd(line, lineNo){
       return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行有个小笔误哦：${show}<br>我不认识 <b>${escapeHtml(word)}</b>。你是不是想写 <span class="err-fix">${k}</span>（${k==='forward'?'前进':k==='left'?'向左转':'向右转'}）？<br>对比拼写：<b>${k.split('').join('-')}</b>，检查你哪里打错啦。` }};
     }
   }
-  if(/^[a-z]+\(-?\d+$/.test(line)) return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：${show}<br>括号要成对出现哦，你这里少了右边的 <span class="err-fix">)</span>。在最后补上一个 <b>)</b> 就好啦。` }};
-  if(/^[a-z]+-?\d+\)$/.test(line)) return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：${show}<br>数字前面少了左边的 <span class="err-fix">(</span> 哦。应该是 <span class="err-fix">指令(数字)</span> 这样。` }};
-  if(/^[a-z]+\(\s*\)$/.test(line)) return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：${show}<br>括号里要填一个数字，告诉它走几步 / 转多少度。比如 <span class="err-fix">forward(100)</span>。` }};
-  return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：${show}<br>我看不懂 <b>${escapeHtml(word)}</b> 这个口令。<br>目前我只会：<span class="err-fix">forward(步数)</span>、<span class="err-fix">left(角度)</span>、<span class="err-fix">right(角度)</span>，还有 <span class="err-fix">for 循环</span>。` }};
+  if(/^[a-z]+\([^)]*$/.test(line)) return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：${show}<br>括号要成对出现哦，你这里少了右边的 <span class="err-fix">)</span>。在最后补上一个 <b>)</b> 就好啦。` }};
+  if(/^[a-z]+[^()]*\)$/.test(line) && !/^[a-z]+\(/.test(line)) return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：${show}<br>数字前面少了左边的 <span class="err-fix">(</span> 哦。应该是 <span class="err-fix">指令(数字)</span> 这样。` }};
+  if(/^[a-z]+\(\s*\)$/.test(line)) return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：${show}<br>括号里要填一个数字或变量，告诉它走几步 / 转多少度。比如 <span class="err-fix">forward(100)</span>。` }};
+  // 赋值写错：x == 20 或单独一个 x + 20
+  if(/^[a-zA-Z_]\w*\s*==/.test(line)) return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：${show}<br>== 是"比一比"（用在 if 里），想装东西要用一个 <span class="err-fix">=</span> 哦，比如 <span class="err-fix">x = 20</span>。` }};
+  if(/^[a-zA-Z_]\w*\s*[+-]/.test(line)) return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：${show}<br>算完要存回盒子里哦！应该写 <span class="err-fix">x = x + 20</span>，光写 <b>x + 20</b> 盒子里的数不会变。` }};
+  return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：${show}<br>我看不懂 <b>${escapeHtml(word)}</b> 这个口令。<br>目前我会：<span class="err-fix">forward(步数)</span>、<span class="err-fix">left(角度)</span>、<span class="err-fix">right(角度)</span>、<span class="err-fix">for 循环</span>、<span class="err-fix">if 条件</span>、<span class="err-fix">变量 x</span>。` }};
 }
+
 function lev(a,b){
   const dp=Array.from({length:a.length+1},(_,i)=>[i,...Array(b.length).fill(0)]);
   for(let j=0;j<=b.length;j++) dp[0][j]=j;
@@ -578,7 +947,7 @@ function lev(a,b){
 /* =========================================================
    运行与动画
    ========================================================= */
-function resetTurtle(){ T={x:0,y:0,a:90}; trail=[[0,0]]; }
+function resetTurtle(){ T={x:0,y:0,a:90}; trail=[[0,0]]; segMarks=[0]; }
 function clearPath(){ resetTurtle(); draw(); }
 function drawBg(){
   ctx.clearRect(0,0,cv.width,cv.height);
@@ -645,6 +1014,14 @@ function drawTacticsBoard(dg){
       ctx.fillStyle='#ffb3b3'; ctx.font='bold 12px "Microsoft YaHei"';
       ctx.fillText('防守', x, y+22);
       ctx.font='28px serif';
+    });
+  }
+  // 大桩（🔺）
+  if(dg.cones){
+    ctx.font='24px serif';
+    dg.cones.forEach(c=>{
+      const [x,y]=toPx(c[0],c[1]);
+      ctx.fillText('🔺', x, y);
     });
   }
   // 球门（🥅）+ 终点
@@ -714,6 +1091,7 @@ function playQueue(){
   function step(){
     if(!queue.length){ running=false; draw(); onRunEnd(); return; }
     const op = queue.shift();
+    segMarks.push(trail.length);   // 记录本条指令的起始位置（分段判定用）
     applyOp(op, ()=>{ draw(); animTimer=setTimeout(step, delay); }, delay);
   }
   step();
@@ -788,8 +1166,8 @@ function onHomeworkWin(){
   if(stuckCount>=2) medalText += " ＋ 🕵️ 不放弃勋章";
   if(!peeked) medalText += "<br>🌟 全程没偷看，全靠自己想！";
   document.getElementById('win-medal').innerHTML = medalText;
-  // 试玩模式：只有1关时，隐藏"完成本关/下一关"按钮
-  const hasNext = (curLevel < LEVELS.length-1) && (curLevel+1 < 1); // 1=试玩可见关数
+  // 有下一关才显示"下一关"按钮
+  const hasNext = curLevel < LEVELS.length-1;
   document.getElementById('win-next').style.display = hasNext?'':'none';
   document.getElementById('win-mask').classList.remove('hidden');
   burstStars();
@@ -1010,6 +1388,7 @@ function startImitate(){
   // 显示参照步骤条（他刚才排好的中文步骤，A方案：只显示中文，让他自己翻译成代码）
   const rs=document.getElementById('ref-steps');
   rs.classList.remove('hidden');
+  document.getElementById('plan-zone').classList.add('hidden');
   document.getElementById('ref-steps-list').innerHTML = lv.breakSteps.map((s,i)=>
     `<div class="rs-step"><span class="rs-num">${i+1}</span><span>${escapeHtml(s)}</span></div>`
   ).join('');
@@ -1047,8 +1426,9 @@ function startHomework(){
   document.getElementById('m-emoji').textContent=hw.emoji;
   document.getElementById('m-title').textContent=hw.title;
   document.getElementById('m-text').textContent=hw.text+"\n\n💪 "+hw.stepsHint;
-  // 独立作业：隐藏参照步骤条（这次要自己想、自己拆解）
+  // 独立作业：隐藏参照步骤条和计划区（这次要自己想、自己拆解）
   document.getElementById('ref-steps').classList.add('hidden');
+  document.getElementById('plan-zone').classList.add('hidden');
   document.getElementById('editor').value='';
   document.getElementById('peek-tip').classList.add('hidden');
   resetTurtle(); draw(); hideErr();
@@ -1085,9 +1465,17 @@ function insertCmd(cmd){
 
 /* ---------- 步骤指示条 ---------- */
 function updateStepbar(){
-  const steps=[['demo','👀 看演示'],['break','🧩 拆解'],['imitate','⌨️ 模仿写'],['homework','⚽ 独立作业']];
-  const order=['demo','break','imitate','homework'];
-  const cur=order.indexOf(phase);
+  const lv = LEVELS[curLevel];
+  let steps, cur;
+  if(lv && lv.project){
+    // 大任务模式：简报→拆解→实现
+    steps=[['brief','📋 任务简报'],['plan','🧠 自主拆解'],['code','⌨️ 写代码实现']];
+    cur=2;
+  } else {
+    steps=[['demo','👀 看演示'],['break','🧩 拆解'],['imitate','⌨️ 模仿写'],['homework','⚽ 独立作业']];
+    const order=['demo','break','imitate','homework'];
+    cur=order.indexOf(phase);
+  }
   document.getElementById('stepbar').innerHTML = steps.map(([k,label],i)=>{
     const cls = i<cur?'done':(i===cur?'cur':'');
     return `<span class="step-dot ${cls}">${label}</span>`;
@@ -1101,9 +1489,7 @@ function persist(){ localStorage.setItem('bh_py', JSON.stringify(save)); }
 
 function buildMap(){
   const wrap=document.getElementById('levels'); wrap.innerHTML='';
-  // 试玩模式：只显示第1关，其余隐藏（LEVELS_VISIBLE 控制）
-  const VISIBLE = 1; // 只放第1关给包涵试玩
-  LEVELS.slice(0, VISIBLE).forEach((lv,i)=>{
+  LEVELS.forEach((lv,i)=>{
     const unlocked = i===0 || save.progress[i-1];
     const done = save.progress[i];
     const card=document.createElement('div');
@@ -1129,6 +1515,31 @@ function openLevel(i){
   document.getElementById('map').classList.add('hidden');
   document.getElementById('stage').classList.remove('hidden');
   document.getElementById('lv-label').textContent=`第${i+1}关 · ${lv.concept}`;
+  document.getElementById('editor').value='';
+  document.getElementById('btn-check').disabled=true;
+
+  // ===== 大任务模式：跳过演示/拆解，直接进"自主拆解+实现"工作区 =====
+  if(lv.project){
+    const hw=lv.homework;
+    phase='homework'; isHomework=true;
+    document.getElementById('demo-panel').classList.add('hidden');
+    document.getElementById('break-panel').classList.add('hidden');
+    document.getElementById('work-wrap').classList.remove('hidden');
+    document.getElementById('work-title').textContent='⭐ 大任务：全靠你自己（先拆解，再实现）';
+    document.getElementById('m-emoji').textContent=hw.emoji;
+    document.getElementById('m-title').textContent=hw.title;
+    document.getElementById('m-text').textContent=hw.text+"\n\n💪 "+hw.stepsHint;
+    document.getElementById('ref-steps').classList.add('hidden');
+    document.getElementById('plan-zone').classList.remove('hidden');
+    document.getElementById('palette').classList.add('hidden');
+    updateStepbar();
+    resetTurtle(); draw(); coachReset(); hideErr();
+    coachThink(`⭐ 终于到大任务啦！这次把你学过的全部招式（顺序、循环、嵌套、条件）都用上。\n先在「我的拆解」里把大任务写成几个小模块，再一个一个写成代码。看右边的战术图，全靠你自己！`);
+    window.scrollTo({top:0,behavior:'smooth'});
+    return;
+  }
+
+  // ===== 普通关卡 =====
   document.getElementById('m-emoji').textContent=lv.emoji;
   document.getElementById('m-title').textContent=lv.title;
   document.getElementById('m-text').textContent=lv.text;
@@ -1136,8 +1547,7 @@ function openLevel(i){
   document.getElementById('demo-panel').classList.remove('hidden');
   document.getElementById('break-panel').classList.add('hidden');
   document.getElementById('work-wrap').classList.add('hidden');
-  document.getElementById('editor').value='';
-  document.getElementById('btn-check').disabled=true;
+  document.getElementById('plan-zone').classList.add('hidden');
   updateStepbar();
   resetTurtle(); draw(); coachReset(); hideErr();
   renderDemoStatic();
