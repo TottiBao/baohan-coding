@@ -31,7 +31,8 @@
   .level-card .info .concept{ display:inline-block; margin-top:4px; font-size:12px; background:#2a3a7a; padding:2px 10px; border-radius:10px; color:#bcd0ff; }
   .level-card .info .desc{ font-size:13px; color:#9fb0e0; margin-top:5px; }
   .level-card .badge{ font-size:24px; }
-  .level-card.locked{ opacity:.4; cursor:not-allowed; }
+  .level-card.locked{ opacity:.45; cursor:pointer; }
+  .level-card.locked:hover{ opacity:.6; border-color:rgba(255,214,107,.5); }
   .level-card.done{ border-color:#4ade80; }
 
   #stage{ display:flex; flex-direction:column; gap:12px; }
@@ -157,6 +158,19 @@
   .plan-input:focus{ border-color:#ffd66b; }
   .plan-input::placeholder{ color:#46538c; }
 
+  /* 口令解锁弹窗 */
+  #unlock-mask{ position:fixed; inset:0; background:rgba(5,8,25,.85); display:flex; align-items:center; justify-content:center; z-index:85; padding:16px; }
+  #unlock-card{ background:linear-gradient(160deg,#1c2a63,#0f1638); border:2px solid #ffd66b; border-radius:22px; padding:28px 32px; text-align:center; max-width:400px; width:100%; box-shadow:0 0 50px rgba(255,214,107,.3); animation:pop .35s cubic-bezier(.2,1.6,.4,1); }
+  #unlock-card .u-emoji{ font-size:56px; }
+  #unlock-card h2{ color:#ffe9ad; font-size:20px; margin:10px 0 6px; }
+  #unlock-card .u-sub{ color:#c9d6ff; font-size:14px; line-height:1.6; margin-bottom:16px; }
+  #unlock-input{ width:100%; background:#0d1330; border:2px solid rgba(255,214,107,.5); border-radius:12px; color:#ffe9ad; font-size:18px; padding:12px 14px; text-align:center; outline:none; font-family:inherit; letter-spacing:2px; }
+  #unlock-input:focus{ border-color:#ffd66b; box-shadow:0 0 0 3px rgba(255,214,107,.2); }
+  #unlock-err{ color:#ff9b9b; font-size:13px; margin-top:8px; min-height:18px; }
+  #unlock-card .btn-row{ display:flex; gap:10px; justify-content:center; margin-top:14px; }
+  #unlock-card.shake{ animation:ushake .35s; }
+  @keyframes ushake{ 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)} }
+
   /* 教练 */
   #coach{ display:flex; gap:12px; background:rgba(120,180,255,.08); border:1px solid rgba(120,180,255,.3); border-radius:16px; padding:13px 16px; min-height:70px; align-items:flex-start; }
   #coach .avatar{ font-size:36px; animation:bob 2.4s ease-in-out infinite; }
@@ -196,12 +210,32 @@
     <div style="background:linear-gradient(160deg,#16204e,#0d1330);border:2px solid #6ea8ff;border-radius:20px;max-width:600px;width:100%;padding:22px;max-height:88vh;overflow:auto;">
       <h2 style="color:#cfe1ff;font-size:20px;text-align:center;margin-bottom:4px;">📊 包涵的学习报告</h2>
       <div style="text-align:center;color:#8ea0d8;font-size:13px;margin-bottom:14px;">点下方「一键复制」，粘贴发给 AI 教练即可分析调整</div>
-      <textarea id="report-text" readonly style="width:100%;height:340px;background:#0d1330;color:#d8e6ff;border:1px solid rgba(140,170,255,.3);border-radius:12px;padding:14px;font-family:Consolas,monospace;font-size:13px;line-height:1.7;resize:none;"></textarea>
+      <textarea id="report-text" readonly style="width:100%;height:300px;background:#0d1330;color:#d8e6ff;border:1px solid rgba(140,170,255,.3);border-radius:12px;padding:14px;font-family:Consolas,monospace;font-size:13px;line-height:1.7;resize:none;"></textarea>
+      <!-- 家长口令本（默认折叠） -->
+      <div style="margin-top:12px;text-align:center;">
+        <button class="btn btn-ghost btn-small" onclick="toggleCodeBook()">🔑 家长口令本（点开/收起）</button>
+        <div id="codebook" class="hidden" style="margin-top:10px;background:rgba(255,214,107,.08);border:1px solid rgba(255,214,107,.35);border-radius:12px;padding:12px 16px;text-align:left;font-size:14px;line-height:2;color:#eaf0ff;"></div>
+      </div>
       <div style="display:flex;gap:10px;justify-content:center;margin-top:14px;">
         <button class="btn btn-run" onclick="copyReport()">📋 一键复制</button>
         <button class="btn btn-ghost" onclick="document.getElementById('report-mask').classList.add('hidden')">关闭</button>
       </div>
       <div id="copy-ok" style="text-align:center;color:#4ade80;font-size:13px;margin-top:8px;display:none;">✓ 已复制！去粘贴发给 AI 教练吧</div>
+    </div>
+  </div>
+
+  <!-- 口令解锁弹窗 -->
+  <div id="unlock-mask" class="hidden">
+    <div id="unlock-card">
+      <div class="u-emoji">🔒</div>
+      <h2 id="unlock-title">这一关还锁着</h2>
+      <div class="u-sub">输入爸爸给的<b>口令</b>就能解锁！<br>（不知道口令？去完成上一关，然后找爸爸要～）</div>
+      <input id="unlock-input" placeholder="输入口令……" maxlength="12">
+      <div id="unlock-err"></div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="closeUnlock()">取消</button>
+        <button class="btn btn-check" onclick="tryUnlock()">解锁 ⚽</button>
+      </div>
     </div>
   </div>
 
@@ -324,7 +358,7 @@
     </div>
   </div>
 
-  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.5（暑期全7关）</footer>
+  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.6（口令解锁版）</footer>
 </div>
 
 <script>
@@ -1484,13 +1518,66 @@ function updateStepbar(){
 
 /* ---------- 关卡/地图管理 ---------- */
 const save = load();
-function load(){ try{ return JSON.parse(localStorage.getItem('bh_py')||'{"progress":{}}'); }catch(e){ return {progress:{}}; } }
+function load(){
+  try{
+    const s = JSON.parse(localStorage.getItem('bh_py')||'{}');
+    return { progress: s.progress||{}, unlocked: s.unlocked||{0:true} };
+  }catch(e){ return { progress:{}, unlocked:{0:true} }; }
+}
 function persist(){ localStorage.setItem('bh_py', JSON.stringify(save)); }
+
+/* ---------- 口令解锁 ---------- */
+const UNLOCK_CODES = {
+  1:"足球加油",      // 第2关 · 正方形轨道
+  2:"花朵绽放",      // 第3关 · 螺旋花园
+  3:"我是守门员",    // 第4关 · 守门员的判断
+  4:"反应超快",      // 第5关 · 反应训练
+  5:"百发百中",      // 第6关 · 记分牌
+  6:"冠军之心"       // 第7关 · 大任务
+};
+let pendingUnlock = -1;
+function openUnlock(i){
+  pendingUnlock = i;
+  document.getElementById('unlock-title').textContent = `第${i+1}关 · ${LEVELS[i].name} 还锁着`;
+  document.getElementById('unlock-input').value = '';
+  document.getElementById('unlock-err').textContent = '';
+  document.getElementById('unlock-mask').classList.remove('hidden');
+  setTimeout(()=>document.getElementById('unlock-input').focus(), 100);
+}
+function closeUnlock(){ document.getElementById('unlock-mask').classList.add('hidden'); pendingUnlock=-1; }
+function tryUnlock(){
+  const val = document.getElementById('unlock-input').value.trim().replace(/\s+/g,'');
+  if(val && val === UNLOCK_CODES[pendingUnlock]){
+    save.unlocked[pendingUnlock] = true; persist();
+    const idx = pendingUnlock;
+    closeUnlock();
+    coachGood(`🎉 口令正确！「${LEVELS[idx].name}」解锁啦，去挑战吧！`);
+    openLevel(idx);
+  } else {
+    document.getElementById('unlock-err').textContent = '口令不对哦～ 去问爸爸要正确的口令吧！';
+    const card = document.getElementById('unlock-card');
+    card.classList.add('shake');
+    setTimeout(()=>card.classList.remove('shake'), 400);
+  }
+}
+// 回车提交口令
+document.addEventListener('DOMContentLoaded', ()=>{
+  document.getElementById('unlock-input').addEventListener('keydown', e=>{ if(e.key==='Enter') tryUnlock(); });
+});
+// 家长口令本
+function toggleCodeBook(){
+  const cb = document.getElementById('codebook');
+  if(cb.classList.contains('hidden')){
+    cb.innerHTML = '🔑 <b>家长口令本</b>（包涵要解锁哪关，就告诉他对应口令）：<br>' +
+      Object.keys(UNLOCK_CODES).map(i=>`&nbsp;&nbsp;第${+i+1}关 · ${LEVELS[i].name} → <b style="color:#ffe9ad">${UNLOCK_CODES[i]}</b>`).join('<br>');
+  }
+  cb.classList.toggle('hidden');
+}
 
 function buildMap(){
   const wrap=document.getElementById('levels'); wrap.innerHTML='';
   LEVELS.forEach((lv,i)=>{
-    const unlocked = i===0 || save.progress[i-1];
+    const unlocked = !!save.unlocked[i];
     const done = save.progress[i];
     const card=document.createElement('div');
     card.className='level-card'+(done?' done':'')+(!unlocked?' locked':'');
@@ -1499,10 +1586,11 @@ function buildMap(){
       <div class="info">
         <div class="name">第${i+1}关 · ${lv.name}</div>
         <span class="concept">${lv.concept}</span>
-        <div class="desc">${unlocked?lv.desc:'🔒 先通过上一关来解锁'}</div>
+        <div class="desc">${unlocked?lv.desc:'🔒 输入口令解锁（找爸爸要）'}</div>
       </div>
       <div class="badge">${done?'🏅':unlocked?'▶':'🔒'}</div>`;
     if(unlocked) card.onclick=()=>openLevel(i);
+    else card.onclick=()=>openUnlock(i);
     wrap.appendChild(card);
   });
 }
