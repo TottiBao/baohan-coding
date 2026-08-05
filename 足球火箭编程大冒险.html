@@ -100,6 +100,22 @@
   #knowledge .k-formula .fk{ color:#ffd66b; font-weight:bold; }
   #knowledge .k-formula .fc{ color:#7d8cc4; }
 
+  /* ===== 第0步：知识点常驻面板 ===== */
+  #knowledge-panel{ background:linear-gradient(160deg,rgba(110,168,255,.1),rgba(110,168,255,.03)); border:2px solid rgba(110,168,255,.45); border-radius:16px; overflow:hidden; }
+  #knowledge-panel .kp-head{ display:flex; justify-content:space-between; align-items:center; padding:11px 15px; cursor:pointer; user-select:none; }
+  #knowledge-panel .kp-title{ font-size:15px; font-weight:bold; color:#cfe1ff; letter-spacing:1px; }
+  #knowledge-panel #kp-toggle{ background:none; border:1px solid rgba(140,170,255,.4); color:#9fb0e0; font-size:12px; border-radius:8px; padding:4px 10px; cursor:pointer; }
+  #knowledge-panel #kp-toggle:hover{ color:#cfe1ff; border-color:#6ea8ff; }
+  #knowledge-panel #kp-body{ display:grid; grid-template-columns:1fr 1fr; gap:14px; padding:0 15px 14px; align-items:start; }
+  @media (max-width:900px){ #knowledge-panel #kp-body{ grid-template-columns:1fr; } }
+  #knowledge-panel #kp-body.collapsed{ display:none; }
+  #knowledge-panel .kp-k-title{ font-size:17px; font-weight:bold; color:#ffe9ad; margin-bottom:6px; }
+  #knowledge-panel .kp-k-body{ font-size:15px; color:#eef2ff; line-height:1.7; }
+  #knowledge-panel .kp-k-scratch{ margin-top:9px; font-size:13px; color:#9fd8ff; background:rgba(80,140,255,.12); padding:7px 10px; border-radius:9px; line-height:1.5; }
+  #knowledge-panel .kp-formula{ background:#0a0f2c; border:1px solid rgba(255,214,107,.45); border-radius:11px; padding:12px 14px; font-family:"Consolas",monospace; font-size:16px; line-height:1.85; color:#d8e6ff; white-space:pre; overflow-x:auto; }
+  #knowledge-panel .kp-formula .fk{ color:#ffd66b; font-weight:bold; }
+  #knowledge-panel .kp-formula .fc{ color:#7d8cc4; }
+
   /* ===== 拆解环节 ===== */
   #break-panel{ background:rgba(74,222,128,.06); border:2px solid rgba(74,222,128,.3); border-radius:18px; padding:16px; }
   #break-panel .bp-title{ font-size:15px; color:#b7f7cf; font-weight:bold; margin-bottom:6px; }
@@ -264,6 +280,22 @@
       <div id="lv-label" style="color:#8ea0d8; font-size:14px;"></div>
     </div>
 
+    <!-- 第0步：知识点（常驻上方，任何环节都能复看） -->
+    <div id="knowledge-panel">
+      <div class="kp-head">
+        <div class="kp-title">📖 第 0 步 · 本关知识点（随时回来看）</div>
+        <button id="kp-toggle" onclick="toggleKnowledgePanel()">收起 ▲</button>
+      </div>
+      <div id="kp-body">
+        <div class="kp-main">
+          <div class="kp-k-title" id="kp-k-title"></div>
+          <div class="kp-k-body" id="kp-k-body"></div>
+          <div class="kp-k-scratch hidden" id="kp-k-scratch"></div>
+        </div>
+        <div class="kp-formula hidden" id="kp-formula"></div>
+      </div>
+    </div>
+
     <!-- 任务卡 -->
     <div id="mission">
       <div class="m-emoji" id="m-emoji">🚀</div>
@@ -375,7 +407,7 @@
     </div>
   </div>
 
-  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.7.1（第3关修复+公式卡）</footer>
+  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.8（第0步知识点常驻+全12关公式卡）</footer>
 </div>
 
 <script>
@@ -1905,6 +1937,46 @@ function insertCmd(cmd){
   ed.selectionStart = ed.selectionEnd = pos + ins.length;
 }
 
+/* ---------- 第0步：知识点常驻面板 ---------- */
+// 各关公式卡（集中存放，按关卡索引查表，避免数据里嵌字符串）
+const LEVEL_FORMULAS = {
+  0:'forward(100)   <span class="fc">← 第 1 步</span>\nright(90)      <span class="fc">← 第 2 步</span>\nforward(80)    <span class="fc">← 第 3 步</span>\n<span class="fk">从上往下，一步一步来！</span>',
+  1:'<span class="fk">for</span> i <span class="fk">in</span> range(4):  <span class="fc">← 重复 4 次</span>\n    forward(100)   <span class="fc">← 缩进的才会被重复</span>\n    right(90)',
+  3:'<span class="fk">if</span> i == 2:     <span class="fc">← 如果 i 是 2</span>\n    right(90)    <span class="fc">← 成立才做（缩进）</span>\n               <span class="fc">← 不成立就跳过</span>',
+  4:'<span class="fk">if</span> i % 2 == 0:  <span class="fc">← 如果是双数步</span>\n    left(60)     <span class="fc">← 向左</span>\n<span class="fk">else</span>:           <span class="fc">← 否则（单数步）</span>\n    right(60)    <span class="fc">← 向右</span>',
+  5:'x = 20        <span class="fc">← 做个盒子装 20</span>\nforward(x)    <span class="fc">← 用盒子里的数</span>\nx = x + 15    <span class="fc">← 加 15 存回去</span>',
+  6:'<span class="fk">顺序 → 循环 → 嵌套 → 条件</span>\n<span class="fc">全部用上，自己组合出一次进攻！</span>',
+  7:'<span class="fk">def</span> guoren():   <span class="fc">← 做个工具</span>\n    forward(50)  <span class="fc">← 装进去的动作（缩进）</span>\nguoren()        <span class="fc">← 说一声，用一次</span>',
+  8:'<span class="fk">def</span> chongci():  <span class="fc">← 工具1：冲刺</span>\n<span class="fk">def</span> guoren():    <span class="fc">← 工具2：过人</span>\nchongci()  guoren()   <span class="fc">← 组合起来用</span>',
+  9:'colors = ["red", "blue", "green"]\npencolor(colors[i % 3])  <span class="fc">← 取第 i 个颜色</span>',
+  10:'score = score + 1   <span class="fc">← 先算好</span>\nprint(score)        <span class="fc">← 喊出来（变量不用引号）</span>\nprint("进球啦")     <span class="fc">← 文字要引号</span>',
+  11:'<span class="fk">def + 列表 + 变量 + print</span>\n<span class="fc">全部用上，办一场太空足球赛！</span>'
+};
+function fillKnowledgePanel(lv){
+  const ck = lv.concept_knowledge;
+  if(!ck){ document.getElementById('knowledge-panel').classList.add('hidden'); return; }
+  document.getElementById('knowledge-panel').classList.remove('hidden');
+  document.getElementById('kp-k-title').textContent = ck.title || '';
+  document.getElementById('kp-k-body').textContent = ck.body || '';
+  const kf = document.getElementById('kp-formula');
+  // 公式卡：优先用关卡自带的 concept_knowledge.formula（如第3关），否则查 LEVEL_FORMULAS 表
+  const formula = ck.formula || LEVEL_FORMULAS[curLevel];
+  if(formula){ kf.innerHTML = formula; kf.classList.remove('hidden'); }
+  else { kf.classList.add('hidden'); }
+  const ks = document.getElementById('kp-k-scratch');
+  if(ck.scratch){ ks.textContent = ck.scratch; ks.classList.remove('hidden'); }
+  else { ks.classList.add('hidden'); }
+  // 每次进关默认展开
+  document.getElementById('kp-body').classList.remove('collapsed');
+  document.getElementById('kp-toggle').textContent = '收起 ▲';
+}
+function toggleKnowledgePanel(){
+  const body = document.getElementById('kp-body');
+  const tog = document.getElementById('kp-toggle');
+  body.classList.toggle('collapsed');
+  tog.textContent = body.classList.contains('collapsed') ? '展开 ▼' : '收起 ▲';
+}
+
 /* ---------- 步骤指示条 ---------- */
 function updateStepbar(){
   const lv = LEVELS[curLevel];
@@ -2018,6 +2090,8 @@ function openLevel(i){
   document.getElementById('lv-label').textContent=`第${i+1}关 · ${lv.concept}`;
   document.getElementById('editor').value='';
   document.getElementById('btn-check').disabled=true;
+  // 第0步：填充知识点常驻面板（任何环节都能看）
+  fillKnowledgePanel(lv);
 
   // ===== 大任务模式：跳过演示/拆解，直接进"自主拆解+实现"工作区 =====
   if(lv.project){
