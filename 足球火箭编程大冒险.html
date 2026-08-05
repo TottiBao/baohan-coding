@@ -95,6 +95,10 @@
   #knowledge .k-title{ font-size:17px; font-weight:bold; color:#ffe9ad; margin-bottom:6px; }
   #knowledge .k-body{ font-size:14px; color:#f2f0e6; line-height:1.65; }
   #knowledge .k-scratch{ margin-top:9px; font-size:12.5px; color:#9fd8ff; background:rgba(80,140,255,.12); padding:7px 10px; border-radius:9px; line-height:1.5; }
+  /* 公式卡：把新语法公式直观展示 */
+  #knowledge .k-formula{ margin-top:9px; background:#0a0f2c; border:1px solid rgba(255,214,107,.4); border-radius:9px; padding:9px 11px; font-family:"Consolas",monospace; font-size:14px; line-height:1.75; color:#d8e6ff; white-space:pre; overflow-x:auto; }
+  #knowledge .k-formula .fk{ color:#ffd66b; font-weight:bold; }
+  #knowledge .k-formula .fc{ color:#7d8cc4; }
 
   /* ===== 拆解环节 ===== */
   #break-panel{ background:rgba(74,222,128,.06); border:2px solid rgba(74,222,128,.3); border-radius:18px; padding:16px; }
@@ -282,6 +286,7 @@
           <div class="k-tag" id="k-tag">知识点</div>
           <div class="k-title" id="k-title"></div>
           <div class="k-body" id="k-body"></div>
+          <div class="k-formula hidden" id="k-formula"></div>
           <div class="k-scratch hidden" id="k-scratch"></div>
         </div>
       </div>
@@ -370,7 +375,7 @@
     </div>
   </div>
 
-  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.7（暑期+秋季全12关）</footer>
+  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.7.1（第3关修复+公式卡）</footer>
 </div>
 
 <script>
@@ -532,11 +537,16 @@ const LEVELS = [
     desc:"循环里套循环：外层画几个，内层画一个，画出旋转花朵。",
     title:"任务：画一朵螺旋花",
     text:"大圈套小圈：外层循环管「画几个正方形」，内层循环管「画一个正方形」。\n两层循环套起来，就能画出旋转的花朵！",
-    concept_knowledge:{ title:"本关学：嵌套循环", body:"大圈（外层）每走 1 步，小圈（内层）要完整跑 1 圈。就像：每一节课（外），都要做一整套绕桩（内）。", scratch:"💡 这就像 Scratch 里把「重复4次」装进「重复4次」里面——里面那层跑完一圈，外面那层才走一步。" },
+    concept_knowledge:{
+      title:"本关学：嵌套循环（循环里套循环）",
+      body:"外层管「画几个」，内层管「画一个」。就像：每一天（外层），都要刷 4 次牙（内层）——内层的事全部做完，外层的这一天才算过完。",
+      formula:'<span class="fk">for</span> j <span class="fk">in</span> range(4):    <span class="fc">← 外层：画 4 个</span>\n    <span class="fk">for</span> i <span class="fk">in</span> range(4):  <span class="fc">← 内层：画 1 个</span>\n        forward(60)\n        right(90)\n    right(90)            <span class="fc">← 画完1个，外层转身</span>',
+      scratch:"💡 这就像 Scratch 里把「重复4次」装进「重复4次」里面——里面那层跑完一圈，外面那层才走一步。"
+    },
     demo:[
-      {code:"for j in range(4):", cap:"外层循环：要画 4 个正方形", k:{tag:"新招式", title:"嵌套循环", body:"for j 是外层，管「画几个」。外层每走一步，里面会发生一整套事情。"}, ops:[]},
-      {code:"    for i in range(4):\n        forward(60)\n        right(90)", cap:"内层循环：画一个正方形（注意缩进了两次，装进外层里）", k:{tag:"重点", title:"两层缩进", body:"内层 for 和它身体都缩进在外层里。电脑先把内层的 4 条边画完，外层才走下一步。"}, ops:[{cmd:'forward',val:60},{cmd:'right',val:90},{cmd:'forward',val:60},{cmd:'right',val:90},{cmd:'forward',val:60},{cmd:'right',val:90},{cmd:'forward',val:60},{cmd:'right',val:90}]},
-      {code:"    right(90)", cap:"画完一个正方形后，外层转 90 度，再画下一个——花朵出现啦！", k:{tag:"哇", title:"花纹诞生", body:"外层每转一个角度，内层就画一个新正方形。4 次之后，就变成旋转的花朵！"}, ops:[{cmd:'right',val:90},{cmd:'forward',val:60},{cmd:'right',val:90},{cmd:'forward',val:60},{cmd:'right',val:90},{cmd:'forward',val:60},{cmd:'right',val:90},{cmd:'forward',val:60},{cmd:'right',val:90},{cmd:'right',val:90},{cmd:'forward',val:60},{cmd:'right',val:90},{cmd:'forward',val:60},{cmd:'right',val:90},{cmd:'forward',val:60},{cmd:'right',val:90},{cmd:'forward',val:60},{cmd:'right',val:90},{cmd:'right',val:90},{cmd:'forward',val:60},{cmd:'right',val:90},{cmd:'forward',val:60},{cmd:'right',val:90},{cmd:'forward',val:60},{cmd:'right',val:90},{cmd:'forward',val:60},{cmd:'right',val:90},{cmd:'right',val:90}]}
+      {code:"for j in range(4):", cap:"外层循环：管「画几个正方形」", k:{tag:"新招式", title:"外层 = 画几个", body:"for j 是外层。你把它想成「每一天」：这一天要做的事，都装在里面。range(4) 就是 4 天，画 4 个正方形。"}, ops:[]},
+      {code:"    for i in range(4):\n        forward(60)\n        right(90)", cap:"内层循环：管「画一个正方形」（缩进两层，装进外层里）", k:{tag:"重点", title:"内层 = 画一个", body:"内层 for 管「画一个正方形」。就像每天（外层）都要刷 4 次牙（内层）：内层的 4 条边全部画完，外层的这一天才算过完。注意它缩进了两层，表示装在外层里面。"}, ops:[{cmd:'forward',val:60},{cmd:'right',val:90},{cmd:'forward',val:60},{cmd:'right',val:90},{cmd:'forward',val:60},{cmd:'right',val:90},{cmd:'forward',val:60},{cmd:'right',val:90}]},
+      {code:"    right(90)", cap:"画完一个，外层转个身，再画下一个——花朵出现啦！", k:{tag:"哇", title:"花纹诞生", body:"画完一个正方形，外层转个身（90度），内层再画一个新的。就像每天刷完牙，第二天换个方向继续。4 次之后，就变成旋转的花朵！"}, ops:[{cmd:'right',val:90},{cmd:'forward',val:60},{cmd:'right',val:90},{cmd:'forward',val:60},{cmd:'right',val:90},{cmd:'forward',val:60},{cmd:'right',val:90},{cmd:'forward',val:60},{cmd:'right',val:90},{cmd:'right',val:90},{cmd:'forward',val:60},{cmd:'right',val:90},{cmd:'forward',val:60},{cmd:'right',val:90},{cmd:'forward',val:60},{cmd:'right',val:90},{cmd:'forward',val:60},{cmd:'right',val:90},{cmd:'right',val:90},{cmd:'forward',val:60},{cmd:'right',val:90},{cmd:'forward',val:60},{cmd:'right',val:90},{cmd:'forward',val:60},{cmd:'right',val:90},{cmd:'forward',val:60},{cmd:'right',val:90},{cmd:'right',val:90}]}
     ],
     breakSteps:["🔁 外层：重复 4 次（画 4 个正方形）","🔁 内层：每次画 1 个正方形（重复 4 次 前进+转弯）","↩️ 画完一个，外层转 90 度"],
     palette:["for j in range(4):","    for i in range(4):","        forward(60)","        right(90)","    right(90)"],
@@ -561,7 +571,7 @@ const LEVELS = [
       emoji:"⚽",
       diagram:{
         route:[[40,0],[12,38],[-30,24],[-30,-24],[12,-38],[40,0]],
-        segLabels:[{at:[0,0],text:"五边形花瓣"},{at:[0,60],text:"转60度再画"}],
+        segLabels:[{at:[95,-55],text:"五边形花瓣"},{at:[0,80],text:"转60度再画一个"}],
       },
       check(path){
         if(path.length < 30) return {ok:false, why:"too_short"};
@@ -1316,11 +1326,11 @@ function evalColorArg(arg, vars, lineNo){
     return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：我不认识 <b>${escapeHtml(strM[1])}</b> 这个颜色。<br>我会这些：${Object.keys(KNOWN_COLORS).map(k=>`<span class="err-fix">${k}</span>`).join('、')}。` }};
   }
   // 列表索引 colors[i % 4] / colors[0] / colors[i]
-  m = arg.match(/^([a-zA-Z_]\w*)\[(.+)\]$/);
-  if(m){
-    const arr = getVar(m[1], vars, lineNo); if(arr.error) return arr;
-    if(!Array.isArray(arr.val)) return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：<b>${escapeHtml(m[1])}</b> 不是列表，不能用 [ ] 取东西。` }};
-    const idx = evalExpr(m[2], vars, lineNo); if(idx.error) return idx;
+  const lm = arg.match(/^([a-zA-Z_]\w*)\[(.+)\]$/);
+  if(lm){
+    const arr = getVar(lm[1], vars, lineNo); if(arr.error) return arr;
+    if(!Array.isArray(arr.val)) return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：<b>${escapeHtml(lm[1])}</b> 不是列表，不能用 [ ] 取东西。` }};
+    const idx = evalExpr(lm[2], vars, lineNo); if(idx.error) return idx;
     const list = arr.val;
     const ii = ((idx.val % list.length) + list.length) % list.length;  // 自动取余，永不越界
     const c = String(list[ii]).toLowerCase();
@@ -1684,7 +1694,7 @@ function renderDemoStatic(){
   codeEl.innerHTML = lines.map((l,i)=>
     `<div class="dline" id="dline-${i}" data-step="${l.step}" onclick="clickCodeLine(${l.step})"><span class="cm">${i+1}</span>${escapeHtml(l.txt)}</div>`
   ).join('');
-  showKnowledge('知识点', lv.concept_knowledge.title, lv.concept_knowledge.body, lv.concept_knowledge.scratch);
+  showKnowledge('知识点', lv.concept_knowledge.title, lv.concept_knowledge.body, lv.concept_knowledge.scratch, lv.concept_knowledge.formula);
 }
 // ① 点击代码行看对应解释
 function clickCodeLine(stepIdx){
@@ -1697,10 +1707,13 @@ function clickCodeLine(stepIdx){
     coachSay("📖 "+step.cap, "");
   }
 }
-function showKnowledge(tag,title,body,scratch){
+function showKnowledge(tag,title,body,scratch,formula){
   document.getElementById('k-tag').textContent=tag;
   document.getElementById('k-title').textContent=title;
   document.getElementById('k-body').textContent=body;
+  const kf=document.getElementById('k-formula');
+  if(formula){ kf.innerHTML=formula; kf.classList.remove('hidden'); }
+  else { kf.classList.add('hidden'); }
   const ks=document.getElementById('k-scratch');
   if(scratch){ ks.textContent=scratch; ks.classList.remove('hidden'); }
   else { ks.classList.add('hidden'); }
@@ -1719,7 +1732,7 @@ function playDemo(){
   let stepIdx=0;
   (function doStep(){
     if(stepIdx>=lv.demo.length){
-      showKnowledge('知识点', lv.concept_knowledge.title, lv.concept_knowledge.body, lv.concept_knowledge.scratch);
+      showKnowledge('知识点', lv.concept_knowledge.title, lv.concept_knowledge.body, lv.concept_knowledge.scratch, lv.concept_knowledge.formula);
       coachSay("看完啦！点任意一行代码能看它的解释。明白了就往下做「拆解」吧！","");
       demoPlaying=false;
       // 演示放完，自动进入拆解环节
