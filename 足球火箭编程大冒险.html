@@ -158,6 +158,13 @@
   .plan-input:focus{ border-color:#ffd66b; }
   .plan-input::placeholder{ color:#46538c; }
 
+  /* print 播报台 */
+  #print-console{ margin-top:11px; background:#0d1330; border:1px solid rgba(140,170,255,.3); border-radius:12px; padding:11px 13px; }
+  #print-console .pc-title{ font-size:13px; color:#9fd8ff; font-weight:bold; margin-bottom:7px; }
+  #print-lines{ font-family:"Consolas",monospace; font-size:15px; line-height:1.9; color:#b7f7cf; max-height:150px; overflow:auto; }
+  #print-lines .pline{ animation:plineIn .3s ease-out; }
+  @keyframes plineIn{ from{ opacity:0; transform:translateX(-8px);} to{ opacity:1; transform:none; } }
+
   /* 口令解锁弹窗 */
   #unlock-mask{ position:fixed; inset:0; background:rgba(5,8,25,.85); display:flex; align-items:center; justify-content:center; z-index:85; padding:16px; }
   #unlock-card{ background:linear-gradient(160deg,#1c2a63,#0f1638); border:2px solid #ffd66b; border-radius:22px; padding:28px 32px; text-align:center; max-width:400px; width:100%; box-shadow:0 0 50px rgba(255,214,107,.3); animation:pop .35s cubic-bezier(.2,1.6,.4,1); }
@@ -330,6 +337,11 @@
             <input type="range" id="speed" min="1" max="20" value="9">
             🚀 飞快
           </div>
+          <!-- print 播报台 -->
+          <div id="print-console" class="hidden">
+            <div class="pc-title">📢 进球播报台</div>
+            <div id="print-lines"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -358,7 +370,7 @@
     </div>
   </div>
 
-  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.6（口令解锁版）</footer>
+  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.7（暑期+秋季全12关）</footer>
 </div>
 
 <script>
@@ -371,6 +383,9 @@ const CX = cv.width/2, CY = cv.height/2;
 let T = { x:0, y:0, a:90 };
 let trail = [], queue = [], running = false, animTimer = null;
 let segMarks = [];   // 每条指令在 trail 中的起始下标（用于"分段长度"判定，如变量递增）
+let penColor = '#7ef0c0';       // 当前画笔颜色（pencolor 改变）
+let trailColors = [];           // 每条轨迹分段的颜色（彩色轨迹）
+let printsArr = [];             // 本次运行的 print 输出（判定用）
 let curLevel = 0, runAttempts = 0, stuckCount = 0;
 let phase = 'demo';      // demo -> break -> imitate -> homework
 let peeked = false;      // 本环节是否偷看过
@@ -730,6 +745,233 @@ const LEVELS = [
       win:"不可思议的进球！你自己拆解、自己设计、自己完成了一次完整进攻——你已经是真正的足球指挥官兼小程序员了！",
       medal:"🏆 进攻指挥官"
     }
+  },
+  {
+    name:"函数工具箱", emoji:"🧰", concept:"函数", planet:"🔧",
+    desc:"把一套过人动作装进「函数」，用一次说一次，代码整整齐齐。",
+    title:"任务：做个过人工具",
+    text:"「正方形过人」这套动作要写 8 行？太麻烦！把它装进一个「函数工具箱」，\n以后只要说一声 guoren() 就能用，用几次说几次！",
+    concept_knowledge:{ title:"本关学：函数（def）", body:"函数就是把一套动作装进工具箱，起个名字。定义用 def 名字():，里面缩进写动作；用的时候写 名字() 就行。这样代码整齐、好改、好 reuse（重复利用）！", scratch:"💡 这就像 Scratch 的「自制积木」——把一套积木打包成一个新积木！" },
+    demo:[
+      {code:"def guoren():", cap:"def 是「定义」：我要做一个叫 guoren 的工具", k:{tag:"新招式", title:"def 定义函数", body:"def guoren(): 意思是「我要做个叫 guoren 的工具」。冒号后面缩进的内容，就是这个工具会做的事。"}, ops:[]},
+      {code:"    forward(50)\n    right(90)\n    forward(50)\n    left(90)", cap:"工具箱里装进过人动作（都缩进，装进 def 里）", k:{tag:"重点", title:"装进工具箱", body:"缩进在 def 下面的动作，都属于这个工具。现在它们不会马上做，要等你说 guoren() 才会动。"}, ops:[]},
+      {code:"guoren()\nguoren()", cap:"用工具：说 guoren() 一次，就做一次完整过人！", k:{tag:"哇", title:"调用函数", body:"guoren() 是「使用工具」。写一次 def，就能用无数次 guoren()。看——说两次就过人两次！"}, ops:[{cmd:'forward',val:50},{cmd:'right',val:90},{cmd:'forward',val:50},{cmd:'left',val:90},{cmd:'forward',val:50},{cmd:'right',val:90},{cmd:'forward',val:50},{cmd:'left',val:90}]}
+    ],
+    breakSteps:["🧰 用 def 做个叫 guoren 的工具","📥 把过人动作装进工具箱（缩进）","📣 用 guoren() 两次，过人两次"],
+    palette:["def guoren():","    forward(50)","    right(90)","    left(90)","guoren()"],
+    check(path){
+      if(path.length < 15) return {ok:false, why:"too_short"};
+      const t = turns(path);
+      if(t>=3) return {ok:true};
+      if(t>=2) return {ok:false, why:"more_guoren"};
+      return {ok:false, why:"too_few_turns"};
+    },
+    hints:[
+      "先 def guoren(): 把工具做出来（动作缩进装进去），再写 guoren() 用它。",
+      "def 里面的动作要缩进哦，不然不算装进工具箱。",
+      "定义了 guoren 之后，用的时候写 guoren() —— 别忘了括号 ()。"
+    ],
+    win:"太好了！你把过人动作做成了「函数工具」，说用就用。程序员的看家本领学会了！",
+    medal:"🧰 函数小工匠",
+    homework:{
+      title:"⚽ 独立作业：三连过人",
+      text:"比赛焦灼，要连续过 3 个人！用 def 做一个过人工具，然后调用 3 次。\n代码要整整齐齐，不许把动作抄 3 遍哦！",
+      stepsHint:"拆解：先 def 一个工具（比如叫 guoren 或 mymove），里面装过人动作；再调用 3 次。",
+      emoji:"⚽",
+      diagram:{
+        route:[[0,0],[0,50],[50,50],[50,100],[100,100],[100,150],[150,150]],
+        segLabels:[{at:[-25,25],text:"过人1"},{at:[25,75],text:"过人2"},{at:[75,125],text:"过人3"}],
+        goal:[150,190]
+      },
+      check(path){
+        if(path.length < 20) return {ok:false, why:"too_short"};
+        const t = turns(path);
+        if(t>=5) return {ok:true};
+        if(t>=3) return {ok:false, why:"more_guoren"};
+        return {ok:false, why:"too_few_turns"};
+      },
+      win:"三连过人一气呵成！而且你的代码只用了一次 def，干净得像职业球员的脚法！",
+      medal:"⚽ 过人大师"
+    }
+  },
+  {
+    name:"组合进攻", emoji:"🎯", concept:"函数进阶", planet:"🏹",
+    desc:"做两个函数：过人 + 冲刺，组合成一套进攻连招。",
+    title:"任务：设计进攻连招",
+    text:"真正的进攻要好几个招式组合！做两个工具：chongci（冲刺）和 guoren（过人），\n再按你的战术组合起来，打出一套连招！",
+    concept_knowledge:{ title:"本关学：函数组合", body:"一个工具箱里可以装好几个工具，每个负责一件事。比赛时按需要组合使用——这就是「模块化」思维：大事化小，小事组合成大事。", scratch:"💡 就像你在 Scratch 里做好几个「自制积木」，再把它们搭在一起。" },
+    demo:[
+      {code:"def chongci():\n    forward(80)\n    forward(80)", cap:"第一个工具：chongci（向前冲刺两次）", k:{tag:"工具1", title:"各管一件事", body:"每个函数只负责一个小任务，这样清清楚楚。chongci 只管往前冲。"}, ops:[]},
+      {code:"def guoren():\n    right(90)\n    forward(50)\n    left(90)", cap:"第二个工具：guoren（变向过人）", k:{tag:"工具2", title:"再做一个", body:"guoren 只管变向。两个工具互不干扰，各管各的。"}, ops:[]},
+      {code:"chongci()\nguoren()\nchongci()", cap:"组合：冲刺→过人→再冲刺，连招完成！", k:{tag:"哇", title:"组合的力量", body:"就像足球战术：冲刺、过人、冲刺。你换换顺序，就是不同的战术！"}, ops:[{cmd:'forward',val:80},{cmd:'forward',val:80},{cmd:'right',val:90},{cmd:'forward',val:50},{cmd:'left',val:90},{cmd:'forward',val:80},{cmd:'forward',val:80}]}
+    ],
+    breakSteps:["🧰 做工具1：chongci（冲刺）","🧰 做工具2：guoren（过人）","🎯 组合使用：chongci→guoren→chongci"],
+    palette:["def chongci():","def guoren():","    forward(80)","    forward(50)","    right(90)","    left(90)","chongci()","guoren()"],
+    check(path){
+      if(path.length < 15) return {ok:false, why:"too_short"};
+      const t = turns(path);
+      const s = turnSigns(path);
+      if(t>=2 && s.pos>=1 && s.neg>=1) return {ok:true};
+      if(t>=2) return {ok:true};
+      return {ok:false, why:"too_few_turns"};
+    },
+    hints:[
+      "要做两个 def：一个 chongci 一个 guoren，别只做一个哦。",
+      "每个 def 里面的动作都要缩进。",
+      "最后按顺序调用：chongci()、guoren()、chongci()。"
+    ],
+    win:"漂亮的连招！你已经会「模块化」思考了——大事化小，小事组合成大事。",
+    medal:"🎯 连招设计师",
+    homework:{
+      title:"⚽ 独立作业：我的独门连招",
+      text:"设计你自己的独门进攻连招！做 2 个（或更多）工具，组合成一套进攻。\n顺序你自己定，最后要冲到球门附近射门！",
+      stepsHint:"拆解：你的连招有哪几招？每招做什么动作？按什么顺序组合？",
+      emoji:"⚽",
+      diagram:{
+        route:[[0,0],[0,90],[60,90],[60,180]],
+        segLabels:[{at:[-30,45],text:"你的连招"}],
+        goal:[60,220]
+      },
+      check(path){
+        if(path.length < 20) return {ok:false, why:"too_short"};
+        const t = turns(path);
+        const end = path[path.length-1];
+        if(t>=2 && end[1] > 100) return {ok:true};
+        if(t>=2) return {ok:false, why:"not_forward"};
+        return {ok:false, why:"too_simple"};
+      },
+      win:"你的独门连招太帅了！自己设计工具、自己组合战术——这就是程序员+指挥官的双重本事！",
+      medal:"⚽ 战术大师"
+    }
+  },
+  {
+    name:"彩虹球场", emoji:"🌈", concept:"列表", planet:"🎨",
+    desc:"用颜色列表，让每一次突破换一种颜色，画出彩虹进攻。",
+    title:"任务：彩虹突破",
+    text:"把红橙黄绿装进一个「列表」，每次突破换一种颜色，\n让你的进攻路线变成一道彩虹！列表就是「一排有顺序的盒子」。",
+    concept_knowledge:{ title:"本关学：列表（List）", body:"列表是一排有名字的盒子，按顺序装着好几个东西。colors[i] 就是取第 i 个。i 变，取出来的颜色就跟着变！", scratch:"💡 这就像 Scratch 的「列表」积木——一排格子，按编号取东西。" },
+    demo:[
+      {code:"colors = [\"red\", \"orange\", \"green\", \"blue\"]", cap:"做一个颜色列表：红、橙、绿、蓝", k:{tag:"新概念", title:"列表", body:"列表用方括号 [ ] 装好几个东西，逗号隔开。colors 里有 4 个颜色，编号是 0、1、2、3（从0开始数哦）。"}, ops:[]},
+      {code:"for i in range(4):\n    pencolor(colors[i % 4])", cap:"循环 4 次，每次换一种颜色", k:{tag:"重点", title:"colors[i] 取颜色", body:"colors[i] 就是「取列表里第 i 个颜色」。i=0 取红色，i=1 取橙色……i 变颜色就变！i % 4 保证编号不超出。"}, ops:[{cmd:'forward',val:50}]},
+      {code:"    forward(50)\n    left(30)", cap:"每段前进+转一点，彩虹路线出现啦！", k:{tag:"哇", title:"彩虹诞生", body:"每一段换一种颜色，连起来就是彩虹！"}, ops:[{cmd:'left',val:30},{cmd:'forward',val:50},{cmd:'left',val:30},{cmd:'forward',val:50},{cmd:'left',val:30}]}
+    ],
+    breakSteps:["🎨 做个颜色列表 colors","🔁 循环 4 次","🖌️ 每次换一种颜色 pencolor(colors[i % 4])","⚽ 每段前进+转弯"],
+    palette:["colors = [\"red\", \"orange\", \"green\", \"blue\"]","for i in range(4):","    pencolor(colors[i % 4])","    forward(50)","    left(30)"],
+    check(path){
+      const u = new Set(trailColors);
+      if(trail.length < 10) return {ok:false, why:"too_short"};
+      if(u.size >= 3) return {ok:true};
+      if(u.size === 2) return {ok:false, why:"more_colors"};
+      return {ok:false, why:"no_color"};
+    },
+    hints:[
+      "先做颜色列表：colors = [\"red\", \"orange\", \"green\", \"blue\"]。",
+      "换颜色用 pencolor(colors[i % 4])，colors[i] 是取第 i 个颜色。",
+      "pencolor 要在循环里面，这样每圈才换不同颜色。"
+    ],
+    win:"哇，彩虹进攻路线！你学会了列表——一排有顺序的盒子，程序员存数据全靠它！",
+    medal:"🌈 彩虹魔法师",
+    homework:{
+      title:"⚽ 独立作业：五彩进攻路",
+      text:"用 5 种颜色画一条进攻路线！列表装 5 个颜色，循环 5 次，每段换一种颜色。\n路线你自己设计，越漂亮越好！",
+      stepsHint:"拆解：列表装几个颜色？循环几次？每段做什么（前进/转弯）？",
+      emoji:"⚽",
+      diagram:{
+        route:[[0,0],[0,50],[40,80],[80,50],[120,80],[160,50]],
+        segLabels:[{at:[80,120],text:"5种颜色"}],
+        goal:[160,90]
+      },
+      check(path){
+        const u = new Set(trailColors);
+        if(trail.length < 15) return {ok:false, why:"too_short"};
+        if(u.size >= 4) return {ok:true};
+        return {ok:false, why:"more_colors"};
+      },
+      win:"五彩斑斓的进攻路线！列表和循环配合，你已经用得炉火纯青！",
+      medal:"🎨 色彩大师"
+    }
+  },
+  {
+    name:"进球播报员", emoji:"📢", concept:"输出print", planet:"🎙️",
+    desc:"用 print 让电脑开口播报比分，每进一球喊一声。",
+    title:"任务：让电脑播报比分",
+    text:"光跑不算本事，还要会「播报」！用 print 让电脑喊出比分，\n每进一球，播报台就喊一声「第 X 球」！",
+    concept_knowledge:{ title:"本关学：输出（print）", body:"print 是「让电脑说出来」。print(\"你好\") 显示文字，print(score) 显示变量盒子里的数。程序的结果，要用 print 告诉别人！", scratch:"💡 这就像 Scratch 的「说 你好 2 秒」积木——让角色开口说话。" },
+    demo:[
+      {code:"score = 0", cap:"先做个记分盒子 score，从 0 开始", k:{tag:"复习", title:"变量", body:"score 是个盒子，装着进球数。一开始是 0。"}, ops:[]},
+      {code:"for i in range(3):\n    forward(40)\n    right(60)\n    forward(40)\n    left(60)", cap:"球员做一次过人（这就是进球！）", k:{tag:"复习", title:"循环+动作", body:"循环里装过人动作，每圈就是一次进攻。"}, ops:[{cmd:'forward',val:40},{cmd:'right',val:60},{cmd:'forward',val:40},{cmd:'left',val:60}]},
+      {code:"    score = score + 1\n    print(score)", cap:"每进一球，score 加 1，然后 print 喊出来！", k:{tag:"新招式", title:"print 播报", body:"print(score) 会把 score 盒子里的数显示到播报台。进 3 球就喊 1、2、3！"}, ops:[{cmd:'forward',val:40},{cmd:'right',val:60},{cmd:'forward',val:40},{cmd:'left',val:60},{cmd:'forward',val:40},{cmd:'right',val:60},{cmd:'forward',val:40},{cmd:'left',val:60}]}
+    ],
+    breakSteps:["📦 做个记分盒子 score = 0","🔁 循环 3 次进攻","📈 每进一球 score 加 1","📣 print(score) 喊出比分"],
+    palette:["score = 0","for i in range(3):","    forward(40)","    right(60)","    left(60)","    score = score + 1","    print(score)"],
+    check(path){
+      if(printsArr.length < 3) return {ok:false, why:"no_print"};
+      const last = printsArr[printsArr.length-1];
+      if(String(last)==="3") return {ok:true};
+      return {ok:false, why:"wrong_count"};
+    },
+    hints:[
+      "先做 score = 0，再循环里 score = score + 1。",
+      "print(score) 不要引号，引号是文字的，变量直接用。",
+      "print 要缩进在循环里，每进一球才喊一次。"
+    ],
+    win:"听到了吗？电脑在播报比分！你让程序「开口说话」了——这就是输出！",
+    medal:"📢 金牌播报员",
+    homework:{
+      title:"⚽ 独立作业：帽子戏法播报",
+      text:"来一场比赛播报！进 3 球（帽子戏法），每球 print 比分，最后 print(\"帽子戏法！\") 庆祝！\n球员要跑动，播报要响亮！",
+      stepsHint:"拆解：score 从 0 开始；循环进球+score加1+print(score)；循环结束后 print(\"帽子戏法！\")。",
+      emoji:"⚽",
+      diagram:{
+        route:[[0,0],[0,40],[35,40],[35,80],[70,80]],
+        segLabels:[{at:[35,110],text:"进3球"}],
+        goal:[70,120]
+      },
+      check(path){
+        if(printsArr.length < 4) return {ok:false, why:"no_print"};
+        const hasCelebrate = printsArr.some(p=>String(p).includes("帽子戏法") || String(p).includes("厉害") || String(p).length>1);
+        if(hasCelebrate) return {ok:true};
+        return {ok:false, why:"no_celebrate"};
+      },
+      win:"3 球全进，播报响亮！你已经会指挥电脑又跑又喊，太有范儿了！",
+      medal:"⚽ 帽子戏法王"
+    }
+  },
+  {
+    name:"太空足球联赛", emoji:"🌌", concept:"综合项目", planet:"🪐",
+    desc:"大任务2：函数+颜色+条件+变量，办一场太空足球赛！",
+    title:"⭐ 大任务2：太空足球联赛",
+    text:"",
+    project:true,
+    concept_knowledge:{ title:"大任务2：全部招式大集合", body:"把函数、列表、条件、变量全用上，办一场属于你的太空足球赛！自己拆解、自己实现。", scratch:"💡 这就是你做 Scratch 大游戏的本事，现在用 Python 代码实现！" },
+    homework:{
+      title:"⭐ 大任务2：太空足球联赛",
+      text:"在太空球场办一场比赛！要求：①用 def 做至少 2 个进攻工具 ②用列表+换颜色画出彩色进攻 ③用变量记分并 print 播报 ④球员要冲到球门区。全用上才算赢！",
+      stepsHint:"先在「我的拆解」写出你的模块（做哪些工具？怎么换颜色？怎么记分？怎么冲门？），再逐个实现。",
+      emoji:"🚀",
+      diagram:{
+        route:[[0,0],[0,70],[-50,70],[-50,140],[50,140],[50,210]],
+        segLabels:[{at:[-30,35],text:"进攻"},{at:[-80,105],text:"过人"},{at:[80,175],text:"射门"}],
+        defenders:[[-40,80]],
+        cones:[[-60,90],[-40,120]],
+        goal:[50,250]
+      },
+      check(path){
+        const u = new Set(trailColors);
+        const t = turns(path);
+        const end = path[path.length-1];
+        const hasColor = u.size >= 2;
+        const hasPrint = printsArr.length >= 1;
+        const nearGoal = end[1] > 120;
+        if(hasColor && hasPrint && t>=3 && nearGoal) return {ok:true};
+        if(!hasColor) return {ok:false, why:"no_color"};
+        if(!hasPrint) return {ok:false, why:"no_print"};
+        if(t<3) return {ok:false, why:"too_simple"};
+        return {ok:false, why:"not_goal"};
+      },
+      win:"震撼全场的太空联赛！函数、颜色、记分、播报——你把这一学期学的全用上了，这是你独立完成的第一个「大作品」！",
+      medal:"🏆 星际联赛冠军"
+    }
   }
 ];
 
@@ -797,20 +1039,23 @@ function segsIncreasing(path, minSegs){
    ========================================================= */
 /* =========================================================
    迷你解释器：把孩子的代码"执行"成动作队列
-   支持：forward/left/right(n或变量) · for i in range(n): · if/else · 变量(x=40, x=x+20) · % 求余 · 嵌套
+   支持：forward/left/right · for i in range(n) · if/else · 变量 · % · 嵌套
+         def 函数/调用 · 列表 colors=[...] / colors[i%4] · pencolor · print
    ========================================================= */
 function compile(src){
   const rawLines = src.split('\n');
   let warn = null;
   // 预处理：全角→半角（善意降级）
   const list = rawLines.map((raw,idx)=>{
-    let text = raw.replace(/（/g,'(').replace(/）/g,')').replace(/：/g,':').replace(/，/g,',');
+    let text = raw.replace(/（/g,'(').replace(/）/g,')').replace(/：/g,':').replace(/，/g,',').replace(/[""]/g,'"').replace(/['']/g,"'");
     if(text !== raw && !warn){ warn = {line:idx+1, text:`第 ${idx+1} 行：我帮你把中文标点换成了英文标点。`}; }
     const indent = (raw.match(/^(\s*)/)[1]||'').replace(/\t/g,'    ').length;
     return { raw, text, indent, n: idx+1 };
   });
   const ops = [];
-  const vars = {};   // 变量盒子（编译期展开求值，语言是确定的）
+  const vars = {};    // 变量盒子（编译期展开求值，语言是确定的）
+  const funcs = {};   // 函数工具箱 {名字: body行数组}
+  const prints = [];  // print 输出（播报台显示）
 
   /* 执行一块语句（同一缩进层级），返回 {error} 或 null */
   function execBlock(block){
@@ -877,6 +1122,50 @@ function compile(src){
         return { error:{ line:item.n, html:`🔍 第 ${item.n} 行：else 找不到它的 if 朋友哦。else 要紧紧跟在 if 的后面，而且和 if 对齐（缩进一样）。` }};
       }
 
+      // ---- def 函数定义 ----
+      m = line.match(/^def\s+([a-zA-Z_]\w*)\s*\(\s*\)\s*:?$/);
+      if(m){
+        if(!/:\s*$/.test(line) && !warn){ warn = {line:item.n, text:`第 ${item.n} 行：def 后面要戴个小帽子（冒号 :），我帮你加上啦。`}; }
+        const { body, next } = collectBody(i+1);
+        if(body.length===0) return { error:{ line:item.n, html:`🔍 第 ${item.n} 行：函数 <b>${m[1]}</b> 里面是空的哦。把它要做的事<b>缩进</b>写进工具箱。` }};
+        if(funcs[m[1]]) return { error:{ line:item.n, html:`🔍 第 ${item.n} 行：函数 <b>${m[1]}</b> 已经有一个啦，换个名字吧。` }};
+        funcs[m[1]] = body;
+        i = next;
+        continue;
+      }
+
+      // ---- 函数调用 ----
+      m = line.match(/^([a-zA-Z_]\w*)\s*\(\s*\)$/);
+      if(m && funcs[m[1]]){
+        const r = execBlock(funcs[m[1]]);
+        if(r && r.error) return r;
+        i++;
+        continue;
+      }
+      if(m && !funcs[m[1]] && !/^(forward|left|right|print|pencolor|range)$/.test(m[1])){
+        return { error:{ line:item.n, html:`🔍 第 ${item.n} 行：<b>${escapeHtml(m[1])}</b> 这个工具还没做出来哦。<br>先用 <span class="err-fix">def ${escapeHtml(m[1])}():</span> 把它装进工具箱，下面缩进写上它要做的事。` }};
+      }
+
+      // ---- print 播报 ----
+      if(m = line.match(/^print\((.*)\)$/)){
+        const val = evalPrintArg(m[1], vars, item.n);
+        if(val.error) return { error: val.error };
+        prints.push(String(val.val));
+        ops.push({cmd:'print', text:String(val.val)});
+        i++;
+        continue;
+      }
+
+      // ---- 列表赋值：colors = ["red", ...] ----
+      m = line.match(/^([a-zA-Z_]\w*)\s*=\s*(\[.+\])$/);
+      if(m){
+        const lv = evalListLiteral(m[2], item.n);
+        if(lv.error) return { error: lv.error };
+        vars[m[1]] = lv.val;
+        i++;
+        continue;
+      }
+
       // ---- 变量赋值：x = 40 / x = x + 20 ----
       m = line.match(/^([a-zA-Z_]\w*)\s*=\s*(.+)$/);
       if(m && !/^==/.test(m[2])){
@@ -898,7 +1187,31 @@ function compile(src){
 
   const err = execBlock(list);
   if(err && err.error) return { error: err.error };
-  return { ops, warn };
+  return { ops, warn, prints };
+}
+
+/* 列表字面量求值：["red", "blue"] → ['red','blue'] */
+function evalListLiteral(str, lineNo){
+  const inner = str.trim().replace(/^\[/,'').replace(/\]$/,'');
+  const items = inner.split(',').map(s=>s.trim().replace(/^["']|["']$/g,''));
+  if(items.some(s=>!s)) return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：列表里有空的东西哦，检查一下逗号。` }};
+  return { val: items };
+}
+
+/* 颜色白名单（防注入，童语提示） */
+const KNOWN_COLORS = { red:'红', blue:'蓝', green:'绿', yellow:'黄', orange:'橙', purple:'紫', pink:'粉', white:'白', cyan:'青', gold:'金' };
+
+/* print 参数求值："文字" / 变量 / 拼接 */
+function evalPrintArg(arg, vars, lineNo){
+  arg = arg.trim();
+  const strM = arg.match(/^["'](.*)["']$/);
+  if(strM) return { val: strM[1] };
+  if(/^-?\d+$/.test(arg)) return { val: parseInt(arg) };
+  if(/^[a-zA-Z_]\w*$/.test(arg)){
+    const v = getVar(arg, vars, lineNo); if(v.error) return v;
+    return { val: v.val };
+  }
+  return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：print 里的东西我看不懂。可以写 <span class="err-fix">print("你好")</span> 或 <span class="err-fix">print(score)</span>（变量不用引号）。` }};
 }
 
 /* 条件求值：i == n / i < n / i > n / i % a == b（i 可换成任意变量） */
@@ -924,19 +1237,27 @@ function evalCond(condStr, vars, lineNo){
   return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：${show}<br>这个条件我看不懂。目前会判断：<span class="err-fix">i == 2</span>、<span class="err-fix">i &lt; 3</span>、<span class="err-fix">i &gt; 3</span>、<span class="err-fix">i % 2 == 0</span> 这样的。` }};
 }
 
-/* 表达式求值：数字 / 变量 / a + b / a - b（操作数=数字或变量） */
+/* 表达式求值：数字 / 变量 / a + b / a - b / a % b（操作数=数字或变量） */
 function evalExpr(expr, vars, lineNo){
   expr = expr.trim();
   const show = `<span class="err-line">${escapeHtml(expr)}</span>`;
   if(/^-?\d+$/.test(expr)) return { val: parseInt(expr) };
   if(/^([a-zA-Z_]\w*)$/.test(expr)) return getVar(expr, vars, lineNo);
+  // 求余：a % b
+  let mm = expr.match(/^([a-zA-Z_]\w*|-?\d+)\s*%\s*(-?\d+)$/);
+  if(mm){
+    const a = /^-?\d+$/.test(mm[1]) ? {val:parseInt(mm[1])} : getVar(mm[1], vars, lineNo);
+    if(a.error) return a;
+    if(typeof a.val !== 'number') return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：${show}<br>% 两边都要是数字哦。` }};
+    return { val: a.val % parseInt(mm[2]) };
+  }
   let m = expr.match(/^(.+?)\s*([+-])\s*(.+)$/);
   if(m){
     const a = evalExpr(m[1], vars, lineNo); if(a.error) return a;
     const b = evalExpr(m[3], vars, lineNo); if(b.error) return b;
     return { val: m[2]==='+' ? a.val + b.val : a.val - b.val };
   }
-  return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：${show}<br>我看不懂这个式子。目前会：<span class="err-fix">x = 40</span>、<span class="err-fix">x = x + 20</span> 这样的。` }};
+  return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：${show}<br>我看不懂这个式子。目前会：<span class="err-fix">x = 40</span>、<span class="err-fix">x = x + 20</span>、<span class="err-fix">i % 2</span> 这样的。` }};
 }
 
 /* 取变量（未声明则给专属提示） */
@@ -949,16 +1270,31 @@ function getVar(name, vars, lineNo){
 function parseCmd(line, lineNo, vars){
   let m;
   if(m = line.match(/^(forward|left|right)\((-?\d+)\)$/)) return {cmd:m[1], val:+m[2]};
+  // pencolor("red") / pencolor(colors[i % 4]) / pencolor(colors[0])
+  if(m = line.match(/^pencolor\((.+)\)$/)){
+    const c = evalColorArg(m[1], vars, lineNo);
+    if(c.error) return c;
+    return {cmd:'pencolor', color:c.val};
+  }
+  // 指令参数：变量
   if(m = line.match(/^(forward|left|right)\(([a-zA-Z_]\w*)\)$/)){
     const v = getVar(m[2], vars, lineNo); if(v.error) return v;
+    if(typeof v.val !== 'number') return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：<b>${escapeHtml(m[2])}</b> 是个列表，不能当步数用。要用 <span class="err-fix">${escapeHtml(m[2])}[i]</span> 取里面的一个。` }};
+    return {cmd:m[1], val:v.val};
+  }
+  // 指令参数：列表索引 forward(colors[i]) 之类（给出引导）
+  if(m = line.match(/^(forward|left|right)\((.+)\)$/)){
+    const v = evalExpr(m[2], vars, lineNo);
+    if(v.error) return v;
+    if(typeof v.val !== 'number') return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：这里要填一个数字哦。` }};
     return {cmd:m[1], val:v.val};
   }
   const show = `<span class="err-line">${escapeHtml(line)}</span>`;
   let sp = line.match(/^([a-z]+)\s*\(/i);
   const word = sp ? sp[1].toLowerCase() : line.split(/[\s(]/)[0];
-  for(const k of ['forward','left','right']){
+  for(const k of ['forward','left','right','pencolor','print']){
     if(word!==k && lev(word,k)<=2){
-      return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行有个小笔误哦：${show}<br>我不认识 <b>${escapeHtml(word)}</b>。你是不是想写 <span class="err-fix">${k}</span>（${k==='forward'?'前进':k==='left'?'向左转':'向右转'}）？<br>对比拼写：<b>${k.split('').join('-')}</b>，检查你哪里打错啦。` }};
+      return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行有个小笔误哦：${show}<br>我不认识 <b>${escapeHtml(word)}</b>。你是不是想写 <span class="err-fix">${k}</span>？<br>对比拼写：<b>${k.split('').join('-')}</b>，检查你哪里打错啦。` }};
     }
   }
   if(/^[a-z]+\([^)]*$/.test(line)) return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：${show}<br>括号要成对出现哦，你这里少了右边的 <span class="err-fix">)</span>。在最后补上一个 <b>)</b> 就好啦。` }};
@@ -967,7 +1303,31 @@ function parseCmd(line, lineNo, vars){
   // 赋值写错：x == 20 或单独一个 x + 20
   if(/^[a-zA-Z_]\w*\s*==/.test(line)) return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：${show}<br>== 是"比一比"（用在 if 里），想装东西要用一个 <span class="err-fix">=</span> 哦，比如 <span class="err-fix">x = 20</span>。` }};
   if(/^[a-zA-Z_]\w*\s*[+-]/.test(line)) return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：${show}<br>算完要存回盒子里哦！应该写 <span class="err-fix">x = x + 20</span>，光写 <b>x + 20</b> 盒子里的数不会变。` }};
-  return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：${show}<br>我看不懂 <b>${escapeHtml(word)}</b> 这个口令。<br>目前我会：<span class="err-fix">forward(步数)</span>、<span class="err-fix">left(角度)</span>、<span class="err-fix">right(角度)</span>、<span class="err-fix">for 循环</span>、<span class="err-fix">if 条件</span>、<span class="err-fix">变量 x</span>。` }};
+  return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：${show}<br>我看不懂 <b>${escapeHtml(word)}</b> 这个口令。<br>目前我会：<span class="err-fix">forward(步数)</span>、<span class="err-fix">left(角度)</span>、<span class="err-fix">right(角度)</span>、<span class="err-fix">pencolor(颜色)</span>、<span class="err-fix">print(播报)</span>、<span class="err-fix">for 循环</span>、<span class="err-fix">if 条件</span>、<span class="err-fix">变量</span>、<span class="err-fix">def 函数</span>。` }};
+}
+
+/* 颜色参数求值："red" / colors[i % 4] / colors[0] */
+function evalColorArg(arg, vars, lineNo){
+  arg = arg.trim();
+  const strM = arg.match(/^["']([a-zA-Z]+)["']$/);
+  if(strM){
+    const c = strM[1].toLowerCase();
+    if(KNOWN_COLORS[c]) return { val: c };
+    return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：我不认识 <b>${escapeHtml(strM[1])}</b> 这个颜色。<br>我会这些：${Object.keys(KNOWN_COLORS).map(k=>`<span class="err-fix">${k}</span>`).join('、')}。` }};
+  }
+  // 列表索引 colors[i % 4] / colors[0] / colors[i]
+  m = arg.match(/^([a-zA-Z_]\w*)\[(.+)\]$/);
+  if(m){
+    const arr = getVar(m[1], vars, lineNo); if(arr.error) return arr;
+    if(!Array.isArray(arr.val)) return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：<b>${escapeHtml(m[1])}</b> 不是列表，不能用 [ ] 取东西。` }};
+    const idx = evalExpr(m[2], vars, lineNo); if(idx.error) return idx;
+    const list = arr.val;
+    const ii = ((idx.val % list.length) + list.length) % list.length;  // 自动取余，永不越界
+    const c = String(list[ii]).toLowerCase();
+    if(KNOWN_COLORS[c]) return { val: c };
+    return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：列表里的 <b>${escapeHtml(String(list[ii]))}</b> 不是我会的颜色哦。` }};
+  }
+  return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：颜色要写引号，比如 <span class="err-fix">pencolor("red")</span>，或用列表 <span class="err-fix">pencolor(colors[i % 4])</span>。` }};
 }
 
 function lev(a,b){
@@ -981,7 +1341,7 @@ function lev(a,b){
 /* =========================================================
    运行与动画
    ========================================================= */
-function resetTurtle(){ T={x:0,y:0,a:90}; trail=[[0,0]]; segMarks=[0]; }
+function resetTurtle(){ T={x:0,y:0,a:90}; trail=[[0,0]]; segMarks=[0]; penColor='#7ef0c0'; trailColors=[]; clearPrint(); }
 function clearPath(){ resetTurtle(); draw(); }
 function drawBg(){
   ctx.clearRect(0,0,cv.width,cv.height);
@@ -1023,12 +1383,12 @@ function drawTacticsBoard(dg){
     ctx.fillStyle='#fff'; ctx.font='bold 16px "Microsoft YaHei"'; ctx.textAlign='center'; ctx.textBaseline='middle';
     dg.segLabels.forEach(L=>{
       const [x,y]=toPx(L.at[0],L.at[1]);
-      // 白底小气泡
+      // 白底小气泡（宽度按字数估算）
       ctx.fillStyle='rgba(0,0,0,.55)';
-      const w=34;
+      const w=Math.max(36, L.text.length*15+14);
       roundRect(x-w/2,y-12,w,24,8); ctx.fill();
       ctx.fillStyle='#ffe9ad';
-      ctx.fillText(L.text+"步", x, y);
+      ctx.fillText(L.text, x, y);
     });
   }
   // 起点（⚽）
@@ -1080,10 +1440,21 @@ function roundRect(x,y,w,h,r){
 function draw(){
   drawBg();
   if(trail.length>1){
-    ctx.strokeStyle='#7ef0c0'; ctx.lineWidth=3; ctx.lineJoin='round';
-    ctx.beginPath();
-    trail.forEach((p,i)=>{ const [x,y]=toPx(p[0],p[1]); i?ctx.lineTo(x,y):ctx.moveTo(x,y); });
-    ctx.stroke();
+    // 彩色轨迹：逐段着色（无分段时整段用当前色）
+    ctx.lineWidth=3; ctx.lineJoin='round';
+    if(trailColors.length>1){
+      for(let i=1;i<trail.length;i++){
+        ctx.strokeStyle = trailColors[i] || penColor;
+        const [x1,y1]=toPx(trail[i-1][0],trail[i-1][1]);
+        const [x2,y2]=toPx(trail[i][0],trail[i][1]);
+        ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+      }
+    } else {
+      ctx.strokeStyle=penColor;
+      ctx.beginPath();
+      trail.forEach((p,i)=>{ const [x,y]=toPx(p[0],p[1]); i?ctx.lineTo(x,y):ctx.moveTo(x,y); });
+      ctx.stroke();
+    }
   }
   const [tx,ty]=toPx(T.x,T.y);
   ctx.save(); ctx.translate(tx,ty); ctx.rotate(rad(90-T.a));
@@ -1112,6 +1483,7 @@ function runCode(){
   if(res.warn){ showWarn(res.warn.text); }
   coachSay("代码读明白啦，看它动！","");
   queue = res.ops.slice();
+  printsArr = res.prints ? res.prints.slice() : [];   // 记录 print 输出（判定用）
   runAttempts++;
   // 埋点：运行次数
   const d2=LV(curLevel); if(isHomework){d2.hwTry++;}else{d2.imitateRun++;} persistTrack();
@@ -1133,18 +1505,38 @@ function playQueue(){
 function applyOp(op, done, delay){
   if(op.cmd==='left'){ T.a += op.val; done(); }
   else if(op.cmd==='right'){ T.a -= op.val; done(); }
+  else if(op.cmd==='pencolor'){ penColor = op.color; done(); }
+  else if(op.cmd==='print'){ printLine(op.text); done(); }
   else if(op.cmd==='forward'){
     const steps=Math.max(1,Math.round(Math.abs(op.val)/4)); let i=0; const dir=op.val>=0?1:-1;
     (function mv(){
       if(i>=steps){ done(); return; }
       T.x+=Math.cos(rad(T.a))*4*dir; T.y+=Math.sin(rad(T.a))*4*dir;
-      trail.push([T.x,T.y]); draw(); i++;
+      trail.push([T.x,T.y]); trailColors.push(penColor); draw(); i++;
       animTimer=setTimeout(mv, Math.max(6, delay/steps));
     })();
   }
 }
 function stopAnim(){ running=false; if(animTimer){clearTimeout(animTimer); animTimer=null;} }
 function onRunEnd(){ coachSay("落地啦！觉得画对了吗？点「🔍 检查」让我看看～",""); }
+
+/* print 播报台 */
+function printLine(text){
+  const box=document.getElementById('print-console');
+  box.classList.remove('hidden');
+  const lines=document.getElementById('print-lines');
+  const div=document.createElement('div');
+  div.className='pline';
+  div.textContent='📣 '+text;
+  lines.appendChild(div);
+  lines.scrollTop = lines.scrollHeight;
+}
+function clearPrint(){
+  const box=document.getElementById('print-console');
+  if(box){ box.classList.add('hidden'); }
+  const lines=document.getElementById('print-lines');
+  if(lines){ lines.innerHTML=''; }
+}
 
 function showErr(html){ const e=document.getElementById('err-tip'); e.innerHTML=html; e.className='show err'; }
 function showWarn(text){ const e=document.getElementById('err-tip'); e.innerHTML='✨ '+text; e.className='show warn'; }
@@ -1269,6 +1661,8 @@ function demoApplyOps(ops, done){
     const op=ops[i++];
     if(op.cmd==='left'){ dT.a+=op.val; next(); }
     else if(op.cmd==='right'){ dT.a-=op.val; next(); }
+    else if(op.cmd==='pencolor'){ next(); }   // 演示画布单色，换色指令跳过即可
+    else if(op.cmd==='print'){ next(); }      // 演示不播 print
     else if(op.cmd==='forward'){
       const steps=Math.max(1,Math.round(Math.abs(op.val)/5)); let j=0; const dir=op.val>=0?1:-1;
       (function mv(){
@@ -1278,6 +1672,7 @@ function demoApplyOps(ops, done){
         dTimer=setTimeout(mv, 35);
       })();
     }
+    else { next(); }   // 未知指令不卡死
   })();
 }
 
@@ -1533,7 +1928,12 @@ const UNLOCK_CODES = {
   3:"我是守门员",    // 第4关 · 守门员的判断
   4:"反应超快",      // 第5关 · 反应训练
   5:"百发百中",      // 第6关 · 记分牌
-  6:"冠军之心"       // 第7关 · 大任务
+  6:"冠军之心",      // 第7关 · 大任务
+  7:"工具箱",        // 第8关 · 函数工具箱
+  8:"连招",          // 第9关 · 组合进攻
+  9:"彩虹",          // 第10关 · 彩虹球场
+  10:"帽子戏法",     // 第11关 · 进球播报员
+  11:"星际联赛"      // 第12关 · 大任务2 太空足球联赛
 };
 let pendingUnlock = -1;
 function openUnlock(i){
