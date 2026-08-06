@@ -407,7 +407,7 @@
     </div>
   </div>
 
-  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.8（第0步知识点常驻+全12关公式卡）</footer>
+  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.8.1（中文指令引导+报错词记录+计时修复）</footer>
 </div>
 
 <script>
@@ -1184,7 +1184,7 @@ function compile(src){
         i++;
         continue;
       }
-      if(m && !funcs[m[1]] && !/^(forward|left|right|print|pencolor|range)$/.test(m[1])){
+      if(m && !funcs[m[1]] && !/^(forward|left|right|print|pencolor|range|penup|pendown)$/.test(m[1])){
         return { error:{ line:item.n, html:`🔍 第 ${item.n} 行：<b>${escapeHtml(m[1])}</b> 这个工具还没做出来哦。<br>先用 <span class="err-fix">def ${escapeHtml(m[1])}():</span> 把它装进工具箱，下面缩进写上它要做的事。` }};
       }
 
@@ -1318,6 +1318,30 @@ function parseCmd(line, lineNo, vars){
     if(c.error) return c;
     return {cmd:'pencolor', color:c.val};
   }
+
+  /* ===== 中文指令识别（把 Scratch 习惯翻译成英文） ===== */
+  const CN_MAP = { 前进:'forward', 向前:'forward', 走:'forward', 移动:'forward', 后退:'backward', 后退一步:'backward',
+                   左转:'left', 向左:'left', 左:'left', 右转:'right', 向右:'right', 右:'right',
+                   重复:'for', 循环:'for', 如果:'if', 否则:'else', 说:'print', 打印:'print', 画:'forward' };
+  let cnHit = line.match(/[一-龥]+/);
+  if(cnHit){
+    for(const k in CN_MAP){
+      if(cnHit[0].includes(k)){
+        const en = CN_MAP[k];
+        const tip = { forward:'forward(步数)', left:'left(角度)', right:'right(角度)', for:'for i in range(次数):', if:'if 条件:', print:'print(内容)' }[en];
+        return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：你写的是中文「${escapeHtml(cnHit[0])}」呀。<br>在这个代码世界里要用英文哦～「${escapeHtml(cnHit[0])}」应该写成 <span class="err-fix">${tip||en}</span>。试试看！`, errWord:cnHit[0] }};
+      }
+    }
+    // 有中文但没匹配到已知词
+    return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：代码里不能有中文哦。<br>把「${escapeHtml(cnHit[0])}」换成英文指令试试，比如 <span class="err-fix">forward(100)</span>。`, errWord:cnHit[0] }};
+  }
+
+  /* ===== 真 turtle / Python 写法识别（看视频学来的，引导到我们的写法） ===== */
+  let tm = line.match(/^turtle\.(\w+)/);
+  if(tm) return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：你写的是 <b>turtle.${escapeHtml(tm[1])}</b>，那是电脑里的完整写法。<br>我们这里更简单，直接写 <span class="err-fix">${escapeHtml(tm[1])}(...)</span> 就行，不用写 turtle.。`, errWord:'turtle.'+tm[1] }};
+  if(m = line.match(/^(penup|pendown)\s*\(?\)?\s*$/)) return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：<b>${escapeHtml(m[1])}</b> 是「抬笔/落笔」。<br>我们这里笔画是一直放着的，直接写 <span class="err-fix">forward(步数)</span> 就会画线。`, errWord:m[1] }};
+  if(m = line.match(/^(goto|setx|sety|home|clear|reset|backward|bk|back|fd)\b/)) return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：<b>${escapeHtml(m[1])}</b> 我还没学会这个口令。<br>目前我们用 <span class="err-fix">forward(步数)</span>、<span class="err-fix">left(角度)</span>、<span class="err-fix">right(角度)</span> 就能画出所有图形啦。`, errWord:m[1] }};
+
   // 指令参数：变量
   if(m = line.match(/^(forward|left|right)\(([a-zA-Z_]\w*)\)$/)){
     const v = getVar(m[2], vars, lineNo); if(v.error) return v;
@@ -1336,7 +1360,7 @@ function parseCmd(line, lineNo, vars){
   const word = sp ? sp[1].toLowerCase() : line.split(/[\s(]/)[0];
   for(const k of ['forward','left','right','pencolor','print']){
     if(word!==k && lev(word,k)<=2){
-      return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行有个小笔误哦：${show}<br>我不认识 <b>${escapeHtml(word)}</b>。你是不是想写 <span class="err-fix">${k}</span>？<br>对比拼写：<b>${k.split('').join('-')}</b>，检查你哪里打错啦。` }};
+      return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行有个小笔误哦：${show}<br>我不认识 <b>${escapeHtml(word)}</b>。你是不是想写 <span class="err-fix">${k}</span>？<br>对比拼写：<b>${k.split('').join('-')}</b>，检查你哪里打错啦。`, errWord:word }};
     }
   }
   if(/^[a-z]+\([^)]*$/.test(line)) return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：${show}<br>括号要成对出现哦，你这里少了右边的 <span class="err-fix">)</span>。在最后补上一个 <b>)</b> 就好啦。` }};
@@ -1345,7 +1369,7 @@ function parseCmd(line, lineNo, vars){
   // 赋值写错：x == 20 或单独一个 x + 20
   if(/^[a-zA-Z_]\w*\s*==/.test(line)) return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：${show}<br>== 是"比一比"（用在 if 里），想装东西要用一个 <span class="err-fix">=</span> 哦，比如 <span class="err-fix">x = 20</span>。` }};
   if(/^[a-zA-Z_]\w*\s*[+-]/.test(line)) return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：${show}<br>算完要存回盒子里哦！应该写 <span class="err-fix">x = x + 20</span>，光写 <b>x + 20</b> 盒子里的数不会变。` }};
-  return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：${show}<br>我看不懂 <b>${escapeHtml(word)}</b> 这个口令。<br>目前我会：<span class="err-fix">forward(步数)</span>、<span class="err-fix">left(角度)</span>、<span class="err-fix">right(角度)</span>、<span class="err-fix">pencolor(颜色)</span>、<span class="err-fix">print(播报)</span>、<span class="err-fix">for 循环</span>、<span class="err-fix">if 条件</span>、<span class="err-fix">变量</span>、<span class="err-fix">def 函数</span>。` }};
+  return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：${show}<br>我看不懂 <b>${escapeHtml(word)}</b> 这个口令。<br>目前我会：<span class="err-fix">forward(步数)</span>、<span class="err-fix">left(角度)</span>、<span class="err-fix">right(角度)</span>、<span class="err-fix">pencolor(颜色)</span>、<span class="err-fix">print(播报)</span>、<span class="err-fix">for 循环</span>、<span class="err-fix">if 条件</span>、<span class="err-fix">变量</span>、<span class="err-fix">def 函数</span>。`, errWord:word }};
 }
 
 /* 颜色参数求值："red" / colors[i % 4] / colors[0] */
@@ -1513,8 +1537,13 @@ function runCode(){
   coachReset();
   if(res.error){
     stuckCount++;
-    // 埋点：报错统计 + 卡顿
-    const errType = res.error.html.match(/小笔误/) ? '拼写错误' : res.error.html.match(/括号/) ? '括号问题' : res.error.html.match(/数字/) ? '缺数字' : '指令不认识';
+    // 埋点：报错统计 + 卡顿（"指令不认识"类记录具体写错的词，便于诊断）
+    let errType;
+    if(res.error.errWord){
+      errType = '指令不认识:' + String(res.error.errWord).slice(0,10);
+    } else {
+      errType = res.error.html.match(/小笔误/) ? '拼写错误' : res.error.html.match(/括号/) ? '括号问题' : res.error.html.match(/数字/) ? '缺数字' : '指令不认识';
+    }
     trackErr(errType);
     const d=LV(curLevel); if(isHomework){d.hwStuck++;}else{d.imitateStuck++;} persistTrack();
     showErr(res.error.html);
@@ -1625,8 +1654,10 @@ function onHomeworkWin(){
   const lv = LEVELS[curLevel];
   save.progress[curLevel] = true; persist();
   const hw = lv.homework;
-  // 埋点：完成本关
-  const d=LV(curLevel); d.done=true; d.endTime=Date.now(); persistTrack();
+  // 埋点：完成本关（记录完成时间 + 本次活跃时长，避免跨天算出荒唐时长）
+  const d=LV(curLevel); d.done=true; d.endTime=Date.now();
+  if(d.sessionStart){ d.activeMs=(d.activeMs||0)+(Date.now()-d.sessionStart); }
+  persistTrack();
   document.getElementById('win-emoji').textContent = '⚽';
   document.getElementById('win-title').textContent = lv.name + " · 全部完成！";
   document.getElementById('win-text').textContent = hw.win;
@@ -2083,8 +2114,9 @@ function openLevel(i){
   curLevel=i; runAttempts=0; stuckCount=0;
   phase='demo'; isHomework=false; peeked=false;
   const lv=LEVELS[i];
-  // 埋点：记录进入本关时间
-  const d=LV(i); if(!d.startTime){ d.startTime=Date.now(); persistTrack(); }
+  // 埋点：记录进入本关时间 + 本次会话起点（活跃时长用）
+  const d=LV(i); if(!d.startTime){ d.startTime=Date.now(); }
+  d.sessionStart=Date.now(); persistTrack();
   document.getElementById('map').classList.add('hidden');
   document.getElementById('stage').classList.remove('hidden');
   document.getElementById('lv-label').textContent=`第${i+1}关 · ${lv.concept}`;
@@ -2164,8 +2196,14 @@ function buildReportText(){
       out += `  报错集中：${errKeys.map(k=>`${k}(${d.errors[k]}次)`).join('、')}\n`;
     }
     if(d.startTime && d.endTime){
-      const mins = Math.round((d.endTime-d.startTime)/60000);
-      out += `  用时：约${mins}分钟\n`;
+      // 用活跃时长（activeMs）而非跨天总时长；老数据无 activeMs 则封顶提示
+      if(d.activeMs){
+        const mins = Math.max(1, Math.round(d.activeMs/60000));
+        out += `  用时：约${mins}分钟（本次活跃）\n`;
+      } else {
+        const mins = Math.round((d.endTime-d.startTime)/60000);
+        out += (mins>180) ? `  用时：跨多天完成\n` : `  用时：约${mins}分钟\n`;
+      }
     }
   });
   out += `═══════════════════════════════\n`;
