@@ -116,6 +116,23 @@
   #knowledge-panel .kp-formula .fk{ color:#ffd66b; font-weight:bold; }
   #knowledge-panel .kp-formula .fc{ color:#7d8cc4; }
 
+  /* ③气泡提醒：点代码看解释 */
+  #demo-code-wrap{ position:relative; }
+  #code-tip{ position:absolute; left:8px; right:8px; bottom:-14px; transform:translateY(100%);
+    background:linear-gradient(160deg,#ffd66b,#f0a500); color:#3a2503; font-size:14px; font-weight:bold;
+    padding:9px 12px; border-radius:12px; box-shadow:0 6px 20px rgba(255,214,107,.5);
+    display:flex; align-items:center; gap:8px; z-index:5; animation:tipBob 1.6s ease-in-out infinite; }
+  #code-tip::before{ content:""; position:absolute; top:-8px; left:30px; border:8px solid transparent; border-bottom-color:#f0a500; border-top:none; }
+  #code-tip .ct-hand{ font-size:20px; animation:handPoint 1s ease-in-out infinite; }
+  @keyframes handPoint{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
+  @keyframes tipBob{ 0%,100%{transform:translateY(100%)} 50%{transform:translateY(calc(100% - 5px))} }
+  #code-tip .ct-text{ flex:1; line-height:1.4; }
+  #code-tip .ct-close{ font-size:12px; font-weight:normal; opacity:.75; cursor:pointer; white-space:nowrap; }
+  #code-tip .ct-close:hover{ opacity:1; text-decoration:underline; }
+  /* 代码行加"可点"暗示 */
+  .dline.tappable{ position:relative; }
+  .dline.tappable::after{ content:"👆"; position:absolute; right:8px; top:50%; transform:translateY(-50%); font-size:14px; opacity:.5; }
+
   /* ===== 拆解环节 ===== */
   #break-panel{ background:rgba(74,222,128,.06); border:2px solid rgba(74,222,128,.3); border-radius:18px; padding:16px; }
   #break-panel .bp-title{ font-size:15px; color:#b7f7cf; font-weight:bold; margin-bottom:6px; }
@@ -313,7 +330,15 @@
       </div>
       <div id="demo-grid">
         <div id="demo-cv-wrap"><canvas id="demo-cv" width="290" height="235"></canvas></div>
-        <div id="demo-code"></div>
+        <div id="demo-code-wrap">
+          <div id="demo-code"></div>
+          <!-- ③气泡提醒：点代码看解释（会自动退休） -->
+          <div id="code-tip" class="hidden">
+            <span class="ct-hand">👆</span>
+            <span class="ct-text">点上面一行代码，我告诉你它的意思！</span>
+            <span class="ct-close" onclick="dismissCodeTip(true)">知道了 ✕</span>
+          </div>
+        </div>
         <div id="knowledge">
           <div class="k-tag" id="k-tag">知识点</div>
           <div class="k-title" id="k-title"></div>
@@ -407,7 +432,7 @@
     </div>
   </div>
 
-  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.8.1（中文指令引导+报错词记录+计时修复）</footer>
+  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.8.2（点代码看解释引导系统）</footer>
 </div>
 
 <script>
@@ -1755,15 +1780,60 @@ function renderDemoStatic(){
   let lines=[];
   lv.demo.forEach((s,i)=>{ s.code.split('\n').forEach(c=>lines.push({txt:c, step:i})); });
   codeEl.innerHTML = lines.map((l,i)=>
-    `<div class="dline" id="dline-${i}" data-step="${l.step}" onclick="clickCodeLine(${l.step})"><span class="cm">${i+1}</span>${escapeHtml(l.txt)}</div>`
+    `<div class="dline tappable" id="dline-${i}" data-step="${l.step}" onclick="clickCodeLine(${l.step})"><span class="cm">${i+1}</span>${escapeHtml(l.txt)}</div>`
   ).join('');
   showKnowledge('知识点', lv.concept_knowledge.title, lv.concept_knowledge.body, lv.concept_knowledge.scratch, lv.concept_knowledge.formula);
 }
 // ① 点击代码行看对应解释
+/* =========================================================
+   「点代码看解释」引导系统：④一次性示范 + ③每关首进气泡（自动退休）
+   ========================================================= */
+function guide(){ try{ return JSON.parse(localStorage.getItem('bh_guide')||'{}'); }catch(e){ return {}; } }
+function saveGuide(g){ localStorage.setItem('bh_guide', JSON.stringify(g)); }
+function guideRetired(){
+  // 孩子累计点代码看解释满3次 → 永久退休，不再打扰
+  let total=0;
+  Object.keys(track).forEach(k=>{ total += (track[k].codeClick||0); });
+  return total >= 3;
+}
+function maybeShowCodeTip(){
+  const tip = document.getElementById('code-tip');
+  if(!tip) return;
+  if(guideRetired()){ tip.classList.add('hidden'); return; }
+  const g = guide();
+  if(g.dismissed){ tip.classList.add('hidden'); return; }          // 孩子手动关过
+  if(g['lv'+curLevel]){ tip.classList.add('hidden'); return; }      // 本关已弹过
+  g['lv'+curLevel] = true; saveGuide(g);
+  tip.classList.remove('hidden');
+}
+function dismissCodeTip(permanent){
+  const tip = document.getElementById('code-tip');
+  tip.classList.add('hidden');
+  if(permanent){ const g=guide(); g.dismissed=true; saveGuide(g); }
+}
+// ④一次性教练示范：第一次进任何关，教练自动点一行代码给包涵看
+function coachDemoClickOnce(){
+  const g = guide();
+  if(g.demoShown) return;
+  g.demoShown = true; saveGuide(g);
+  setTimeout(()=>{
+    coachThink("👀 看好了，我教你一个小技巧——");
+    setTimeout(()=>{
+      // 自动"点"第一行有知识点的代码
+      const firstIdx = LEVELS[curLevel].demo.findIndex(s=>s.k);
+      if(firstIdx>=0){
+        clickCodeLine(firstIdx);
+        setTimeout(()=>{ coachThink("看到没？点上面任意一行代码，就会冒出它的解释！\n以后你看不懂哪行，就点它试试～"); }, 900);
+      }
+    }, 1100);
+  }, 700);
+}
+
 function clickCodeLine(stepIdx){
   const lv=LEVELS[curLevel];
   const step=lv.demo[stepIdx];
   const d=LV(curLevel); d.codeClick++; persistTrack(); // 埋点
+  dismissCodeTip(false); // 他真的会点了，气泡这次先收起来
   if(step && step.k){
     showKnowledge(step.k.tag, step.k.title, step.k.body, null);
     highlightStep(stepIdx);
@@ -1798,6 +1868,10 @@ function playDemo(){
       showKnowledge('知识点', lv.concept_knowledge.title, lv.concept_knowledge.body, lv.concept_knowledge.scratch, lv.concept_knowledge.formula);
       coachSay("看完啦！点任意一行代码能看它的解释。明白了就往下做「拆解」吧！","");
       demoPlaying=false;
+      // ④ 首次进任何关：教练示范点一行代码（一次性）
+      coachDemoClickOnce();
+      // ③ 演示放完，弹"点代码看解释"气泡（自动退休）
+      maybeShowCodeTip();
       // 演示放完，自动进入拆解环节
       setTimeout(startBreak, 600);
       return;
