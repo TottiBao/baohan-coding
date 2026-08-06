@@ -432,7 +432,7 @@
     </div>
   </div>
 
-  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.8.2（点代码看解释引导系统）</footer>
+  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.8.3（公式卡重做：迁移例子+生活比喻图）</footer>
 </div>
 
 <script>
@@ -597,7 +597,6 @@ const LEVELS = [
     concept_knowledge:{
       title:"本关学：嵌套循环（循环里套循环）",
       body:"外层管「画几个」，内层管「画一个」。就像：每一天（外层），都要刷 4 次牙（内层）——内层的事全部做完，外层的这一天才算过完。",
-      formula:'<span class="fk">for</span> j <span class="fk">in</span> range(4):    <span class="fc">← 外层：画 4 个</span>\n    <span class="fk">for</span> i <span class="fk">in</span> range(4):  <span class="fc">← 内层：画 1 个</span>\n        forward(60)\n        right(90)\n    right(90)            <span class="fc">← 画完1个，外层转身</span>',
       scratch:"💡 这就像 Scratch 里把「重复4次」装进「重复4次」里面——里面那层跑完一圈，外面那层才走一步。"
     },
     demo:[
@@ -2044,18 +2043,33 @@ function insertCmd(cmd){
 
 /* ---------- 第0步：知识点常驻面板 ---------- */
 // 各关公式卡（集中存放，按关卡索引查表，避免数据里嵌字符串）
+// 各关公式卡：用"和练习不同的例子"讲含义（迁移意识）+ 生活比喻图
+// 例子刻意 ≠ 练习代码（数值/主题不同），让他理解公式而非抄答案
 const LEVEL_FORMULAS = {
-  0:'forward(100)   <span class="fc">← 第 1 步</span>\nright(90)      <span class="fc">← 第 2 步</span>\nforward(80)    <span class="fc">← 第 3 步</span>\n<span class="fk">从上往下，一步一步来！</span>',
-  1:'<span class="fk">for</span> i <span class="fk">in</span> range(4):  <span class="fc">← 重复 4 次</span>\n    forward(100)   <span class="fc">← 缩进的才会被重复</span>\n    right(90)',
-  3:'<span class="fk">if</span> i == 2:     <span class="fc">← 如果 i 是 2</span>\n    right(90)    <span class="fc">← 成立才做（缩进）</span>\n               <span class="fc">← 不成立就跳过</span>',
-  4:'<span class="fk">if</span> i % 2 == 0:  <span class="fc">← 如果是双数步</span>\n    left(60)     <span class="fc">← 向左</span>\n<span class="fk">else</span>:           <span class="fc">← 否则（单数步）</span>\n    right(60)    <span class="fc">← 向右</span>',
-  5:'x = 20        <span class="fc">← 做个盒子装 20</span>\nforward(x)    <span class="fc">← 用盒子里的数</span>\nx = x + 15    <span class="fc">← 加 15 存回去</span>',
-  6:'<span class="fk">顺序 → 循环 → 嵌套 → 条件</span>\n<span class="fc">全部用上，自己组合出一次进攻！</span>',
-  7:'<span class="fk">def</span> guoren():   <span class="fc">← 做个工具</span>\n    forward(50)  <span class="fc">← 装进去的动作（缩进）</span>\nguoren()        <span class="fc">← 说一声，用一次</span>',
-  8:'<span class="fk">def</span> chongci():  <span class="fc">← 工具1：冲刺</span>\n<span class="fk">def</span> guoren():    <span class="fc">← 工具2：过人</span>\nchongci()  guoren()   <span class="fc">← 组合起来用</span>',
-  9:'colors = ["red", "blue", "green"]\npencolor(colors[i % 3])  <span class="fc">← 取第 i 个颜色</span>',
-  10:'score = score + 1   <span class="fc">← 先算好</span>\nprint(score)        <span class="fc">← 喊出来（变量不用引号）</span>\nprint("进球啦")     <span class="fc">← 文字要引号</span>',
-  11:'<span class="fk">def + 列表 + 变量 + print</span>\n<span class="fc">全部用上，办一场太空足球赛！</span>'
+  // 第1关 顺序：练习是火箭L形；公式卡讲"画一条折线"最小骨架
+  0:'<span class="fk">📌 顺序 = 一条一条，从上往下做</span>\n\nforward(50)      <span class="fc">← 第 1 句</span>\nright(90)       <span class="fc">← 第 2 句</span>\nforward(30)      <span class="fc">← 第 3 句</span>\n\n<span class="fk">💡 就像读故事书：先这句、再那句。</span>\n<span class="fk">换换顺序，结果就不一样了！</span>',
+  // 第2关 循环：练习是正方形；公式卡讲三角形（迁移：换个数换个形）
+  1:'<span class="fk">📌 循环 = 重复 N 遍，不用自己抄</span>\n\n<span class="fk">for</span> i <span class="fk">in</span> range(3):   <span class="fc">← 重复 3 遍</span>\n    forward(50)\n    right(120)      <span class="fc">← 120度=三角形</span>\n\n<span class="fk">💡 练习是正方形(4次/90度)；</span>\n<span class="fk">这里换成三角形(3次/120度)——</span>\n<span class="fk">同一招，换个数就能画别的形！</span>\n\n📊 <span class="fc">生活比喻：</span>\n   📅 每天都要刷牙\n   for 每天: 刷牙()',
+  // 第3关 嵌套循环：练习是正方形花朵；公式卡讲"三角形×3朵"（迁移）
+  2:'<span class="fk">📌 嵌套 = 大圈套小圈</span>\n\n<span class="fk">for</span> j <span class="fk">in</span> range(3):      <span class="fc">← 外层：画3个形</span>\n    <span class="fk">for</span> i <span class="fk">in</span> range(3):  <span class="fc">← 内层：画1个三角形</span>\n        forward(40)\n        right(120)\n    right(120)          <span class="fc">← 画完一个，转个身</span>\n\n<span class="fk">💡 外层每走1步，内层跑完整圈。</span>\n\n📅 <span class="fc">生活比喻：</span>\n   for 每天(外层):\n     for 每顿饭(内层):\n       吃一口()',
+  // 第4关 条件：练习是"i==2转弯"；公式卡讲"i==1时画粗一点"（迁移）
+  3:'<span class="fk">📌 条件 = 程序会"做决定"</span>\n\n<span class="fk">for</span> i <span class="fk">in</span> range(4):\n    <span class="fk">if</span> i == 1:          <span class="fc">← 如果 i 是 1</span>\n        forward(80)     <span class="fc">← 这一遍走长一点</span>\n    <span class="fk">if</span> i == 3:\n        right(90)       <span class="fc">← 第4遍才转弯</span>\n\n<span class="fk">💡 条件成立才做（缩进的事），</span>\n<span class="fk">不成立就跳过去。</span>\n\n🚦 <span class="fc">生活比喻：</span>\n   if 红灯: 停下\n   if 绿灯: 走',
+  // 第5关 if/else：练习是左右带球；公式卡讲"奇偶步长短不同"（迁移）
+  4:'<span class="fk">📌 if/else = 非此即彼，二选一</span>\n\n<span class="fk">for</span> i <span class="fk">in</span> range(4):\n    <span class="fk">if</span> i % 2 == 0:      <span class="fc">← 双数步</span>\n        forward(40)     <span class="fc">← 走短一点</span>\n    <span class="fk">else</span>:               <span class="fc">← 单数步（否则）</span>\n        forward(80)     <span class="fc">← 走长一点</span>\n\n<span class="fk">💡 双数走一条，单数走另一条，</span>\n<span class="fk">不会都不走，也不会都走。</span>\n\n🔀 <span class="fc">生活比喻：</span>\n   if 下雨: 带伞\n   else: 不带',
+  // 第6关 变量：练习是力度递增；公式卡讲"边长递增的台阶"（迁移）
+  5:'<span class="fk">📌 变量 = 会变的盒子</span>\n\nx = 10               <span class="fc">← 做个盒子装 10</span>\n<span class="fk">for</span> i <span class="fk">in</span> range(3):\n    forward(x)        <span class="fc">← 用盒子里的数</span>\n    x = x + 10        <span class="fc">← 加10存回去</span>\n\n<span class="fk">💡 只写 x + 10 不存回去，</span>\n<span class="fk">盒子里的数不会变！</span>\n\n📦 <span class="fc">生活比喻：</span>\n   存钱罐 = 盒子\n   每次存钱：存钱罐 = 存钱罐 + 10',
+  // 第7关 大任务1
+  6:'<span class="fk">📌 大任务 = 把学过的招式全用上</span>\n\n顺序 → 循环 → 嵌套 → 条件\n\n<span class="fk">💡 先把任务拆成几个小模块，</span>\n<span class="fk">再一个一个写成代码。</span>\n\n🧩 <span class="fc">生活比喻：</span>\n   做一道菜 = 洗菜 + 切菜 + 炒菜 + 装盘\n   每一步都用不同的"招式"',
+  // 第8关 函数：练习是过人；公式卡讲"画三角形工具"（迁移）
+  7:'<span class="fk">📌 函数 = 把一套动作装进工具箱</span>\n\n<span class="fk">def</span> sanjiao():       <span class="fc">← 做个叫 sanjiao 的工具</span>\n    forward(50)\n    right(120)\n    forward(50)\n    right(120)\n    forward(50)\n\nsanjiao()            <span class="fc">← 说一声，用一次</span>\nsanjiao()            <span class="fc">← 再说一声，再用一次</span>\n\n<span class="fk">💡 写一次 def，能用无数次。</span>\n\n🔧 <span class="fc">生活比喻：</span>\n   做个"刷牙工具"，每天早晚喊一声就用',
+  // 第9关 函数组合：练习是连招；公式卡讲"画线+画三角两个工具组合"（迁移）
+  8:'<span class="fk">📌 函数组合 = 几个工具拼起来用</span>\n\n<span class="fk">def</span> huaxian():     <span class="fc">← 工具1：画条线</span>\n    forward(60)\n\n<span class="fk">def</span> sanjiao():    <span class="fc">← 工具2：画个三角</span>\n    for i in range(3):\n        forward(40)\n        right(120)\n\nhuaxian()  sanjiao()  <span class="fc">← 拼起来用</span>\n\n<span class="fk">💡 每个工具只管一件事，</span>\n<span class="fk">换顺序就是不同花样！</span>\n\n🧱 <span class="fc">生活比喻：</span>\n   积木A + 积木B = 拼出不同的造型',
+  // 第10关 列表+颜色：练习是4色彩虹；公式卡讲"3色画3段"（迁移）
+  9:'<span class="fk">📌 列表 = 一排有顺序的盒子</span>\n\ncolors = ["red", "blue", "green"]\n\n<span class="fk">for</span> i <span class="fk">in</span> range(3):\n    pencolor(colors[i])   <span class="fc">← 取第 i 个颜色</span>\n    forward(50)\n\n<span class="fk">💡 i=0 取红色，i=1 取蓝色……</span>\n<span class="fk">换列表里的颜色，画就跟着变！</span>\n\n🎨 <span class="fc">生活比喻：</span>\n   颜料盒 = [红, 蓝, 绿]\n   要哪个，就 colors[第几个]',
+  // 第11关 print：练习是记分；公式卡讲"打印口算结果"（迁移）
+  10:'<span class="fk">📌 print = 让电脑开口说话</span>\n\na = 3\nb = 5\nprint(a + b)         <span class="fc">← 喊出 8（变量不用引号）</span>\nprint("算完啦")      <span class="fc">← 喊出文字（要引号）</span>\n\n<span class="fk">💡 变量不写引号，文字要写引号。</span>\n\n📢 <span class="fc">生活比喻：</span>\n   print = 喊话筒\n   喊数字：喊(8)\n   喊句子：喊("你好")',
+  // 第12关 大任务2
+  11:'<span class="fk">📌 大任务2 = 全部招式大集合</span>\n\n函数 def + 列表 + 变量 + print\n\n<span class="fk">💡 自己拆解、自己实现，</span>\n<span class="fk">办一场属于你的太空足球赛！</span>\n\n🚀 <span class="fc">生活比喻：</span>\n   办一场比赛 = 做工具 + 选颜色 + 记分 + 播报\n   每个招式都用上'
 };
 function fillKnowledgePanel(lv){
   const ck = lv.concept_knowledge;
