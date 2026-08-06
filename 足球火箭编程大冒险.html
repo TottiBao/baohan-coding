@@ -432,7 +432,7 @@
     </div>
   </div>
 
-  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.8.3（公式卡重做：迁移例子+生活比喻图）</footer>
+  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.8.4（画布自动适配缩放，修复超范围）</footer>
 </div>
 
 <script>
@@ -476,7 +476,29 @@ function LV(i){
 function trackErr(type){ const d=LV(curLevel); d.errors[type]=(d.errors[type]||0)+1; persistTrack(); }
 
 function rad(d){ return d*Math.PI/180; }
-function toPx(x,y){ return [CX + x, CY - y]; }
+let viewScale = 1;                 // 运行时缩放（轨迹/战术图超范围时自动缩小适配）
+function toPx(x,y){ return [CX + x*viewScale, CY - y*viewScale]; }
+/* 按内容范围自动适配缩放：操作、战术图取较大范围，超出画布则等比缩小 */
+function updateViewScale(ops, dg){
+  viewScale = 1;
+  let maxX = 30, maxY = 30;
+  // 模拟轨迹求最大范围
+  let x=0, y=0, a=90;
+  ops.forEach(op=>{
+    if(op.cmd==='left') a+=op.val;
+    else if(op.cmd==='right') a-=op.val;
+    else if(op.cmd==='forward'){ x+=Math.cos(rad(a))*op.val; y+=Math.sin(rad(a))*op.val; }
+    maxX = Math.max(maxX, Math.abs(x));
+    maxY = Math.max(maxY, Math.abs(y));
+  });
+  // 战术图元素
+  if(dg){
+    const all = [dg.route||[], dg.defenders||[], dg.cones||[], dg.goal?[dg.goal]:[], (dg.segLabels||[]).map(L=>L.at)];
+    all.flat().forEach(p=>{ maxX = Math.max(maxX, Math.abs(p[0])); maxY = Math.max(maxY, Math.abs(p[1])); });
+  }
+  const need = Math.max(maxX/(cv.width/2 - 48), maxY/(cv.height/2 - 48));
+  if(need > 1) viewScale = 1/need;
+}
 function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 /* =========================================================
@@ -1531,7 +1553,7 @@ function draw(){
   drawBg();
   if(trail.length>1){
     // 彩色轨迹：逐段着色（无分段时整段用当前色）
-    ctx.lineWidth=3; ctx.lineJoin='round';
+    ctx.lineWidth=Math.max(1.5, 3*viewScale); ctx.lineJoin='round';
     if(trailColors.length>1){
       for(let i=1;i<trail.length;i++){
         ctx.strokeStyle = trailColors[i] || penColor;
@@ -1548,7 +1570,7 @@ function draw(){
   }
   const [tx,ty]=toPx(T.x,T.y);
   ctx.save(); ctx.translate(tx,ty); ctx.rotate(rad(90-T.a));
-  ctx.font='30px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.font=`${Math.max(14, Math.round(30*viewScale))}px serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
   ctx.fillText(currentEmoji(),0,0);
   ctx.restore();
 }
@@ -1578,6 +1600,9 @@ function runCode(){
   if(res.warn){ showWarn(res.warn.text); }
   coachSay("代码读明白啦，看它动！","");
   queue = res.ops.slice();
+  // 自动适配缩放：轨迹/战术图超范围时缩小到画布内
+  const hwDg = (isHomework && LEVELS[curLevel].homework && LEVELS[curLevel].homework.diagram) ? LEVELS[curLevel].homework.diagram : null;
+  updateViewScale(queue, hwDg);
   printsArr = res.prints ? res.prints.slice() : [];   // 记录 print 输出（判定用）
   runAttempts++;
   // 埋点：运行次数
@@ -1728,7 +1753,23 @@ const demoCtx = demoCv.getContext('2d');
 const DCX = demoCv.width/2, DCY = demoCv.height/2;
 let dT={x:0,y:0,a:90}, dTrail=[], dTimer=null, demoPlaying=false;
 
-function dToPx(x,y){ return [DCX+x, DCY-y]; }
+let dScale = 1;
+function dToPx(x,y){ return [DCX + x*dScale, DCY - y*dScale]; }
+/* 演示画布自动适配缩放 */
+function demoUpdateScale(ops){
+  dScale = 1;
+  let maxX = 30, maxY = 30;
+  let x=0, y=0, a=90;
+  ops.forEach(op=>{
+    if(op.cmd==='left') a+=op.val;
+    else if(op.cmd==='right') a-=op.val;
+    else if(op.cmd==='forward'){ x+=Math.cos(rad(a))*op.val; y+=Math.sin(rad(a))*op.val; }
+    maxX = Math.max(maxX, Math.abs(x));
+    maxY = Math.max(maxY, Math.abs(y));
+  });
+  const need = Math.max(maxX/(demoCv.width/2 - 26), maxY/(demoCv.height/2 - 26));
+  if(need > 1) dScale = 1/need;
+}
 function demoDrawBg(){
   demoCtx.clearRect(0,0,demoCv.width,demoCv.height);
   demoCtx.fillStyle='rgba(255,255,255,.06)';
@@ -1740,14 +1781,14 @@ function demoDrawBg(){
 function demoDraw(){
   demoDrawBg();
   if(dTrail.length>1){
-    demoCtx.strokeStyle='#7ef0c0'; demoCtx.lineWidth=2.5; demoCtx.lineJoin='round';
+    demoCtx.strokeStyle='#7ef0c0'; demoCtx.lineWidth=Math.max(1.2, 2.5*dScale); demoCtx.lineJoin='round';
     demoCtx.beginPath();
     dTrail.forEach((p,i)=>{ const [x,y]=dToPx(p[0],p[1]); i?demoCtx.lineTo(x,y):demoCtx.moveTo(x,y); });
     demoCtx.stroke();
   }
   const [tx,ty]=dToPx(dT.x,dT.y);
   demoCtx.save(); demoCtx.translate(tx,ty); demoCtx.rotate(rad(90-dT.a));
-  demoCtx.font='22px serif'; demoCtx.textAlign='center'; demoCtx.textBaseline='middle';
+  demoCtx.font=`${Math.max(12, Math.round(22*dScale))}px serif`; demoCtx.textAlign='center'; demoCtx.textBaseline='middle';
   demoCtx.fillText(LEVELS[curLevel].emoji==='⚽'?'⚽':'🚀',0,0);
   demoCtx.restore();
 }
@@ -1860,6 +1901,9 @@ function playDemo(){
   if(demoPlaying){ stopDemo(); renderDemoStatic(); return; }
   demoPlaying=true;
   const d=LV(curLevel); d.demoPlay++; persistTrack(); // 埋点：看演示次数
+  // 演示画布自动适配缩放（汇总本关演示全部动作求范围）
+  const allOps = lv.demo.reduce((acc,s)=> acc.concat(s.ops||[]), []);
+  demoUpdateScale(allOps);
   dT={x:0,y:0,a:90}; dTrail=[[0,0]]; demoDraw();
   let stepIdx=0;
   (function doStep(){
