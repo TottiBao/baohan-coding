@@ -432,7 +432,7 @@
     </div>
   </div>
 
-  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.8.5（公式结构卡：for/if/def写错给完整结构提示）</footer>
+  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.8.6（修if单等号专属提示不可达）</footer>
 </div>
 
 <script>
@@ -1207,6 +1207,10 @@ function compile(src){
       if(m && !/^if\s*$/.test(line)){
         const cond = m[1].trim();
         const show = `<span class="err-line">${escapeHtml(line)}</span>`;
+        // 单等号误用（if i = 2:）→ 优先给 == 专属提示（比结构卡更精准）
+        if(/[^=!<>]=[^=]/.test(cond)){
+          return { error:{ line:item.n, html:`🔍 第 ${item.n} 行：${show}<br>判断「相等」要用<b>两个等号</b> <span class="err-fix">==</span> 哦！<br>一个 = 是「装东西」（赋值），两个 == 才是「比一比」。把 <b>=</b> 改成 <b>==</b> 试试。`, errWord:'if' }};
+        }
         // 有内容但完全不是条件（比如写成了 forward）→ 结构卡
         if(cond && !/==|<|>|%|\bin\b/.test(cond) && !/^[a-zA-Z_]\w*$/.test(cond)){
           return { error:{ line:item.n, html:`🔍 第 ${item.n} 行：${show}<br>if 后面要写一个<b>条件</b>（比一比）。完整结构是：<br><span class="err-fix">if i == 2:</span> 或 <span class="err-fix">if i &lt; 3:</span><br>检查：比的对象（i 或变量）、比较符号（== 两个等号 / &lt; / &gt;）、结尾<b>冒号:</b>。`, errWord:'if' }};
