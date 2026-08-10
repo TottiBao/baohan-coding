@@ -432,7 +432,7 @@
     </div>
   </div>
 
-  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.8.4（画布自动适配缩放，修复超范围）</footer>
+  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.8.5（公式结构卡：for/if/def写错给完整结构提示）</footer>
 </div>
 
 <script>
@@ -1161,8 +1161,8 @@ function compile(src){
         return { body, next: j };
       }
 
-      // ---- for 循环 ----
-      let m = line.match(/^for\s+([a-zA-Z_]\w*)\s+in\s+range\((\d+)\)\s*:?$/);
+      // ---- for 循环（结构卡纠错：指认缺少的要素） ----
+      let m = line.match(/^for\s+([a-zA-Z_]\w*)\s+in\s+range\s*\(\s*(\d+)\s*\)\s*:?$/);
       if(m){
         if(!/:\s*$/.test(line) && !warn){ warn = {line:item.n, text:`第 ${item.n} 行：循环后面要戴个小帽子（冒号 :），我帮你加上啦。`}; }
         const { body, next } = collectBody(i+1);
@@ -1176,10 +1176,42 @@ function compile(src){
         i = next;
         continue;
       }
+      // for 写法不对 → 结构卡提示（指认缺少的要素）
+      if(/^for\b/i.test(line)){
+        const show = `<span class="err-line">${escapeHtml(line)}</span>`;
+        const bodyTxt = line.replace(/^for\s*/i,'').trim();
+        // 拼错 range：rang 后面不是 e（rang( / rnage / raange / ragne），但 range 本身不算
+        const hasMisspell = /rang(?!e)|rnage|raange|ragne/.test(bodyTxt);
+        // 缺计数器：for 后面紧跟 in 或 range（中间没有名字）
+        const missingCounter = /^(in|range)\b/.test(bodyTxt);
+        const hasIn = /\bin\b/.test(bodyTxt);
+        const hasRange = /range/.test(bodyTxt);
+        const hasParen = /\(/.test(bodyTxt) && /\)/.test(bodyTxt);
+        const hasColon = /:\s*$/.test(line);
+        const missing = [];
+        if(missingCounter) missing.push("计数器 <b>i</b>（写在 for 和 in 之间的名字）");
+        if(!hasIn && !missingCounter) missing.push("<b>in</b>");
+        if(!hasRange) missing.push("<b>range</b>");
+        if(!hasParen) missing.push("一对<b>括号 ( )</b>");
+        if(!hasColon) missing.push("结尾的<b>冒号 :</b>");
+        if(hasMisspell || missing.length){
+          let tip = `🔍 第 ${item.n} 行：${show}<br>`;
+          if(hasMisspell) tip += `「range」拼错啦，是 <b>r-a-n-g-e</b>。<br>`;
+          if(missing.length) tip += `for 循环的完整结构是：<br><span class="err-fix">for i in range(次数):</span><br>要这五样：<b>for</b>、计数器<b>i</b>、<b>in</b>、<b>range(次数)</b>、结尾<b>冒号:</b>。<br>你好像少了：${missing.join('、')}。补上试试！`;
+          return { error:{ line:item.n, html:tip, errWord:'for' }};
+        }
+      }
 
-      // ---- if 条件 ----
+      // ---- if 条件（结构卡纠错） ----
       m = line.match(/^if\s+(.+?)\s*:?$/);
       if(m && !/^if\s*$/.test(line)){
+        const cond = m[1].trim();
+        const show = `<span class="err-line">${escapeHtml(line)}</span>`;
+        // 有内容但完全不是条件（比如写成了 forward）→ 结构卡
+        if(cond && !/==|<|>|%|\bin\b/.test(cond) && !/^[a-zA-Z_]\w*$/.test(cond)){
+          return { error:{ line:item.n, html:`🔍 第 ${item.n} 行：${show}<br>if 后面要写一个<b>条件</b>（比一比）。完整结构是：<br><span class="err-fix">if i == 2:</span> 或 <span class="err-fix">if i &lt; 3:</span><br>检查：比的对象（i 或变量）、比较符号（== 两个等号 / &lt; / &gt;）、结尾<b>冒号:</b>。`, errWord:'if' }};
+        }
+        if(!/:\s*$/.test(line) && !warn){ warn = {line:item.n, text:`第 ${item.n} 行：if 后面要加冒号 :，我帮你加上啦。`}; }
         const { body, next } = collectBody(i+1);
         // 检查 else（与 if 同缩进、紧随其后）
         let elseBody = null, afterElse = next;
@@ -1193,9 +1225,9 @@ function compile(src){
           })();
           elseBody = r2.body2; afterElse = r2.next2;
         }
-        const cond = evalCond(m[1], vars, item.n);
-        if(cond.error) return { error: cond.error };
-        if(cond.val){
+        const condR = evalCond(cond, vars, item.n);
+        if(condR.error) return { error: condR.error };
+        if(condR.val){
           if(body.length===0) return { error:{ line:item.n, html:`🔍 第 ${item.n} 行：if 下面是空的哦。把条件成立要做的事缩进写进去。` }};
           const r = execBlock(body); if(r && r.error) return r;
         } else if(elseBody){
@@ -1204,13 +1236,18 @@ function compile(src){
         i = afterElse;
         continue;
       }
+      // if 写法不对（if 开头但后面空/结构不对）→ 结构卡
+      if(/^if\b/i.test(line)){
+        const show = `<span class="err-line">${escapeHtml(line)}</span>`;
+        return { error:{ line:item.n, html:`🔍 第 ${item.n} 行：${show}<br>if 的完整结构是：<br><span class="err-fix">if i == 2:</span> 或 <span class="err-fix">if i &lt; 3:</span><br>要：比的对象、比较符号（== 两个等号 / &lt; / &gt;）、结尾<b>冒号:</b>。检查你少了哪个？`, errWord:'if' }};
+      }
 
       // ---- else 没有配对的 if ----
       if(/^else\s*:?\s*$/.test(line)){
         return { error:{ line:item.n, html:`🔍 第 ${item.n} 行：else 找不到它的 if 朋友哦。else 要紧紧跟在 if 的后面，而且和 if 对齐（缩进一样）。` }};
       }
 
-      // ---- def 函数定义 ----
+      // ---- def 函数定义（结构卡纠错） ----
       m = line.match(/^def\s+([a-zA-Z_]\w*)\s*\(\s*\)\s*:?$/);
       if(m){
         if(!/:\s*$/.test(line) && !warn){ warn = {line:item.n, text:`第 ${item.n} 行：def 后面要戴个小帽子（冒号 :），我帮你加上啦。`}; }
@@ -1220,6 +1257,15 @@ function compile(src){
         funcs[m[1]] = body;
         i = next;
         continue;
+      }
+      // def 写法不对 → 结构卡提示
+      if(/^def\b/i.test(line)){
+        const show = `<span class="err-line">${escapeHtml(line)}</span>`;
+        const missing = [];
+        if(!/[a-zA-Z_]\w*/.test(line.replace(/^def\s*/i,''))) missing.push("工具<b>名字</b>");
+        if(!/\(\s*\)/.test(line)) missing.push("一对<b>括号 ( )</b>");
+        if(!/:\s*$/.test(line)) missing.push("结尾<b>冒号 :</b>");
+        return { error:{ line:item.n, html:`🔍 第 ${item.n} 行：${show}<br>def（做工具）的完整结构是：<br><span class="err-fix">def 名字():</span><br>然后下一行<b>缩进</b>写它要做的事。${missing.length?'<br>你好像少了：'+missing.join('、')+'。':''}补上试试！`, errWord:'def' }};
       }
 
       // ---- 函数调用 ----
