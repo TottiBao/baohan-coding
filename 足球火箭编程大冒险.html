@@ -432,7 +432,7 @@
     </div>
   </div>
 
-  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.8.6（修if单等号专属提示不可达）</footer>
+  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.8.7（未定义变量报错精准化：先定义再使用）</footer>
 </div>
 
 <script>
@@ -1401,7 +1401,7 @@ function evalExpr(expr, vars, lineNo){
 /* 取变量（未声明则给专属提示） */
 function getVar(name, vars, lineNo){
   if(name in vars) return { val: vars[name] };
-  return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：我不认识 <b>${escapeHtml(name)}</b> 这个盒子哦。<br>先用 <span class="err-fix">${escapeHtml(name)} = 数字</span> 做个盒子装个数，再用它。` }};
+  return { error:{ line:lineNo, errWord:name, html:`🔍 第 ${lineNo} 行：你用到了盒子 <b>${escapeHtml(name)}</b>，但它是<b>空的</b>（还没装数字）！<br>变量要<b>先定义、再使用</b>：<br>&nbsp;&nbsp;<span class="err-fix">${escapeHtml(name)} = 20</span>&nbsp;&nbsp;← 先做盒子，装进数字<br>&nbsp;&nbsp;<span class="err-fix">forward(${escapeHtml(name)})</span>&nbsp;&nbsp;← 再拿出来用<br>在这行前面补一句 <b>${escapeHtml(name)} = 数字</b> 就好啦。` }};
 }
 
 /* 普通指令解析（参数可为数字或变量） */
