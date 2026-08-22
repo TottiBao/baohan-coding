@@ -432,7 +432,7 @@
     </div>
   </div>
 
-  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.8.7（未定义变量报错精准化：先定义再使用）</footer>
+  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.8.8（Tab键=缩进，Shift+Tab=减缩进）</footer>
 </div>
 
 <script>
@@ -2404,6 +2404,26 @@ function copyReport(){
 }
 
 /* ---------- 初始化 ---------- */
+// Tab 键 = 缩进（插入4个空格）；Shift+Tab = 减缩进。默认 Tab 会跳到下一个按钮，需拦截。
+document.getElementById('editor').addEventListener('keydown', function(e){
+  if(e.key !== 'Tab') return;
+  e.preventDefault();
+  const ed = this;
+  const start = ed.selectionStart, end = ed.selectionEnd, val = ed.value;
+  if(e.shiftKey){
+    // 减缩进：删掉当前行行首最多4个空格
+    const lineStart = val.lastIndexOf('\n', start-1) + 1;
+    const lineBefore = val.slice(lineStart, start);
+    const spaces = (lineBefore.match(/^ */)||[''])[0].length;
+    const remove = Math.min(4, spaces);
+    ed.value = val.slice(0, lineStart) + lineBefore.slice(remove) + val.slice(start);
+    ed.selectionStart = ed.selectionEnd = start - remove;
+  } else {
+    // 加缩进：光标处插入4个空格
+    ed.value = val.slice(0, start) + '    ' + val.slice(end);
+    ed.selectionStart = ed.selectionEnd = start + 4;
+  }
+});
 buildMap();
 resetTurtle();
 </script>
