@@ -432,7 +432,7 @@
     </div>
   </div>
 
-  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.8.9（报错引导精准化：else结构卡/调用误写def/拼错函数名给建议，报错归类不再裸奔）</footer>
+  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.9.0（第13关·大任务3：银河冠军之夜，嵌套循环回归+全招式综合庆典）</footer>
 </div>
 
 <script>
@@ -1059,6 +1059,38 @@ const LEVELS = [
       },
       win:"震撼全场的太空联赛！函数、颜色、记分、播报——你把这一学期学的全用上了，这是你独立完成的第一个「大作品」！",
       medal:"🏆 星际联赛冠军"
+    }
+  },
+  {
+    name:"银河冠军之夜", emoji:"🏆", concept:"综合项目", planet:"🌟",
+    desc:"大任务3：嵌套循环+函数+颜色+变量，办一场夺冠庆典！",
+    title:"⭐ 大任务3：银河冠军之夜",
+    text:"",
+    project:true,
+    concept_knowledge:{ title:"大任务3：终极综合大汇演", body:"嵌套循环、函数、列表颜色、变量、print——把你学过的全部招式汇成一场庆典！烟花要用两个循环套起来：外层管「转几瓣」，内层管「画一瓣」。", scratch:"💡 烟花一朵朵开，就像 Scratch 里「重复执行」套「重复执行」。" },
+    homework:{
+      title:"⭐ 大任务3：银河冠军之夜",
+      text:"银河杯决赛，你们夺冠了！设计你的夺冠庆典：\n①用 def 做一个「烟花」工具（两个循环套起来画花纹，每瓣不同颜色）\n②彩带绕场巡游（循环）\n③变量记分，print 播报比分\n④加分项：用 if/else 让灯光一半一半变色！",
+      stepsHint:"先在「我的拆解」写出庆典模块（烟花工具→绕场巡游→记分播报），再逐个实现。烟花里：外层循环管「转几瓣」，内层循环管「画一瓣」。",
+      emoji:"🎆",
+      diagram:{
+        route:[[0,0],[0,70],[-70,70],[-70,140],[0,140],[70,140]],
+        segLabels:[{at:[-25,35],text:"巡游"},{at:[-105,105],text:"彩带"},{at:[95,110],text:"烟花区"}],
+        cones:[[70,70],[92,92],[92,48]],
+        goal:[70,180]
+      },
+      check(path){
+        const u = new Set(trailColors);
+        const t = turns(path);
+        const hasColor = u.size >= 2;
+        const hasPrint = printsArr.length >= 1;
+        if(hasColor && hasPrint && t>=6) return {ok:true};
+        if(!hasColor) return {ok:false, why:"no_color"};
+        if(!hasPrint) return {ok:false, why:"no_print"};
+        return {ok:false, why:"too_simple"};
+      },
+      win:"银河冠军之夜被你点亮了！烟花、巡游、播报全是你自己设计的——你是真正的编程冠军！",
+      medal:"🏆 银河冠军设计师"
     }
   }
 ];
@@ -2258,7 +2290,8 @@ const UNLOCK_CODES = {
   8:"连招",          // 第9关 · 组合进攻
   9:"彩虹",          // 第10关 · 彩虹球场
   10:"帽子戏法",     // 第11关 · 进球播报员
-  11:"星际联赛"      // 第12关 · 大任务2 太空足球联赛
+  11:"星际联赛",     // 第12关 · 大任务2 太空足球联赛
+  12:"冠军之夜"      // 第13关 · 大任务3 银河冠军之夜
 };
 let pendingUnlock = -1;
 function openUnlock(i){
