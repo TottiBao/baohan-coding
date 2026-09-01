@@ -432,7 +432,7 @@
     </div>
   </div>
 
-  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.8.8（Tab键=缩进，Shift+Tab=减缩进）</footer>
+  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.8.9（报错引导精准化：else结构卡/调用误写def/拼错函数名给建议，报错归类不再裸奔）</footer>
 </div>
 
 <script>
@@ -1248,16 +1248,22 @@ function compile(src){
 
       // ---- else 没有配对的 if ----
       if(/^else\s*:?\s*$/.test(line)){
-        return { error:{ line:item.n, html:`🔍 第 ${item.n} 行：else 找不到它的 if 朋友哦。else 要紧紧跟在 if 的后面，而且和 if 对齐（缩进一样）。` }};
+        return { error:{ line:item.n, errKind:'else配对', html:`🔍 第 ${item.n} 行：else 找不到它的 if 朋友哦。else 要紧紧跟在 if 的后面，而且和 if 对齐（缩进一样）。` }};
+      }
+      // else 写法不对（else:left / elseleft / else 同行跟代码）→ 专属结构卡
+      if(/^else/i.test(line)){
+        const show = `<span class="err-line">${escapeHtml(line)}</span>`;
+        return { error:{ line:item.n, errKind:'else写法', html:`🔍 第 ${item.n} 行：${show}<br>else 的规矩：<br>① <b>独占一行</b>，结尾只加<b>冒号 :</b>，后面不能跟代码<br>② 和它的 if <b>对齐</b>（缩进一样）<br>③ 要做的事<b>缩进</b>写到它的下一行<br>完整样子：<br><span class="err-fix">if i == 1:</span><br><span class="err-fix">&nbsp;&nbsp;&nbsp;&nbsp;forward(50)</span><br><span class="err-fix">else:</span><br><span class="err-fix">&nbsp;&nbsp;&nbsp;&nbsp;left(90)</span>` }};
       }
 
       // ---- def 函数定义（结构卡纠错） ----
       m = line.match(/^def\s+([a-zA-Z_]\w*)\s*\(\s*\)\s*:?$/);
       if(m){
+        // 工具已存在 → 孩子多半是想"调用"却多写了 def（重名检查提到空体检查之前）
+        if(funcs[m[1]]) return { error:{ line:item.n, errKind:'调用误写def', errWord:m[1], html:`🔍 第 ${item.n} 行：<b>${escapeHtml(m[1])}</b> 已经在工具箱里啦！<br>想用它，直接写 <span class="err-fix">${escapeHtml(m[1])}()</span> 就好，<b>不用再加 def</b>。<br>def 是「做工具」，只写一次；用工具时光写名字。` }};
         if(!/:\s*$/.test(line) && !warn){ warn = {line:item.n, text:`第 ${item.n} 行：def 后面要戴个小帽子（冒号 :），我帮你加上啦。`}; }
         const { body, next } = collectBody(i+1);
-        if(body.length===0) return { error:{ line:item.n, html:`🔍 第 ${item.n} 行：函数 <b>${m[1]}</b> 里面是空的哦。把它要做的事<b>缩进</b>写进工具箱。` }};
-        if(funcs[m[1]]) return { error:{ line:item.n, html:`🔍 第 ${item.n} 行：函数 <b>${m[1]}</b> 已经有一个啦，换个名字吧。` }};
+        if(body.length===0) return { error:{ line:item.n, errKind:'def函数体空', errWord:m[1], html:`🔍 第 ${item.n} 行：函数 <b>${m[1]}</b> 里面是空的哦。把它要做的事<b>缩进</b>（空4格）写到 def 的下一行，装进工具箱。` }};
         funcs[m[1]] = body;
         i = next;
         continue;
@@ -1265,6 +1271,9 @@ function compile(src){
       // def 写法不对 → 结构卡提示
       if(/^def\b/i.test(line)){
         const show = `<span class="err-line">${escapeHtml(line)}</span>`;
+        // 调用处误写 def（语法残缺但工具已存在）→ 优先给"调用不用 def"
+        const dn = line.replace(/^def\s*/i,'').match(/^([a-zA-Z_]\w*)/);
+        if(dn && funcs[dn[1]]) return { error:{ line:item.n, errKind:'调用误写def', errWord:dn[1], html:`🔍 第 ${item.n} 行：${show}<br><b>${escapeHtml(dn[1])}</b> 已经在工具箱里啦！想用它，直接写 <span class="err-fix">${escapeHtml(dn[1])}()</span>，<b>不用再加 def</b>。` }};
         const missing = [];
         if(!/[a-zA-Z_]\w*/.test(line.replace(/^def\s*/i,''))) missing.push("工具<b>名字</b>");
         if(!/\(\s*\)/.test(line)) missing.push("一对<b>括号 ( )</b>");
@@ -1281,7 +1290,13 @@ function compile(src){
         continue;
       }
       if(m && !funcs[m[1]] && !/^(forward|left|right|print|pencolor|range|penup|pendown)$/.test(m[1])){
-        return { error:{ line:item.n, html:`🔍 第 ${item.n} 行：<b>${escapeHtml(m[1])}</b> 这个工具还没做出来哦。<br>先用 <span class="err-fix">def ${escapeHtml(m[1])}():</span> 把它装进工具箱，下面缩进写上它要做的事。` }};
+        // 名字像某个已做好的工具（编辑距离≤2）→ 猜他想调用谁
+        let near = null;
+        for(const fn of Object.keys(funcs)){ if(lev(m[1].toLowerCase(), fn.toLowerCase()) <= 2){ near = fn; break; } }
+        const tip = near
+          ? `咦，你是不是想用工具箱里的 <b>${escapeHtml(near)}</b>？<br>那就写 <span class="err-fix">${escapeHtml(near)}()</span>，检查一下拼写哦。`
+          : `先用 <span class="err-fix">def ${escapeHtml(m[1])}():</span> 把它装进工具箱，下面缩进写上它要做的事。<br>记住：<b>def 要写在用它之前</b>哦。`;
+        return { error:{ line:item.n, errKind:'调用未定义工具', errWord:m[1], html:`🔍 第 ${item.n} 行：<b>${escapeHtml(m[1])}</b> 这个工具还没做出来哦。<br>${tip}` }};
       }
 
       // ---- print 播报 ----
@@ -1633,12 +1648,24 @@ function runCode(){
   coachReset();
   if(res.error){
     stuckCount++;
-    // 埋点：报错统计 + 卡顿（"指令不认识"类记录具体写错的词，便于诊断）
+    // 埋点：报错统计 + 卡顿（errKind 精确归类 > errWord 记词 > html 关键词兜底，杜绝裸"指令不认识"）
     let errType;
-    if(res.error.errWord){
+    if(res.error.errKind){
+      errType = res.error.errKind + (res.error.errWord ? ':' + String(res.error.errWord).slice(0,10) : '');
+    } else if(res.error.errWord){
       errType = '指令不认识:' + String(res.error.errWord).slice(0,10);
     } else {
-      errType = res.error.html.match(/小笔误/) ? '拼写错误' : res.error.html.match(/括号/) ? '括号问题' : res.error.html.match(/数字/) ? '缺数字' : '指令不认识';
+      const h = res.error.html;
+      errType = h.match(/小笔误/) ? '拼写错误'
+        : h.match(/工具还没做出来/) ? '调用未定义工具'
+        : h.match(/里面是空的|下面是空的/) ? '结构体没内容'
+        : h.match(/找不到它的 if/) ? 'else配对'
+        : h.match(/print 里的东西/) ? 'print写法'
+        : h.match(/这个条件我看不懂/) ? '条件写法'
+        : h.match(/这个式子/) ? '式子写法'
+        : h.match(/括号/) ? '括号问题'
+        : h.match(/数字/) ? '缺数字'
+        : '指令不认识';
     }
     trackErr(errType);
     const d=LV(curLevel); if(isHomework){d.hwStuck++;}else{d.imitateStuck++;} persistTrack();
