@@ -181,6 +181,30 @@
   #peek-btn:hover{ color:#ffe9ad; }
   #peek-tip{ margin-top:8px; font-size:13px; color:#ffe9ad; background:rgba(255,214,107,.1); border-radius:9px; padding:8px 11px; }
 
+  /* ===== 问小航 对话框（预设话术树，离线） ===== */
+  #ask-zone{ margin-top:9px; }
+  #ask-btn{ font-size:13px; color:#8fd8c8; background:none; border:1px dashed rgba(94,234,212,.45); border-radius:9px; padding:5px 11px; cursor:pointer; }
+  #ask-btn:hover{ color:#b7f7cf; border-color:#5eead4; }
+  #ask-mask{ position:fixed; inset:0; background:rgba(5,8,25,.88); display:flex; align-items:center; justify-content:center; z-index:90; padding:16px; }
+  #ask-card{ background:linear-gradient(160deg,#16224f,#0f1638); border:2px solid rgba(120,200,255,.5); border-radius:20px; max-width:560px; width:100%; max-height:84vh; display:flex; flex-direction:column; box-shadow:0 0 50px rgba(120,200,255,.25); animation:pop .3s cubic-bezier(.2,1.6,.4,1); overflow:hidden; }
+  #ask-head{ display:flex; align-items:center; gap:10px; padding:13px 18px; border-bottom:1px solid rgba(140,170,255,.2); flex:none; }
+  #ask-head .av{ font-size:30px; }
+  #ask-head .t{ color:#cfe1ff; font-weight:bold; font-size:16px; }
+  #ask-head .s{ color:#8ea0d8; font-size:12px; margin-top:2px; }
+  #ask-log{ flex:1; overflow:auto; padding:14px 16px; min-height:120px; }
+  .ask-msg{ margin-bottom:11px; display:flex; }
+  .ask-msg.me{ justify-content:flex-end; }
+  .ask-msg .bub{ max-width:84%; padding:9px 13px; border-radius:14px; font-size:14.5px; line-height:1.65; }
+  .ask-msg.bot .bub{ background:rgba(120,180,255,.12); border:1px solid rgba(120,180,255,.3); color:#eaf0ff; border-top-left-radius:4px; }
+  .ask-msg.me .bub{ background:linear-gradient(160deg,#3b82f6,#1d4ed8); color:#fff; border-top-right-radius:4px; }
+  .ask-chips{ display:flex; flex-wrap:wrap; gap:7px; padding:10px 14px; border-top:1px solid rgba(140,170,255,.15); flex:none; }
+  .ask-chip{ background:rgba(255,214,107,.1); border:1px solid rgba(255,214,107,.35); color:#ffe9ad; font-size:12.5px; padding:6px 11px; border-radius:999px; cursor:pointer; transition:.15s; font-family:inherit; }
+  .ask-chip:hover{ background:rgba(255,214,107,.2); transform:translateY(-1px); }
+  #ask-input-row{ display:flex; gap:8px; padding:12px 14px; border-top:1px solid rgba(140,170,255,.15); flex:none; }
+  #ask-input{ flex:1; background:#0d1330; border:1px solid rgba(140,170,255,.4); border-radius:10px; color:#eaf0ff; font-size:14px; padding:9px 12px; outline:none; font-family:inherit; }
+  #ask-input:focus{ border-color:#ffd66b; }
+  #ask-input::placeholder{ color:#46538c; }
+
   /* 第三步：拆解结果参照条（照着写） */
   #ref-steps{ background:rgba(74,222,128,.08); border:1px solid rgba(74,222,128,.35); border-radius:12px; padding:11px 13px; margin-bottom:11px; }
   #ref-steps .rs-title{ font-size:13px; color:#b7f7cf; font-weight:bold; margin-bottom:8px; }
@@ -385,6 +409,9 @@
             <button id="peek-btn" onclick="peekDemo()">💡 想起来了再看一眼演示</button>
             <div id="peek-tip" class="hidden">💡 偷看了一次哦～ 尽量自己多想想，你一定可以的！</div>
           </div>
+          <div id="ask-zone">
+            <button id="ask-btn" onclick="openAsk()">💬 不懂就问小航</button>
+          </div>
           <div id="action-bar">
             <button class="btn btn-run" id="btn-run" onclick="runCode()">▶ 运行</button>
             <button class="btn btn-check" id="btn-check" onclick="checkAnswer()" disabled>🔍 检查</button>
@@ -418,6 +445,26 @@
     </div>
   </section>
 
+  <!-- 问小航 对话框（预设话术树） -->
+  <div id="ask-mask" class="hidden">
+    <div id="ask-card">
+      <div id="ask-head">
+        <div class="av">🤖</div>
+        <div>
+          <div class="t">问小航</div>
+          <div class="s">有不懂的就问我～ 我会引导你想，不直接给答案哦</div>
+        </div>
+      </div>
+      <div id="ask-log"></div>
+      <div class="ask-chips" id="ask-chips"></div>
+      <div id="ask-input-row">
+        <input id="ask-input" placeholder="把你的问题打在这里……" maxlength="60" onkeydown="if(event.key==='Enter')sendAsk()">
+        <button class="btn btn-run btn-small" onclick="sendAsk()">问</button>
+        <button class="btn btn-ghost btn-small" onclick="closeAsk()">关闭</button>
+      </div>
+    </div>
+  </div>
+
   <!-- 通关弹窗 -->
   <div id="win-mask" class="hidden">
     <div id="win-card">
@@ -432,7 +479,7 @@
     </div>
   </div>
 
-  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.9.0（第13关·大任务3：银河冠军之夜，嵌套循环回归+全招式综合庆典）</footer>
+  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.9.1（新增「💬问小航」话术树对话框：孩子可直接问课程问题，离线预设引导不给答案，问题入学习报告）</footer>
 </div>
 
 <script>
@@ -469,11 +516,100 @@ function LV(i){
     imitateStuck: 0, imitatePeek: 0, imitateRun: 0,   // 模仿写：卡/偷看/运行
     hwTry: 0, hwStuck: 0,                // 独立作业：尝试/卡
     errors: {},                           // 报错类型统计 {类型:次数}
+    askCount: 0, coachAsk: [],            // 问小航：次数 + 问过的问题
     done: false
   };
   return track[i];
 }
 function trackErr(type){ const d=LV(curLevel); d.errors[type]=(d.errors[type]||0)+1; persistTrack(); }
+
+/* =========================================================
+   💬 问小航（预设话术树 · 离线 · 只引导不给答案）
+   ========================================================= */
+// 全局语法速查（所有关通用）
+const ASK_GLOBAL = [
+  { keys:["报错","错","不对","红"], q:"代码报错了怎么办", a:"别急，报错是好朋友！先看 🔍 提示说的是第几行、少了什么。再把「慢速回放」调慢，点运行，看哪一步走歪了。" },
+  { keys:["缩进","空格","空几格"], q:"什么是缩进", a:"缩进就是「装进盒子里」。for、if、def 后面要做的事，前面空 4 格（或按 Tab 键）才算装进去。就像玩具放进盒子才算收好。" },
+  { keys:["for","循环","重复"], q:"for 循环怎么写", a:"结构：\nfor i in range(次数):\n    要做的事（空4格）\ni 是计数器，每转一圈加 1。" },
+  { keys:["if","如果","判断"], q:"if 怎么写", a:"if 是「如果」。结构：\nif i == 2:\n    条件成立做的事（空4格）\n注意 == 两个等号是「比一比」，条件不成立就跳过。" },
+  { keys:["else","否则"], q:"else 什么时候用", a:"else 是「否则」，跟在 if 后面、和它对齐：\nif i == 1:\n    forward(50)\nelse:\n    left(90)\n要么走 if，要么走 else。" },
+  { keys:["def","函数","工具"], q:"def 是什么", a:"def 是「做工具」。把一套动作装进工具箱起个名字，以后写 名字() 就用一次。定义用 def 名字():；用的时候只写 名字()，不用再加 def。" },
+  { keys:["变量","盒子","x ="], q:"变量是什么", a:"变量是个会变的盒子。x = 20 是做个盒子装 20；x = x + 20 是把盒子里的数加 20 再存回去。先装再用。" },
+  { keys:["print","播报","说"], q:"print 怎么用", a:"print 是让电脑「说出来」。print(\"你好\") 说文字（要引号）；print(score) 说盒子里的数（不用引号）。" },
+  { keys:["颜色","列表","colors","pencolor"], q:"列表和颜色怎么用", a:"colors=[\"red\",\"blue\"] 是一排有顺序的盒子，colors[0] 取第 1 个（从 0 开始数）。pencolor(colors[i]) 换颜色，i%4 保证编号不超出。" },
+  { keys:["卡住","不会","不知道","先做什么","第一步","怎么办"], q:"卡住了，不知从哪开始", a:"当回侦探！先想「第一步做什么」，再想「第二步」。把大任务拆成小步骤（写在「我的拆解」里），一步只做一件小事。" }
+];
+// 每关专属高频问题（来自报告痛点）
+const ASK_LEVEL = {
+  0:[ { keys:["顺序"], q:"为什么要按顺序写", a:"电脑从上往下一行行读，先写的先做。试试把两行换个位置，看轨迹怎么变——顺序就是结果！" } ],
+  1:[ { keys:["循环","重复"], q:"为什么要用循环", a:"一样的动作写 4 遍太累啦。循环让电脑自己重复；改 range 里的数，就改重复几遍。" } ],
+  2:[ { keys:["嵌套","套","两个循环"], q:"为什么要套两个循环", a:"外层管「画几个」，内层管「画一个」。就像每年（外）有 12 个月（内）。先跑完内层一圈，外层才走下一步。" } ],
+  3:[ { keys:["条件","转弯"], q:"if 什么时候才转弯", a:"只有条件成立才做缩进里的事。i 是计数器，第 3 步 i=2，所以 if i == 2 那一步才转弯。" } ],
+  4:[ { keys:["否则","非此即彼"], q:"else 是干什么的", a:"非此即彼：条件成立走 if，不成立走 else。两个不会都走，也不会都不走。" } ],
+  5:[ { keys:["存回","更新","变长"], q:"x = x + 20 是什么意思", a:"把盒子 x 里原来的数加 20，再存回盒子。下一次 forward(x) 就用新数，所以越走越有力！" } ],
+  6:[ { keys:["大任务","模块","拆"], q:"大任务第一步做什么", a:"先把大任务拆成小模块：带球→绕桩→过人→射门，写在「我的拆解」里。然后一个模块一个模块写成代码。" } ],
+  7:[ { keys:["调用","def","用工具"], q:"def 和调用有什么区别", a:"def 是「做工具」（只做一次）；调用是「用工具」（写 名字() 就能用无数次）。先 def 做出来，再写 名字() 用它。" } ],
+  8:[ { keys:["组合","模块","套函数"], q:"一个函数里能再用别的函数吗", a:"能！工具里可以喊另一个工具，这样就能把大招拆成小招再组合。这就是「模块化」。" } ],
+  9:[ { keys:["编号","从0","第几个"], q:"为什么颜色从 0 开始数", a:"编程里编号从 0 开始：colors[0] 是第 1 个颜色，colors[1] 是第 2 个。记住「第几个」要减 1。" } ],
+  10:[ { keys:["引号","印"], q:"print 要不要加引号", a:"说文字要加引号 print(\"你好\")；说盒子里的数不加引号 print(score)。加了引号就把 score 当文字印出来了。" } ],
+  11:[ { keys:["大任务2","先做什么"], q:"大任务2先做什么", a:"先想你要几个工具（def），再想颜色怎么换、比分怎么记。写在「我的拆解」，逐个实现。" } ],
+  12:[ { keys:["烟花","嵌套","瓣"], q:"烟花为什么要套两个循环", a:"外层循环管「转几瓣」，内层循环管「画一瓣」。套起来，一朵多瓣的烟花就开啦！" } ]
+};
+let askLevel = 0;
+function openAsk(){
+  askLevel = curLevel;
+  document.getElementById('ask-mask').classList.remove('hidden');
+  const log=document.getElementById('ask-log'); log.innerHTML='';
+  askBot("我是小航！这关有不懂的吗？点下面的问题，或者自己打字问我～");
+  buildAskChips();
+  setTimeout(()=>document.getElementById('ask-input').focus(),100);
+}
+function closeAsk(){ document.getElementById('ask-mask').classList.add('hidden'); }
+function buildAskChips(){
+  const wrap=document.getElementById('ask-chips'); wrap.innerHTML='';
+  const chips=(ASK_LEVEL[askLevel]||[]).concat(ASK_GLOBAL);
+  chips.forEach(c=>{
+    const b=document.createElement('button');
+    b.className='ask-chip'; b.textContent=c.q;
+    b.onclick=()=>{ askMe(c.q); askBot(c.a); recordAsk(c.q); };
+    wrap.appendChild(b);
+  });
+}
+function sendAsk(){
+  const inp=document.getElementById('ask-input');
+  const q=inp.value.trim(); if(!q) return;
+  inp.value='';
+  askMe(q);
+  const hit=matchAsk(q);
+  if(hit){ askBot(hit.a); recordAsk(hit.q); }
+  else { askBot("这个问题我还在学～ 先点「▶运行」看 🔍 报错提示，或者去问问爸爸。我已经把这个问题记下来啦！"); recordAsk("自由提问:"+q.slice(0,12)); }
+}
+function matchAsk(q){
+  const s=String(q).toLowerCase();
+  const all=(ASK_LEVEL[askLevel]||[]).concat(ASK_GLOBAL);
+  for(const item of all){
+    const ks=(item.keys||[]).concat([item.q]);
+    for(const k of ks){ if(k && s.includes(String(k).toLowerCase())) return item; }
+  }
+  return null;
+}
+function askMe(t){ appendAsk('me', t); }
+function askBot(t){ appendAsk('bot', t); }
+function appendAsk(who,t){
+  const log=document.getElementById('ask-log');
+  const d=document.createElement('div');
+  d.className='ask-msg '+who;
+  const bub=document.createElement('div'); bub.className='bub';
+  bub.innerHTML=escapeHtml(String(t)).replace(/\n/g,'<br>');
+  d.appendChild(bub); log.appendChild(d);
+  log.scrollTop=log.scrollHeight;
+}
+function recordAsk(q){
+  const d=LV(curLevel);
+  d.coachAsk=d.coachAsk||[]; d.coachAsk.push(q);
+  d.askCount=(d.askCount||0)+1;
+  persistTrack();
+}
 
 function rad(d){ return d*Math.PI/180; }
 let viewScale = 1;                 // 运行时缩放（轨迹/战术图超范围时自动缩小适配）
@@ -2433,6 +2569,7 @@ function buildReportText(){
     out += `  ②拆解：尝试${d.breakTry}次${d.breakTry===0?'（一次排对）':''}\n`;
     out += `  ③模仿写：卡${d.imitateStuck}次｜偷看${d.imitatePeek}次｜运行${d.imitateRun}次成功\n`;
     out += `  ④独立作业：尝试${d.hwTry}次｜卡${d.hwStuck}次\n`;
+    if(d.askCount){ out += `  ⑤问小航：${d.askCount}次（问了：${(d.coachAsk||[]).slice(-6).join('、')}）\n`; }
     const errKeys = Object.keys(d.errors||{});
     if(errKeys.length){
       out += `  报错集中：${errKeys.map(k=>`${k}(${d.errors[k]}次)`).join('、')}\n`;
