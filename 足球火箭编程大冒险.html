@@ -479,7 +479,7 @@
     </div>
   </div>
 
-  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.9.1（新增「💬问小航」话术树对话框：孩子可直接问课程问题，离线预设引导不给答案，问题入学习报告）</footer>
+  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.9.2（新增「🎯概念软闸」：轨迹过了但没用到本关核心招式时温和引导——首次放行+提示，再次温和阻断指明绝招，形式放养概念把关，绕过行为计入学习报告）</footer>
 </div>
 
 <script>
@@ -517,11 +517,31 @@ function LV(i){
     hwTry: 0, hwStuck: 0,                // 独立作业：尝试/卡
     errors: {},                           // 报错类型统计 {类型:次数}
     askCount: 0, coachAsk: [],            // 问小航：次数 + 问过的问题
+    conceptMiss: 0,                       // 概念软闸：轨迹达标但没用核心招式的次数（>0 = 可能在绕过概念，金子数据）
     done: false
   };
   return track[i];
 }
 function trackErr(type){ const d=LV(curLevel); d.errors[type]=(d.errors[type]||0)+1; persistTrack(); }
+
+/* =========================================================
+   🎯 概念软闸（温和阻断式，2026-09-04 用户拍板）
+   原则：形式放养（路线/图形/颜色全自由）、概念把关（这关的核心招式必须真用上）。
+   触发：轨迹判定过了，但代码没用到本关概念 → 首次放行+温和提示；再次温和阻断+指明绝招。
+   大任务关(project)/无关键词关(第1关顺序)不设闸。test 用宽松正则：宁可放过，不可冤枉。
+   数据与内容分离：按关卡索引查表，不改动 LEVELS。conceptMiss 进学习报告（暴露"绕过概念"）。
+   ========================================================= */
+const CONCEPT_NEED = {
+  1:  { name:"for 循环",         tip:"试试 for i in range(4): 让它自己重复，不用一行行抄很多遍", test:c=>/\bfor\b/.test(c) },
+  2:  { name:"嵌套循环",         tip:"试试大圈套小圈：外层一个 for，里面再装进一个 for", test:c=>(c.match(/\bfor\b/g)||[]).length>=2 },
+  3:  { name:"if 判断",          tip:"试试 if i == 2: 让程序自己做判断（到那一步就转弯）", test:c=>/\bif\b/.test(c) },
+  4:  { name:"if/else 分支",     tip:"试试用 if 让程序分情况（满足条件走一条，不满足走另一条）", test:c=>/\bif\b/.test(c) },
+  5:  { name:"会变的盒子（变量）", tip:"试试做个盒子 x = 60，再 x = x + 20 让它自己变长", test:c=>/[a-zA-Z_]\w*\s*=\s*[^=]/.test(c) && /forward\s*\(\s*[a-zA-Z_]/.test(c) },
+  7:  { name:"函数 def",         tip:"试试 def guoren(): 把一套动作装进工具箱，再写 guoren() 用它", test:c=>/\bdef\b/.test(c) },
+  8:  { name:"函数组合",         tip:"试试做两个小工具 def，再把它们组合起来用", test:c=>/\bdef\b/.test(c) },
+  9:  { name:"列表",             tip:"试试 colors = [红, 黄, 蓝] 做一排颜色盒子（文字戴引号帽子），再配 pencolor 换色", test:c=>/\[[^\]]*,[^\]]*\]/.test(c) },
+  10: { name:"print 播报",       tip:"试试 print(比分) 让电脑把数说出来", test:c=>/\bprint\b/.test(c) }
+};
 
 /* =========================================================
    💬 问小航（预设话术树 · 离线 · 只引导不给答案）
@@ -1912,7 +1932,33 @@ function checkAnswer(){
   const lv = LEVELS[curLevel];
   const checkFn = isHomework ? lv.homework.check : lv.check;
   const result = checkFn(trail);
-  if(result.ok){ isHomework ? onHomeworkWin() : onImitateWin(); }
+  if(result.ok){
+    // 🎯 概念软闸（温和阻断式）：轨迹过了，再查"用到这关的核心招式了吗"。大任务/无关键词关不设闸。
+    const gate = (typeof CONCEPT_NEED !== 'undefined') ? CONCEPT_NEED[curLevel] : null;
+    if(gate){
+      const code = document.getElementById('editor').value;
+      if(!gate.test(code)){
+        const d = LV(curLevel); d.conceptMiss = (d.conceptMiss||0)+1; persistTrack();
+        if(d.conceptMiss >= 2){
+          // 再次没用 → 温和阻断（鼓励式引导：不用红色报错框，也不算"卡"，只温柔指方向）
+          coachThink(`🌟 你画出来了，思路是对的！\n不过这关想练的绝招是「${gate.name}」。\n💡 ${gate.tip}。\n用上它再点「🔍 检查」，就真正通关啦！`);
+          showWarn(`这关要练的是「${gate.name}」：${gate.tip}`);
+          flashTrail();
+          return;
+        }
+        // 首次没用 → 放行过关，但温和提示（conceptMiss 已埋点，报告可见）
+        if(isHomework){
+          onHomeworkWin();
+          document.getElementById('win-text').textContent += `\n\n💡 小航悄悄说：这关还藏了个绝招「${gate.name}」——${gate.tip}。下次试试，会更有成就感哦～`;
+        } else {
+          onImitateWin();
+          coachSay(`🎉 模仿成功！小预告：这关绝招是「${gate.name}」——${gate.tip}。马上进独立作业，全靠你自己！`);
+        }
+        return;
+      }
+    }
+    isHomework ? onHomeworkWin() : onImitateWin();
+  }
   else { stuckCount++; detectiveMode(result.why); }
 }
 function detectiveMode(why){
@@ -2570,6 +2616,7 @@ function buildReportText(){
     out += `  ③模仿写：卡${d.imitateStuck}次｜偷看${d.imitatePeek}次｜运行${d.imitateRun}次成功\n`;
     out += `  ④独立作业：尝试${d.hwTry}次｜卡${d.hwStuck}次\n`;
     if(d.askCount){ out += `  ⑤问小航：${d.askCount}次（问了：${(d.coachAsk||[]).slice(-6).join('、')}）\n`; }
+    if(d.conceptMiss){ out += `  ⚠️概念软闸：轨迹达标但没用核心招式 ${d.conceptMiss}次（可能绕过了本关概念，建议家长看一眼他用的方法）\n`; }
     const errKeys = Object.keys(d.errors||{});
     if(errKeys.length){
       out += `  报错集中：${errKeys.map(k=>`${k}(${d.errors[k]}次)`).join('、')}\n`;
