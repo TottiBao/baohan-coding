@@ -479,7 +479,7 @@
     </div>
   </div>
 
-  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.9.2（新增「🎯概念软闸」：轨迹过了但没用到本关核心招式时温和引导——首次放行+提示，再次温和阻断指明绝招，形式放养概念把关，绕过行为计入学习报告）</footer>
+  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.10.0（新增第14关「🎚️力度旋钮」：引擎支持函数参数 def chuanqiu(lidu): / chuanqiu(50) 拧数字，参数局部绑定；配套概念软闸、公式卡、问小航）</footer>
 </div>
 
 <script>
@@ -540,7 +540,8 @@ const CONCEPT_NEED = {
   7:  { name:"函数 def",         tip:"试试 def guoren(): 把一套动作装进工具箱，再写 guoren() 用它", test:c=>/\bdef\b/.test(c) },
   8:  { name:"函数组合",         tip:"试试做两个小工具 def，再把它们组合起来用", test:c=>/\bdef\b/.test(c) },
   9:  { name:"列表",             tip:"试试 colors = [红, 黄, 蓝] 做一排颜色盒子（文字戴引号帽子），再配 pencolor 换色", test:c=>/\[[^\]]*,[^\]]*\]/.test(c) },
-  10: { name:"print 播报",       tip:"试试 print(比分) 让电脑把数说出来", test:c=>/\bprint\b/.test(c) }
+  10: { name:"print 播报",       tip:"试试 print(比分) 让电脑把数说出来", test:c=>/\bprint\b/.test(c) },
+  13: { name:"力度旋钮（函数参数）", tip:"给工具装个旋钮：def chuanqiu(lidu): ，身体里写 forward(lidu)，用时 chuanqiu(50) 拧个数字", test:c=>{ const dm=c.match(/def\s+(\w+)\s*\(\s*\w+\s*\)/); if(!dm) return false; return new RegExp('\\b'+dm[1]+'\\s*\\(\\s*\\d').test(c); } }
 };
 
 /* =========================================================
@@ -573,7 +574,8 @@ const ASK_LEVEL = {
   9:[ { keys:["编号","从0","第几个"], q:"为什么颜色从 0 开始数", a:"编程里编号从 0 开始：colors[0] 是第 1 个颜色，colors[1] 是第 2 个。记住「第几个」要减 1。" } ],
   10:[ { keys:["引号","印"], q:"print 要不要加引号", a:"说文字要加引号 print(\"你好\")；说盒子里的数不加引号 print(score)。加了引号就把 score 当文字印出来了。" } ],
   11:[ { keys:["大任务2","先做什么"], q:"大任务2先做什么", a:"先想你要几个工具（def），再想颜色怎么换、比分怎么记。写在「我的拆解」，逐个实现。" } ],
-  12:[ { keys:["烟花","嵌套","瓣"], q:"烟花为什么要套两个循环", a:"外层循环管「转几瓣」，内层循环管「画一瓣」。套起来，一朵多瓣的烟花就开啦！" } ]
+  12:[ { keys:["烟花","嵌套","瓣"], q:"烟花为什么要套两个循环", a:"外层循环管「转几瓣」，内层循环管「画一瓣」。套起来，一朵多瓣的烟花就开啦！" } ],
+  13:[ { keys:["参数","旋钮","力度","lidu"], q:"括号里的 lidu 是什么", a:"lidu 是个「旋钮」（参数）。做工具时把它装进括号 def chuanqiu(lidu):，身体里 forward(lidu) 就用它；用工具时 chuanqiu(50)，50 就流进旋钮，工具就走 50 步。拧不同的数，走不同的距离！" } ]
 };
 let askLevel = 0;
 function openAsk(){
@@ -1248,6 +1250,55 @@ const LEVELS = [
       win:"银河冠军之夜被你点亮了！烟花、巡游、播报全是你自己设计的——你是真正的编程冠军！",
       medal:"🏆 银河冠军设计师"
     }
+  },
+  {
+    name:"力度旋钮", emoji:"🎚️", concept:"函数参数", planet:"⚽",
+    desc:"给工具装个「旋钮」（参数），拧几下就走几远——同一个工具，传短传长随你调！",
+    title:"任务：做个传球工具",
+    text:"传球有轻有重：贴地短传、大力长传。每次都重写一个工具太麻烦！\n给工具装个「力度旋钮」，用的时候拧个数字，想传多远传多远！",
+    concept_knowledge:{ title:"本关学：函数参数（旋钮）", body:"参数就是工具上的「旋钮」。做工具时把它装进括号：def chuanqiu(lidu): ；身体里写 forward(lidu)——旋钮指几，就走几。用工具时拧个数字：chuanqiu(50)，这个 50 就流进旋钮 lidu，工具就走 50 步。同一个工具，拧 50 是短传，拧 100 是长传！", scratch:"💡 这就像 Scratch 的「自制积木」加了输入项——拖一个数进去，积木就按这个数来做！" },
+    demo:[
+      {code:"def chuanqiu(lidu):", cap:"def 做工具，括号里装进旋钮 lidu（力度）", k:{tag:"新招式", title:"装进旋钮（参数）", body:"def chuanqiu(lidu): 括号里的 lidu 就是「旋钮」，是这个工具专用的力度开关。等会儿用工具时要拧它。"}, ops:[]},
+      {code:"    forward(lidu)", cap:"身体里写 forward(lidu)：旋钮指几，球就走几", k:{tag:"重点", title:"旋钮指挥动作", body:"forward(lidu) 不写死数字，而是听旋钮 lidu 的——旋钮是几，这一步就走几。现在它还不动，要等用工具拧了数字才知道走几。"}, ops:[]},
+      {code:"chuanqiu(50)\nchuanqiu(100)", cap:"拧旋钮：chuanqiu(50) 短传，chuanqiu(100) 长传！", k:{tag:"哇", title:"拧不同的数", body:"用工具时括号里写几，旋钮就是几：chuanqiu(50) 让 lidu=50（短传），chuanqiu(100) 让 lidu=100（长传）。同一个工具，拧不同的数，走不同的距离！"}, ops:[{cmd:'forward',val:50},{cmd:'forward',val:100}]}
+    ],
+    breakSteps:["🧰 做个传球工具，装个力度旋钮 def chuanqiu(lidu):","⚽ 身体里写 forward(lidu)（旋钮指几走几）","📣 chuanqiu(50) 拧 50，短传","📣 chuanqiu(100) 拧 100，长传"],
+    palette:["def chuanqiu(lidu):","    forward(lidu)","chuanqiu(50)","chuanqiu(100)","right(90)"],
+    check(path){
+      const lens = segLens(path).filter(l=>l>5);
+      if(lens.length < 2) return {ok:false, why:"too_few"};
+      const mx=Math.max(...lens), mn=Math.min(...lens);
+      if(mx-mn >= 25) return {ok:true};
+      return {ok:false, why:"no_knob"};
+    },
+    hints:[
+      "先 def chuanqiu(lidu): 把工具做出来，括号里装进旋钮 lidu；身体（缩进）里写 forward(lidu)。",
+      "用工具时别忘了拧旋钮：chuanqiu(50)，括号里写个数字，这个数就是力度。",
+      "想传不同距离？多写几句 chuanqiu()，括号里拧不同的数：chuanqiu(50)、chuanqiu(100)。"
+    ],
+    win:"太棒了！你给工具装上了「力度旋钮」，拧几走几——同一个工具，短传长传随你调。这就是参数的威力！",
+    medal:"🎚️ 力度掌控师",
+    homework:{
+      title:"⚽ 独立作业：三档传球",
+      text:"训练赛要练三种传球：贴地短传、中距离、大力长传！\n用带旋钮的工具，拧三个不同的数，传出三种力度。",
+      stepsHint:"拆解：先 def 一个带旋钮的传球工具（比如 chuanqiu(lidu)），再拧三个不同的数调用三次：短、中、长。",
+      emoji:"⚽",
+      diagram:{
+        route:[[0,0],[0,40],[55,40],[55,115]],
+        segLabels:[{at:[-28,18],text:"短传"},{at:[2,58],text:"中传"},{at:[28,90],text:"长传"}],
+        defenders:[[32,22]],
+        goal:[55,150]
+      },
+      check(path){
+        const lens = segLens(path).filter(l=>l>5);
+        if(lens.length < 3) return {ok:false, why:"too_few"};
+        const mx=Math.max(...lens), mn=Math.min(...lens);
+        if(mx-mn >= 40) return {ok:true};
+        return {ok:false, why:"no_knob"};
+      },
+      win:"三档传球随心所欲！短、中、长全靠一个旋钮搞定——你已经会用参数让工具「听指挥」了！",
+      medal:"🎚️ 三档传球手"
+    }
   }
 ];
 
@@ -1331,6 +1382,7 @@ function compile(src){
   const ops = [];
   const vars = {};    // 变量盒子（编译期展开求值，语言是确定的）
   const funcs = {};   // 函数工具箱 {名字: body行数组}
+  const funcParams = {}; // 参数表 {名字: 参数名}，无旋钮为 null (v0.10.0)
   const prints = [];  // print 输出（播报台显示）
 
   /* 执行一块语句（同一缩进层级），返回 {error} 或 null */
@@ -1445,7 +1497,7 @@ function compile(src){
       }
 
       // ---- def 函数定义（结构卡纠错） ----
-      m = line.match(/^def\s+([a-zA-Z_]\w*)\s*\(\s*\)\s*:?$/);
+      m = line.match(/^def\s+([a-zA-Z_]\w*)\s*\(\s*([a-zA-Z_]\w*)?\s*\)\s*:?$/);
       if(m){
         // 工具已存在 → 孩子多半是想"调用"却多写了 def（重名检查提到空体检查之前）
         if(funcs[m[1]]) return { error:{ line:item.n, errKind:'调用误写def', errWord:m[1], html:`🔍 第 ${item.n} 行：<b>${escapeHtml(m[1])}</b> 已经在工具箱里啦！<br>想用它，直接写 <span class="err-fix">${escapeHtml(m[1])}()</span> 就好，<b>不用再加 def</b>。<br>def 是「做工具」，只写一次；用工具时光写名字。` }};
@@ -1453,6 +1505,7 @@ function compile(src){
         const { body, next } = collectBody(i+1);
         if(body.length===0) return { error:{ line:item.n, errKind:'def函数体空', errWord:m[1], html:`🔍 第 ${item.n} 行：函数 <b>${m[1]}</b> 里面是空的哦。把它要做的事<b>缩进</b>（空4格）写到 def 的下一行，装进工具箱。` }};
         funcs[m[1]] = body;
+        funcParams[m[1]] = m[2] || null;   // v0.10.0：记住这个工具有没有旋钮（参数）
         i = next;
         continue;
       }
@@ -1464,27 +1517,48 @@ function compile(src){
         if(dn && funcs[dn[1]]) return { error:{ line:item.n, errKind:'调用误写def', errWord:dn[1], html:`🔍 第 ${item.n} 行：${show}<br><b>${escapeHtml(dn[1])}</b> 已经在工具箱里啦！想用它，直接写 <span class="err-fix">${escapeHtml(dn[1])}()</span>，<b>不用再加 def</b>。` }};
         const missing = [];
         if(!/[a-zA-Z_]\w*/.test(line.replace(/^def\s*/i,''))) missing.push("工具<b>名字</b>");
-        if(!/\(\s*\)/.test(line)) missing.push("一对<b>括号 ( )</b>");
+        if(!/\(/.test(line)) missing.push("一对<b>括号 ( )</b>");
         if(!/:\s*$/.test(line)) missing.push("结尾<b>冒号 :</b>");
         return { error:{ line:item.n, html:`🔍 第 ${item.n} 行：${show}<br>def（做工具）的完整结构是：<br><span class="err-fix">def 名字():</span><br>然后下一行<b>缩进</b>写它要做的事。${missing.length?'<br>你好像少了：'+missing.join('、')+'。':''}补上试试！`, errWord:'def' }};
       }
 
-      // ---- 函数调用 ----
-      m = line.match(/^([a-zA-Z_]\w*)\s*\(\s*\)$/);
-      if(m && funcs[m[1]]){
-        const r = execBlock(funcs[m[1]]);
-        if(r && r.error) return r;
-        i++;
-        continue;
-      }
-      if(m && !funcs[m[1]] && !/^(forward|left|right|print|pencolor|range|penup|pendown)$/.test(m[1])){
-        // 名字像某个已做好的工具（编辑距离≤2）→ 猜他想调用谁
+      // ---- 函数调用：name() 或 name(参数)（v0.10.0 旋钮）----
+      m = line.match(/^([a-zA-Z_]\w*)\s*\((.*)\)$/);
+      if(m && !/^(forward|left|right|print|pencolor|range|penup|pendown)$/.test(m[1])){
+        const fname = m[1];
+        const argStr = m[2].trim();
+        if(funcs[fname]){
+          const pn = funcParams[fname];
+          if(pn){
+            // 这个工具带旋钮（参数）：用时必须拧个数字
+            if(!argStr) return { error:{ line:item.n, errKind:'调用少旋钮', errWord:fname, html:`🔍 第 ${item.n} 行：<b>${escapeHtml(fname)}</b> 这个工具带了个<b>旋钮（参数）</b>，用的时候要拧一下：<span class="err-fix">${escapeHtml(fname)}(50)</span>，括号里写个数字当力度。` }};
+            const argV = evalExpr(argStr, vars, item.n);
+            if(argV.error) return { error: argV.error };
+            if(typeof argV.val !== 'number') return { error:{ line:item.n, errKind:'旋钮非数字', errWord:fname, html:`🔍 第 ${item.n} 行：旋钮要拧一个<b>数字</b>哦，比如 <span class="err-fix">${escapeHtml(fname)}(50)</span>。` }};
+            // 把数字绑到旋钮上（局部值），用完恢复，不弄脏外面
+            const had = Object.prototype.hasOwnProperty.call(vars, pn);
+            const saved = vars[pn];
+            vars[pn] = argV.val;
+            const r = execBlock(funcs[fname]);
+            if(had) vars[pn]=saved; else delete vars[pn];
+            if(r && r.error) return r;
+            i++;
+            continue;
+          }
+          // 这个工具没旋钮：给了数字 → 温柔提醒
+          if(argStr) return { error:{ line:item.n, errKind:'无旋钮给参数', errWord:fname, html:`🔍 第 ${item.n} 行：<b>${escapeHtml(fname)}</b> 这个工具<b>没有旋钮</b>哦，直接写 <span class="err-fix">${escapeHtml(fname)}()</span> 就好（括号里不用写数字）。` }};
+          const r = execBlock(funcs[fname]);
+          if(r && r.error) return r;
+          i++;
+          continue;
+        }
+        // 工具还没做出来：名字像某个已做好的工具（编辑距离≤2）→ 猜他想调用谁
         let near = null;
-        for(const fn of Object.keys(funcs)){ if(lev(m[1].toLowerCase(), fn.toLowerCase()) <= 2){ near = fn; break; } }
+        for(const fn of Object.keys(funcs)){ if(lev(fname.toLowerCase(), fn.toLowerCase()) <= 2){ near = fn; break; } }
         const tip = near
           ? `咦，你是不是想用工具箱里的 <b>${escapeHtml(near)}</b>？<br>那就写 <span class="err-fix">${escapeHtml(near)}()</span>，检查一下拼写哦。`
-          : `先用 <span class="err-fix">def ${escapeHtml(m[1])}():</span> 把它装进工具箱，下面缩进写上它要做的事。<br>记住：<b>def 要写在用它之前</b>哦。`;
-        return { error:{ line:item.n, errKind:'调用未定义工具', errWord:m[1], html:`🔍 第 ${item.n} 行：<b>${escapeHtml(m[1])}</b> 这个工具还没做出来哦。<br>${tip}` }};
+          : `先用 <span class="err-fix">def ${escapeHtml(fname)}():</span> 把它装进工具箱，下面缩进写上它要做的事。<br>记住：<b>def 要写在用它之前</b>哦。`;
+        return { error:{ line:item.n, errKind:'调用未定义工具', errWord:fname, html:`🔍 第 ${item.n} 行：<b>${escapeHtml(fname)}</b> 这个工具还没做出来哦。<br>${tip}` }};
       }
 
       // ---- print 播报 ----
@@ -2404,7 +2478,9 @@ const LEVEL_FORMULAS = {
   // 第11关 print：练习是记分；公式卡讲"打印口算结果"（迁移）
   10:'<span class="fk">📌 print = 让电脑开口说话</span>\n\na = 3\nb = 5\nprint(a + b)         <span class="fc">← 喊出 8（变量不用引号）</span>\nprint("算完啦")      <span class="fc">← 喊出文字（要引号）</span>\n\n<span class="fk">💡 变量不写引号，文字要写引号。</span>\n\n📢 <span class="fc">生活比喻：</span>\n   print = 喊话筒\n   喊数字：喊(8)\n   喊句子：喊("你好")',
   // 第12关 大任务2
-  11:'<span class="fk">📌 大任务2 = 全部招式大集合</span>\n\n函数 def + 列表 + 变量 + print\n\n<span class="fk">💡 自己拆解、自己实现，</span>\n<span class="fk">办一场属于你的太空足球赛！</span>\n\n🚀 <span class="fc">生活比喻：</span>\n   办一场比赛 = 做工具 + 选颜色 + 记分 + 播报\n   每个招式都用上'
+  11:'<span class="fk">📌 大任务2 = 全部招式大集合</span>\n\n函数 def + 列表 + 变量 + print\n\n<span class="fk">💡 自己拆解、自己实现，</span>\n<span class="fk">办一场属于你的太空足球赛！</span>\n\n🚀 <span class="fc">生活比喻：</span>\n   办一场比赛 = 做工具 + 选颜色 + 记分 + 播报\n   每个招式都用上',
+  // 第14关 力度旋钮（函数参数）：练习用 chuanqiu(lidu)；公式卡讲"跳跃工具"（迁移：旋钮指挥动作）
+  13:'<span class="fk">📌 参数 = 工具上的「旋钮」</span>\n\n<span class="fk">def</span> jump(gao):      <span class="fc">← 做工具，装个旋钮 gao</span>\n    forward(gao)    <span class="fc">← 旋钮指几，就走几</span>\n\njump(30)           <span class="fc">← 拧 30：走 30</span>\njump(80)           <span class="fc">← 拧 80：走 80</span>\n\n<span class="fk">💡 同一个工具，拧不同的数，</span>\n<span class="fk">就干不同的活！</span>\n\n🎚️ <span class="fc">生活比喻：</span>\n   电风扇的档位旋钮\n   拧 1 档风小，拧 3 档风大'
 };
 function fillKnowledgePanel(lv){
   const ck = lv.concept_knowledge;
@@ -2473,7 +2549,8 @@ const UNLOCK_CODES = {
   9:"彩虹",          // 第10关 · 彩虹球场
   10:"帽子戏法",     // 第11关 · 进球播报员
   11:"星际联赛",     // 第12关 · 大任务2 太空足球联赛
-  12:"冠军之夜"      // 第13关 · 大任务3 银河冠军之夜
+  12:"冠军之夜",     // 第13关 · 大任务3 银河冠军之夜
+  13:"力度旋钮"      // 第14关 · 力度旋钮（函数参数）
 };
 let pendingUnlock = -1;
 function openUnlock(i){
