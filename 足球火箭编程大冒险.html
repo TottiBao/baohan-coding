@@ -479,7 +479,7 @@
     </div>
   </div>
 
-  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.10.0（新增第14关「🎚️力度旋钮」：引擎支持函数参数 def chuanqiu(lidu): / chuanqiu(50) 拧数字，参数局部绑定；配套概念软闸、公式卡、问小航）</footer>
+  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.11.0（引擎扩展包：while条件循环/input输入/for-in列表遍历/字符串拼接/random随机；新增第15关「🔁一直跑到球门」while循环+防死循环，配套概念软闸、公式卡、问小航）</footer>
 </div>
 
 <script>
@@ -495,6 +495,7 @@ let segMarks = [];   // 每条指令在 trail 中的起始下标（用于"分段
 let penColor = '#7ef0c0';       // 当前画笔颜色（pencolor 改变）
 let trailColors = [];           // 每条轨迹分段的颜色（彩色轨迹）
 let printsArr = [];             // 本次运行的 print 输出（判定用）
+let inputsArr = [];             // 本次运行的 input 问答（判定+埋点用，第16关）
 let curLevel = 0, runAttempts = 0, stuckCount = 0;
 let phase = 'demo';      // demo -> break -> imitate -> homework
 let peeked = false;      // 本环节是否偷看过
@@ -541,7 +542,8 @@ const CONCEPT_NEED = {
   8:  { name:"函数组合",         tip:"试试做两个小工具 def，再把它们组合起来用", test:c=>/\bdef\b/.test(c) },
   9:  { name:"列表",             tip:"试试 colors = [红, 黄, 蓝] 做一排颜色盒子（文字戴引号帽子），再配 pencolor 换色", test:c=>/\[[^\]]*,[^\]]*\]/.test(c) },
   10: { name:"print 播报",       tip:"试试 print(比分) 让电脑把数说出来", test:c=>/\bprint\b/.test(c) },
-  13: { name:"力度旋钮（函数参数）", tip:"给工具装个旋钮：def chuanqiu(lidu): ，身体里写 forward(lidu)，用时 chuanqiu(50) 拧个数字", test:c=>{ const dm=c.match(/def\s+(\w+)\s*\(\s*\w+\s*\)/); if(!dm) return false; return new RegExp('\\b'+dm[1]+'\\s*\\(\\s*\\d').test(c); } }
+  13: { name:"力度旋钮（函数参数）", tip:"给工具装个旋钮：def chuanqiu(lidu): ，身体里写 forward(lidu)，用时 chuanqiu(50) 拧个数字", test:c=>{ const dm=c.match(/def\s+(\w+)\s*\(\s*\w+\s*\)/); if(!dm) return false; return new RegExp('\\b'+dm[1]+'\\s*\\(\\s*\\d').test(c); } },
+  14: { name:"while 循环", tip:"试试 while x < 200: 只要条件成立就一直跑；身体里记得 x = x + 20 让条件会变，不然停不下来", test:c=>/\bwhile\b/.test(c) }
 };
 
 /* =========================================================
@@ -575,7 +577,8 @@ const ASK_LEVEL = {
   10:[ { keys:["引号","印"], q:"print 要不要加引号", a:"说文字要加引号 print(\"你好\")；说盒子里的数不加引号 print(score)。加了引号就把 score 当文字印出来了。" } ],
   11:[ { keys:["大任务2","先做什么"], q:"大任务2先做什么", a:"先想你要几个工具（def），再想颜色怎么换、比分怎么记。写在「我的拆解」，逐个实现。" } ],
   12:[ { keys:["烟花","嵌套","瓣"], q:"烟花为什么要套两个循环", a:"外层循环管「转几瓣」，内层循环管「画一瓣」。套起来，一朵多瓣的烟花就开啦！" } ],
-  13:[ { keys:["参数","旋钮","力度","lidu"], q:"括号里的 lidu 是什么", a:"lidu 是个「旋钮」（参数）。做工具时把它装进括号 def chuanqiu(lidu):，身体里 forward(lidu) 就用它；用工具时 chuanqiu(50)，50 就流进旋钮，工具就走 50 步。拧不同的数，走不同的距离！" } ]
+  13:[ { keys:["参数","旋钮","力度","lidu"], q:"括号里的 lidu 是什么", a:"lidu 是个「旋钮」（参数）。做工具时把它装进括号 def chuanqiu(lidu):，身体里 forward(lidu) 就用它；用工具时 chuanqiu(50)，50 就流进旋钮，工具就走 50 步。拧不同的数，走不同的距离！" } ],
+  14:[ { keys:["while","一直","死循环","停不下"], q:"while 和 for 有什么不同", a:"for 是数好次数（跑4圈），while 是看条件（一直跑到球门为止）。while 身体里一定要让条件里的数变大（x = x + 20），不然条件永远成立、永远停不下来，这叫「死循环」。" } ]
 };
 let askLevel = 0;
 function openAsk(){
@@ -1299,6 +1302,52 @@ const LEVELS = [
       win:"三档传球随心所欲！短、中、长全靠一个旋钮搞定——你已经会用参数让工具「听指挥」了！",
       medal:"🎚️ 三档传球手"
     }
+  },
+  {
+    name:"一直跑到球门", emoji:"🔁", concept:"while 循环", planet:"⚽",
+    desc:"while 是「只要…就一直做」——不用数好次数，一直跑到球门为止！",
+    title:"任务：一直跑到球门",
+    text:"射门训练：球员从起点一直往前跑，跑满 200 步才停。\n用 for 要数好次数，可我们不知道要跑几次呀！这时用 while：只要还没到，就一直跑。",
+    concept_knowledge:{ title:"本关学：while 循环（看条件）", body:"while x < 200: 意思是「只要 x 还没到 200，就一直做下面缩进的事」。它和 for 不一样：for 是数好次数（跑4圈），while 是看条件（跑到球门为止）。⚠️ while 身体里一定要让条件里的数变大（x = x + 20），不然条件永远成立、永远停不下来——这叫「死循环」！", scratch:"💡 这就像 Scratch 的「重复执行直到…」积木——一直做，做到条件满足为止。" },
+    demo:[
+      {code:"x = 0", cap:"先做盒子 x，装「已经跑了多远」，一开始是 0", k:{tag:"复习", title:"变量", body:"x 是个盒子，记录球员已经跑了多远。还没跑，所以是 0。"}, ops:[]},
+      {code:"while x < 200:", cap:"while 是「只要…就继续」：只要 x 没到 200 就一直跑", k:{tag:"新招式", title:"while 看条件", body:"for 像教练喊「跑4圈」（数次数）；while 像喊「一直跑到球门为止」（看条件）。条件还成立就跑，不成立就停。"}, ops:[]},
+      {code:"    forward(20)\n    x = x + 20", cap:"每跑一段 x 加 20，盒子里越来越接近 200，够了自动停！", k:{tag:"关键", title:"让条件会变", body:"while 身体里一定要让 x 变大（x = x + 20），x 总会到 200，循环才会停。要是 x 不变，就永远停不下来（死循环）！"}, ops:[{cmd:'forward',val:20},{cmd:'forward',val:20},{cmd:'forward',val:20},{cmd:'forward',val:20},{cmd:'forward',val:20}]}
+    ],
+    breakSteps:["📦 做盒子 x = 0（记跑了多远）","🔁 只要 x < 200 就一直跑（while）","⚽ 每次前进 20","📈 每次 x 加 20（让条件会变）"],
+    palette:["x = 0","while x < 200:","    forward(20)","    x = x + 20","right(90)"],
+    check(path){
+      const lens = segLens(path).filter(l=>l>5);
+      const total = lens.reduce((a,b)=>a+b,0);
+      if(lens.length>=4 && total>=120) return {ok:true};
+      return {ok:false, why:"need_more"};
+    },
+    hints:[
+      "while 是「只要…就一直做」。先想：跑到什么时候停？把停的条件写在 while 后面。",
+      "while x < 200: 只要 x 没到 200 就跑。身体里要 x = x + 20 让 x 变大，不然停不下来。",
+      "先 x = 0 做盒子，再 while x < 200:，身体里（缩进4格）写 forward(20) 和 x = x + 20。"
+    ],
+    win:"你让球员一直跑到了球门！while 不用数次数，只要条件成立就一直跑——这就是「条件循环」。",
+    medal:"🔁 耐力跑将",
+    homework:{
+      title:"⚽ 独立作业：折返耐力跑",
+      text:"体能训练！让球员一直往前跑，跑满 240 步才停。\n用 while，每次 forward(30)、x = x + 30，看他能坚持多远！",
+      stepsHint:"拆解：x = 0 做盒子 → while x < 240: → 身体里 forward(30) 和 x = x + 30。",
+      emoji:"⚽",
+      diagram:{
+        route:[[0,0],[0,240]],
+        segLabels:[{at:[-52,120],text:"一直跑到240步"}],
+        goal:[0,280]
+      },
+      check(path){
+        const lens = segLens(path).filter(l=>l>5);
+        const total = lens.reduce((a,b)=>a+b,0);
+        if(lens.length>=5 && total>=180) return {ok:true};
+        return {ok:false, why:"need_more"};
+      },
+      win:"耐力跑完成！你掌握了 while——只要没达目标就一直坚持。运动员精神！",
+      medal:"🔁 耐力跑健将"
+    }
   }
 ];
 
@@ -1384,6 +1433,7 @@ function compile(src){
   const funcs = {};   // 函数工具箱 {名字: body行数组}
   const funcParams = {}; // 参数表 {名字: 参数名}，无旋钮为 null (v0.10.0)
   const prints = [];  // print 输出（播报台显示）
+  const inputs = [];  // input 提问与回答 [{q,a}]（第16关埋点）
 
   /* 执行一块语句（同一缩进层级），返回 {error} 或 null */
   function execBlock(block){
@@ -1416,6 +1466,32 @@ function compile(src){
         i = next;
         continue;
       }
+      // ---- for-in 列表遍历：for c in colors: / for c in ["red","blue"]:（第17关） ----
+      m = line.match(/^for\s+([a-zA-Z_]\w*)\s+in\s+([a-zA-Z_]\w*|\[.*\])\s*:?$/);
+      if(m){
+        if(!/:\s*$/.test(line) && !warn){ warn = {line:item.n, text:'第 '+item.n+' 行：循环后面要戴个小帽子（冒号 :），我帮你加上啦。'}; }
+        const { body, next } = collectBody(i+1);
+        if(body.length===0) return { error:{ line:item.n, errKind:'for体空', html:'🔍 第 '+item.n+' 行：循环下面是空的哦。把要做的事<b>缩进</b>（空4格）写到 for 的下一行。' }};
+        let items;
+        const src2 = m[2].trim();
+        if(src2[0] === '['){
+          const lv = evalListLiteral(src2, item.n);
+          if(lv.error) return { error: lv.error };
+          items = lv.val;
+        } else {
+          const v = getVar(src2, vars, item.n);
+          if(v.error) return { error: v.error };
+          if(!Array.isArray(v.val)) return { error:{ line:item.n, errKind:'forin非列表', errWord:src2, html:'🔍 第 '+item.n+' 行：<b>'+escapeHtml(src2)+'</b> 不是一排盒子（列表）哦。<span class="err-fix">for c in colors:</span> 的 in 后面要接列表。' }};
+          items = v.val;
+        }
+        for(const it of items){
+          vars[m[1]] = it;
+          const r = execBlock(body);
+          if(r && r.error) return r;
+        }
+        i = next;
+        continue;
+      }
       // for 写法不对 → 结构卡提示（指认缺少的要素）
       if(/^for\b/i.test(line)){
         const show = `<span class="err-line">${escapeHtml(line)}</span>`;
@@ -1440,6 +1516,25 @@ function compile(src){
           if(missing.length) tip += `for 循环的完整结构是：<br><span class="err-fix">for i in range(次数):</span><br>要这五样：<b>for</b>、计数器<b>i</b>、<b>in</b>、<b>range(次数)</b>、结尾<b>冒号:</b>。<br>你好像少了：${missing.join('、')}。补上试试！`;
           return { error:{ line:item.n, html:tip, errWord:'for' }};
         }
+      }
+
+      // ---- while 循环（条件循环 + 防死循环，第15关） ----
+      m = line.match(/^while\s+(.+?)\s*:?$/);
+      if(m){
+        if(!/:\s*$/.test(line) && !warn){ warn = {line:item.n, text:'第 '+item.n+' 行：while 后面要戴个小帽子（冒号 :），我帮你加上啦。'}; }
+        const { body, next } = collectBody(i+1);
+        if(body.length===0) return { error:{ line:item.n, errKind:'while体空', html:'🔍 第 '+item.n+' 行：while 下面是空的哦。把要做的事<b>缩进</b>（空4格）写到 while 的下一行。' }};
+        let guard = 0;
+        while(true){
+          const c = evalCond(m[1], vars, item.n);
+          if(c.error) return { error: c.error };
+          if(!c.val) break;
+          const r = execBlock(body);
+          if(r && r.error) return r;
+          if(++guard > 2000) return { error:{ line:item.n, errKind:'死循环', html:'🔍 第 '+item.n+' 行：跑了两千多圈还没停！while 的条件是不是一直成立？<br>身体里别忘了让条件里的数变大（比如 <span class="err-fix">x = x + 20</span>），不然永远停不下来（这叫「死循环」）。' }};
+        }
+        i = next;
+        continue;
       }
 
       // ---- if 条件（结构卡纠错） ----
@@ -1522,9 +1617,17 @@ function compile(src){
         return { error:{ line:item.n, html:`🔍 第 ${item.n} 行：${show}<br>def（做工具）的完整结构是：<br><span class="err-fix">def 名字():</span><br>然后下一行<b>缩进</b>写它要做的事。${missing.length?'<br>你好像少了：'+missing.join('、')+'。':''}补上试试！`, errWord:'def' }};
       }
 
+      // ---- input 裸写（没装进盒子）→ 专属提示（第16关） ----
+      if(/^input\s*\(/.test(line)){
+        return { error:{ line:item.n, errKind:'input裸写', html:'🔍 第 '+item.n+' 行：input 问来的回答要<b>装进盒子</b>，不然电脑记不住哦：<br><span class="err-fix">name = input("你叫什么名字？")</span><br>左边做个盒子 name，右边 input 问话，回答就存进 name 啦。' }};
+      }
+      // ---- random 裸写 / 少 random. 前缀 → 专属提示（第19关） ----
+      if(/^random\s*\.|^(randint|choice)\s*\(/.test(line)){
+        return { error:{ line:item.n, errKind:'random写法', html:'🔍 第 '+item.n+' 行：随机要装进盒子才用得上哦：<br><span class="err-fix">dice = random.randint(1,6)</span> ← 掷骰子<br><span class="err-fix">c = random.choice(colors)</span> ← 抽签' }};
+      }
       // ---- 函数调用：name() 或 name(参数)（v0.10.0 旋钮）----
       m = line.match(/^([a-zA-Z_]\w*)\s*\((.*)\)$/);
-      if(m && !/^(forward|left|right|print|pencolor|range|penup|pendown)$/.test(m[1])){
+      if(m && !/^(forward|left|right|print|pencolor|range|penup|pendown|input|random|randint|choice)$/.test(m[1])){
         const fname = m[1];
         const argStr = m[2].trim();
         if(funcs[fname]){
@@ -1581,9 +1684,21 @@ function compile(src){
         continue;
       }
 
-      // ---- 变量赋值：x = 40 / x = x + 20 ----
+      // ---- 变量赋值：x = 40 / x = x + 20 / name = input("...") ----
       m = line.match(/^([a-zA-Z_]\w*)\s*=\s*(.+)$/);
       if(m && !/^==/.test(m[2])){
+        // input 输入（第16关）：问来的回答装进盒子
+        const im = m[2].match(/^input\s*\(\s*(.*?)\s*\)$/);
+        if(im){
+          const q = im[1].replace(/^["']|["']$/g,'');
+          let ans = null;
+          if(typeof window !== 'undefined' && window.prompt) ans = window.prompt(q || '请输入：');
+          if(ans === null || ans === undefined) ans = '';
+          vars[m[1]] = String(ans);
+          inputs.push({ q, a: String(ans) });
+          i++;
+          continue;
+        }
         const val = evalExpr(m[2], vars, item.n);
         if(val.error) return { error: val.error };
         vars[m[1]] = val.val;
@@ -1602,7 +1717,7 @@ function compile(src){
 
   const err = execBlock(list);
   if(err && err.error) return { error: err.error };
-  return { ops, warn, prints };
+  return { ops, warn, prints, inputs };
 }
 
 /* 列表字面量求值：["red", "blue"] → ['red','blue'] */
@@ -1619,19 +1734,25 @@ const KNOWN_COLORS = { red:'红', blue:'蓝', green:'绿', yellow:'黄', orange:
 /* print 参数求值："文字" / 变量 / 拼接 */
 function evalPrintArg(arg, vars, lineNo){
   arg = arg.trim();
-  const strM = arg.match(/^["'](.*)["']$/);
+  const strM = arg.match(/^"([^"]*)"$/) || arg.match(/^'([^']*)'$/);   // 同种引号配对、内部不含该引号；拼接式子不被误当整串（第18关）
   if(strM) return { val: strM[1] };
   if(/^-?\d+$/.test(arg)) return { val: parseInt(arg) };
   if(/^[a-zA-Z_]\w*$/.test(arg)){
     const v = getVar(arg, vars, lineNo); if(v.error) return v;
     return { val: v.val };
   }
+  // 拼接（"a" + name）或裸中文（print(梅西)）→ 交给 evalExpr，报错更具体（第18关）
+  if(/[+]|[一-龥]/.test(arg)){
+    const e = evalExpr(arg, vars, lineNo);
+    if(!e.error) return e;
+    return { error: e.error };
+  }
   return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：print 里的东西我看不懂。可以写 <span class="err-fix">print("你好")</span> 或 <span class="err-fix">print(score)</span>（变量不用引号）。` }};
 }
 
 /* 条件求值：i == n / i < n / i > n / i % a == b（i 可换成任意变量） */
 function evalCond(condStr, vars, lineNo){
-  const show = `<span class="err-line">if ${escapeHtml(condStr)}</span>`;
+  const show = `<span class="err-line">${escapeHtml(condStr)}</span>`;
   // 单等号误用
   if(/[^=!<>]=[^=]/.test(condStr)){
     return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：${show}<br>判断"相等"要用<b>两个等号</b> <span class="err-fix">==</span> 哦！一个 = 是"装东西"（赋值），两个 == 才是"比一比"。` }};
@@ -1657,6 +1778,30 @@ function evalExpr(expr, vars, lineNo){
   expr = expr.trim();
   const show = `<span class="err-line">${escapeHtml(expr)}</span>`;
   if(/^-?\d+$/.test(expr)) return { val: parseInt(expr) };
+  // 字符串字面量："梅西" / '你好'（第18关）。同种引号配对、内部不含该引号，拼接式子不会被误当整串
+  const slm = expr.match(/^"([^"]*)"$/) || expr.match(/^'([^']*)'$/);
+  if(slm) return { val: slm[1] };
+  // random 随机（第19关）：random.randint(a,b) / random.choice(列表)
+  let rm = expr.match(/^random\.randint\s*\(\s*(-?\d+)\s*,\s*(-?\d+)\s*\)$/);
+  if(rm){
+    const lo = Math.min(+rm[1], +rm[2]), hi = Math.max(+rm[1], +rm[2]);
+    return { val: lo + Math.floor(Math.random()*(hi-lo+1)) };
+  }
+  rm = expr.match(/^random\.choice\s*\(\s*(.+?)\s*\)$/);
+  if(rm){
+    let arr;
+    const srcA = rm[1].trim();
+    if(srcA[0] === '['){ const lv = evalListLiteral(srcA, lineNo); if(lv.error) return lv; arr = lv.val; }
+    else {
+      const v = getVar(srcA, vars, lineNo); if(v.error) return v;
+      if(!Array.isArray(v.val)) return { error:{ line:lineNo, errKind:'choice非列表', html:'🔍 第 '+lineNo+' 行：choice 要从<b>一排盒子（列表）</b>里抽哦，比如 <span class="err-fix">random.choice(colors)</span>。' }};
+      arr = v.val;
+    }
+    if(!arr.length) return { error:{ line:lineNo, html:'🔍 第 '+lineNo+' 行：这个列表是空的，抽不出来哦。' }};
+    return { val: arr[Math.floor(Math.random()*arr.length)] };
+  }
+  // 少 random. 前缀：randint(...) / choice(...) 裸用（第19关）
+  if(/^(randint|choice)\s*\(/.test(expr)) return { error:{ line:lineNo, errKind:'random写法', html:'🔍 第 '+lineNo+' 行：随机口令前面要带上 <b>random.</b> 哦：<br><span class="err-fix">dice = random.randint(1,6)</span> ← 掷骰子<br><span class="err-fix">c = random.choice(colors)</span> ← 抽签' }};
   if(/^([a-zA-Z_]\w*)$/.test(expr)) return getVar(expr, vars, lineNo);
   // 求余：a % b
   let mm = expr.match(/^([a-zA-Z_]\w*|-?\d+)\s*%\s*(-?\d+)$/);
@@ -1670,8 +1815,17 @@ function evalExpr(expr, vars, lineNo){
   if(m){
     const a = evalExpr(m[1], vars, lineNo); if(a.error) return a;
     const b = evalExpr(m[3], vars, lineNo); if(b.error) return b;
-    return { val: m[2]==='+' ? a.val + b.val : a.val - b.val };
+    const aStr = typeof a.val === 'string', bStr = typeof b.val === 'string';
+    if(m[2] === '+'){
+      if(aStr && bStr) return { val: a.val + b.val };                 // 文字+文字=接起来
+      if(aStr !== bStr) return { error:{ line:lineNo, errKind:'数字文字混加', html:'🔍 第 '+lineNo+' 行：'+show+'<br>数字和文字不能直接 + 哦。<br>文字 + 文字 = 接起来（<span class="err-fix">"梅西" + "进球了"</span>）；数字 + 数字 = 算总数（<span class="err-fix">1 + 1</span>）。' }};
+      return { val: a.val + b.val };
+    }
+    if(aStr || bStr) return { error:{ line:lineNo, html:'🔍 第 '+lineNo+' 行：'+show+'<br>文字不能做减法哦，只有数字可以。' }};
+    return { val: a.val - b.val };
   }
+  // 裸中文文字没戴引号帽子（第18关）
+  if(/[一-龥]/.test(expr)) return { error:{ line:lineNo, errKind:'文字没引号', html:'🔍 第 '+lineNo+' 行：'+show+'<br>文字要戴「引号帽子」哦！写成 <span class="err-fix">"'+escapeHtml(expr)+'"</span>（用英文引号把文字包住）。' }};
   return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：${show}<br>我看不懂这个式子。目前会：<span class="err-fix">x = 40</span>、<span class="err-fix">x = x + 20</span>、<span class="err-fix">i % 2</span> 这样的。` }};
 }
 
@@ -1765,6 +1919,14 @@ function evalColorArg(arg, vars, lineNo){
     const c = String(list[ii]).toLowerCase();
     if(KNOWN_COLORS[c]) return { val: c };
     return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：列表里的 <b>${escapeHtml(String(list[ii]))}</b> 不是我会的颜色哦。` }};
+  }
+  // 变量装着颜色：c = random.choice(colors) 后 pencolor(c)（第19关）
+  const vm = arg.match(/^([a-zA-Z_]\w*)$/);
+  if(vm){
+    const v = getVar(vm[1], vars, lineNo); if(v.error) return v;
+    const c = String(v.val).toLowerCase();
+    if(KNOWN_COLORS[c]) return { val: c };
+    return { error:{ line:lineNo, html:'🔍 第 '+lineNo+' 行：<b>'+escapeHtml(vm[1])+'</b> 里装的 <b>'+escapeHtml(String(v.val))+'</b> 不是我会的颜色哦。' }};
   }
   return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：颜色要写引号，比如 <span class="err-fix">pencolor("red")</span>，或用列表 <span class="err-fix">pencolor(colors[i % 4])</span>。` }};
 }
@@ -1943,6 +2105,7 @@ function runCode(){
   const hwDg = (isHomework && LEVELS[curLevel].homework && LEVELS[curLevel].homework.diagram) ? LEVELS[curLevel].homework.diagram : null;
   updateViewScale(queue, hwDg);
   printsArr = res.prints ? res.prints.slice() : [];   // 记录 print 输出（判定用）
+  inputsArr = res.inputs ? res.inputs.slice() : [];   // 记录 input 问答（判定+埋点用，第16关）
   runAttempts++;
   // 埋点：运行次数
   const d2=LV(curLevel); if(isHomework){d2.hwTry++;}else{d2.imitateRun++;} persistTrack();
@@ -2480,7 +2643,8 @@ const LEVEL_FORMULAS = {
   // 第12关 大任务2
   11:'<span class="fk">📌 大任务2 = 全部招式大集合</span>\n\n函数 def + 列表 + 变量 + print\n\n<span class="fk">💡 自己拆解、自己实现，</span>\n<span class="fk">办一场属于你的太空足球赛！</span>\n\n🚀 <span class="fc">生活比喻：</span>\n   办一场比赛 = 做工具 + 选颜色 + 记分 + 播报\n   每个招式都用上',
   // 第14关 力度旋钮（函数参数）：练习用 chuanqiu(lidu)；公式卡讲"跳跃工具"（迁移：旋钮指挥动作）
-  13:'<span class="fk">📌 参数 = 工具上的「旋钮」</span>\n\n<span class="fk">def</span> jump(gao):      <span class="fc">← 做工具，装个旋钮 gao</span>\n    forward(gao)    <span class="fc">← 旋钮指几，就走几</span>\n\njump(30)           <span class="fc">← 拧 30：走 30</span>\njump(80)           <span class="fc">← 拧 80：走 80</span>\n\n<span class="fk">💡 同一个工具，拧不同的数，</span>\n<span class="fk">就干不同的活！</span>\n\n🎚️ <span class="fc">生活比喻：</span>\n   电风扇的档位旋钮\n   拧 1 档风小，拧 3 档风大'
+  13:'<span class="fk">📌 参数 = 工具上的「旋钮」</span>\n\n<span class="fk">def</span> jump(gao):      <span class="fc">← 做工具，装个旋钮 gao</span>\n    forward(gao)    <span class="fc">← 旋钮指几，就走几</span>\n\njump(30)           <span class="fc">← 拧 30：走 30</span>\njump(80)           <span class="fc">← 拧 80：走 80</span>\n\n<span class="fk">💡 同一个工具，拧不同的数，</span>\n<span class="fk">就干不同的活！</span>\n\n🎚️ <span class="fc">生活比喻：</span>\n   电风扇的档位旋钮\n   拧 1 档风小，拧 3 档风大',
+  14:'<span class="fk">📌 while = 只要…就一直做（看条件）</span>\n\nx = 0\n<span class="fk">while</span> x < 200:      <span class="fc">← 只要 x 没到 200 就继续</span>\n    forward(20)\n    x = x + 20         <span class="fc">← 关键！让 x 变大，才会停</span>\n\n<span class="fk">💡 for 数次数，while 看条件。</span>\n<span class="fk">身体里不写 x = x + 20，就永远停不下来（死循环）！</span>\n\n🏃 <span class="fc">生活比喻：</span>\n   while 没到家: 继续走\n   （每走一步就离家更近）'
 };
 function fillKnowledgePanel(lv){
   const ck = lv.concept_knowledge;
@@ -2550,7 +2714,8 @@ const UNLOCK_CODES = {
   10:"帽子戏法",     // 第11关 · 进球播报员
   11:"星际联赛",     // 第12关 · 大任务2 太空足球联赛
   12:"冠军之夜",     // 第13关 · 大任务3 银河冠军之夜
-  13:"力度旋钮"      // 第14关 · 力度旋钮（函数参数）
+  13:"力度旋钮",     // 第14关 · 力度旋钮（函数参数）
+  14:"跑到球门"      // 第15关 · 一直跑到球门（while 循环）
 };
 let pendingUnlock = -1;
 function openUnlock(i){
