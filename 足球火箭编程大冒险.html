@@ -479,7 +479,7 @@
     </div>
   </div>
 
-  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.15.0（新增第19关「🎲幸运骰子」random随机——掷骰子抽签、每次结果都不同，配套概念软闸、公式卡、问小航）</footer>
+  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.16.0（新增第20关「🌌星际杯互动直播」大任务4——input/while/def参数/列表/字符串/random 全招式综合收官，全产品共20关 🎉）</footer>
 </div>
 
 <script>
@@ -586,7 +586,8 @@ const ASK_LEVEL = {
   15:[ { keys:["input","问","回答","对话"], q:"input 的回答为什么要装进盒子", a:"input 问来的回答，只有装进盒子（name = input(...)）电脑才记得住。装进 name 后，写 print(name) 就能把它说出来。光写 input(...) 不装盒子，回答就丢了。" } ],
   16:[ { keys:["for c","点名","遍历","c 是"], q:"for c in colors 里的 c 是什么", a:"c 是「当前拿到的那个东西本身」，不是编号！for c in colors 像点名：叫到谁，c 就是谁。比如叫到红色，c 就是 \"red\"，pencolor(c) 就换红色。" } ],
   17:[ { keys:["字符串","拼接","文字","引号","+ "], q:"文字怎么接起来", a:"文字要戴引号帽子（\"梅西\"），用 + 接起来：\"梅西\" + \" 进球了\" = \"梅西 进球了\"。注意：数字和文字不能直接 +，文字一定要戴引号。" } ],
-  18:[ { keys:["random","随机","骰子","抽","randint","choice"], q:"randint 和 choice 有什么不同", a:"randint(1,6) 是掷骰子：随机给一个 1~6 的数字。choice(colors) 是抽签：从列表里随机抽一个。都要装进盒子（dice = ...）。记得前面带 random. 哦！" } ]
+  18:[ { keys:["random","随机","骰子","抽","randint","choice"], q:"randint 和 choice 有什么不同", a:"randint(1,6) 是掷骰子：随机给一个 1~6 的数字。choice(colors) 是抽签：从列表里随机抽一个。都要装进盒子（dice = ...）。记得前面带 random. 哦！" } ],
+  19:[ { keys:["大任务","直播","综合","拆"], q:"大任务4先做什么", a:"先在「我的拆解」把直播拆成模块：开场互动→比赛循环→射门→播报→解说→随机。再一个一个写成代码。想想第14-19关的旋钮/while/点名/解说词/骰子能不能用上？" } ]
 };
 let askLevel = 0;
 function openAsk(){
@@ -1512,6 +1513,38 @@ const LEVELS = [
       },
       win:"5 轮点球大战场场不同！你掌握了随机——以后做游戏、做抽签器都靠它！",
       medal:"🎲 幸运射手"
+    }
+  },
+  {
+    name:"星际杯互动直播", emoji:"🌌", concept:"综合项目", planet:"🌟",
+    desc:"大任务4：参数/while/input/列表/字符串/random 全用上，办一场能对话、有随机、会播报的互动直播！",
+    title:"⭐ 大任务4：星际杯互动直播",
+    text:"",
+    project:true,
+    concept_knowledge:{ title:"大任务4：秋季收官大作", body:"把你这学期学的全部本事攒成一个真节目：input 问观众、while 让比赛进行、def 带参数控制射门、列表点名播报、字符串拼接解说词、random 制造随机事件。先在「我的拆解」写出模块，再逐个实现。", scratch:"💡 就像你的 Scratch 大游戏，但这次全用 Python 写出来。" },
+    homework:{
+      title:"⭐ 大任务4：星际杯互动直播",
+      text:"办一场「星际杯」互动直播！能用上的招式越多越好：\n①input 问观众支持哪队 ②def 带参数的工具控制射门力度 ③while 让比赛进行到有队进 3 球\n④球员名单(列表)逐个播报 ⑤字符串拼实时解说词 ⑥random 制造随机事件",
+      stepsHint:"先拆模块：开场互动→比赛循环→射门工具→名单播报→解说词→随机事件。一个一个写成代码。",
+      emoji:"🌌",
+      diagram:{
+        route:[[0,0],[0,60],[-60,60],[-60,120],[0,120],[60,120],[60,180]],
+        segLabels:[{at:[-30,30],text:"开场"},{at:[-95,90],text:"比赛"},{at:[95,150],text:"射门区"}],
+        cones:[[60,60],[80,90]],
+        defenders:[[-30,90]],
+        goal:[60,220]
+      },
+      check(path){
+        const colors = new Set(trailColors).size;
+        const t = turns(path);
+        const prints = printsArr.length;
+        if(prints>=4 && colors>=2 && t>=4) return {ok:true};
+        if(prints<4) return {ok:false, why:"no_print"};
+        if(colors<2) return {ok:false, why:"no_color"};
+        return {ok:false, why:"too_simple"};
+      },
+      win:"星际杯互动直播圆满收官！对话、循环、射门、播报、随机全是你自己攒的——你是真正的星际直播导演！",
+      medal:"🌌 星际直播导演"
     }
   }
 ];
@@ -2813,7 +2846,8 @@ const LEVEL_FORMULAS = {
   15:'<span class="fk">📌 input = 程序会问话，回答装进盒子</span>\n\nname = input("你叫什么？")   <span class="fc">← 问话，回答装进 name</span>\nprint(name)              <span class="fc">← 把回答说出来（变量不引号）</span>\n\n<span class="fk">💡 左边做盒子，右边 input 问话。</span>\n<span class="fk">每个 input 配一个新盒子！</span>\n\n🎤 <span class="fc">生活比喻：</span>\n   记者问(问题) → 你回答 → 记在本子上\n   name = input(问题)',
   16:'<span class="fk">📌 for-in = 把列表里的东西一个个直接拿出来</span>\n\ncolors = ["red","yellow","green"]\n<span class="fk">for</span> c <span class="fk">in</span> colors:    <span class="fc">← 逐个点名，c 是拿到的那个</span>\n    pencolor(c)\n    forward(50)\n\n<span class="fk">💡 c 不是编号，它就是那个东西本身！</span>\n\n📢 <span class="fc">生活比喻：</span>\n   for 同学 in 名单:\n       喊(同学)   <span class="fc">← 叫到谁谁答应</span>',
   17:'<span class="fk">📌 字符串拼接 = 文字接龙</span>\n\nname = "梅西"           <span class="fc">← 文字戴引号帽子</span>\nprint(name + " 进球了！")  <span class="fc">← 用 + 接起来</span>\n\n<span class="fk">💡 "1" + "1" = "11"（接起来），</span>\n<span class="fk">不是 2（那是数字加法）！</span>\n\n🧱 <span class="fc">生活比喻：</span>\n   乐高接龙：一段接一段，越接越长',
-  18:'<span class="fk">📌 random = 让程序有「运气」</span>\n\ndice = random.randint(1,6)   <span class="fc">← 掷骰子：随机 1~6</span>\nprint(dice)\nc = random.choice(colors)    <span class="fc">← 抽签：列表里随机抽一个</span>\npencolor(c)\n\n<span class="fk">💡 每次运行结果都不一样！</span>\n\n🎲 <span class="fc">生活比喻：</span>\n   randint = 掷骰子\n   choice = 抽签 / 抽盲盒'
+  18:'<span class="fk">📌 random = 让程序有「运气」</span>\n\ndice = random.randint(1,6)   <span class="fc">← 掷骰子：随机 1~6</span>\nprint(dice)\nc = random.choice(colors)    <span class="fc">← 抽签：列表里随机抽一个</span>\npencolor(c)\n\n<span class="fk">💡 每次运行结果都不一样！</span>\n\n🎲 <span class="fc">生活比喻：</span>\n   randint = 掷骰子\n   choice = 抽签 / 抽盲盒',
+  19:'<span class="fk">📌 大任务4 = 秋季全部招式大综合</span>\n\ninput 问观众 + while 比赛 + def参数射门\n+ 列表点名 + 字符串解说 + random随机\n\n<span class="fk">💡 先在「我的拆解」拆模块，</span>\n<span class="fk">再一个一个写成代码。</span>\n\n🌌 <span class="fc">这是你的秋季收官大作，</span>\n<span class="fc">做完请给爸爸妈妈完整演示一遍！</span>'
 };
 function fillKnowledgePanel(lv){
   const ck = lv.concept_knowledge;
@@ -2888,7 +2922,8 @@ const UNLOCK_CODES = {
   15:"赛后采访",     // 第16关 · 赛后采访（input 输入）
   16:"点名上场",     // 第17关 · 首发点名（列表进阶 for-in）
   17:"进球解说",     // 第18关 · 进球解说词（字符串拼接）
-  18:"幸运骰子"      // 第19关 · 幸运骰子（random 随机）
+  18:"幸运骰子",     // 第19关 · 幸运骰子（random 随机）
+  19:"星际直播"      // 第20关 · 大任务4 星际杯互动直播（综合）
 };
 let pendingUnlock = -1;
 function openUnlock(i){
