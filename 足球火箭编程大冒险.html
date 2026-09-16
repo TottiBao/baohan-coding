@@ -479,7 +479,7 @@
     </div>
   </div>
 
-  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.11.1（第12关大任务2判定放宽：四要素用三即过关；报错引导：裸中文文字→引导加引号 print("帽子戏法")，第11关报告驱动）</footer>
+  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.12.0（新增第16关「🎤赛后采访」input输入——程序会问话、回答装进盒子，配套概念软闸、公式卡、问小航）</footer>
 </div>
 
 <script>
@@ -543,7 +543,8 @@ const CONCEPT_NEED = {
   9:  { name:"列表",             tip:"试试 colors = [红, 黄, 蓝] 做一排颜色盒子（文字戴引号帽子），再配 pencolor 换色", test:c=>/\[[^\]]*,[^\]]*\]/.test(c) },
   10: { name:"print 播报",       tip:"试试 print(比分) 让电脑把数说出来", test:c=>/\bprint\b/.test(c) },
   13: { name:"力度旋钮（函数参数）", tip:"给工具装个旋钮：def chuanqiu(lidu): ，身体里写 forward(lidu)，用时 chuanqiu(50) 拧个数字", test:c=>{ const dm=c.match(/def\s+(\w+)\s*\(\s*\w+\s*\)/); if(!dm) return false; return new RegExp('\\b'+dm[1]+'\\s*\\(\\s*\\d').test(c); } },
-  14: { name:"while 循环", tip:"试试 while x < 200: 只要条件成立就一直跑；身体里记得 x = x + 20 让条件会变，不然停不下来", test:c=>/\bwhile\b/.test(c) }
+  14: { name:"while 循环", tip:"试试 while x < 200: 只要条件成立就一直跑；身体里记得 x = x + 20 让条件会变，不然停不下来", test:c=>/\bwhile\b/.test(c) },
+  15: { name:"input 输入", tip:"试试 name = input(\"你叫什么？\") 让电脑问你话，回答装进盒子，再 print(name) 说出来", test:c=>/\binput\s*\(/.test(c) }
 };
 
 /* =========================================================
@@ -578,7 +579,8 @@ const ASK_LEVEL = {
   11:[ { keys:["大任务2","先做什么"], q:"大任务2先做什么", a:"先想你要几个工具（def），再想颜色怎么换、比分怎么记。写在「我的拆解」，逐个实现。" } ],
   12:[ { keys:["烟花","嵌套","瓣"], q:"烟花为什么要套两个循环", a:"外层循环管「转几瓣」，内层循环管「画一瓣」。套起来，一朵多瓣的烟花就开啦！" } ],
   13:[ { keys:["参数","旋钮","力度","lidu"], q:"括号里的 lidu 是什么", a:"lidu 是个「旋钮」（参数）。做工具时把它装进括号 def chuanqiu(lidu):，身体里 forward(lidu) 就用它；用工具时 chuanqiu(50)，50 就流进旋钮，工具就走 50 步。拧不同的数，走不同的距离！" } ],
-  14:[ { keys:["while","一直","死循环","停不下"], q:"while 和 for 有什么不同", a:"for 是数好次数（跑4圈），while 是看条件（一直跑到球门为止）。while 身体里一定要让条件里的数变大（x = x + 20），不然条件永远成立、永远停不下来，这叫「死循环」。" } ]
+  14:[ { keys:["while","一直","死循环","停不下"], q:"while 和 for 有什么不同", a:"for 是数好次数（跑4圈），while 是看条件（一直跑到球门为止）。while 身体里一定要让条件里的数变大（x = x + 20），不然条件永远成立、永远停不下来，这叫「死循环」。" } ],
+  15:[ { keys:["input","问","回答","对话"], q:"input 的回答为什么要装进盒子", a:"input 问来的回答，只有装进盒子（name = input(...)）电脑才记得住。装进 name 后，写 print(name) 就能把它说出来。光写 input(...) 不装盒子，回答就丢了。" } ]
 };
 let askLevel = 0;
 function openAsk(){
@@ -1349,6 +1351,43 @@ const LEVELS = [
       },
       win:"耐力跑完成！你掌握了 while——只要没达目标就一直坚持。运动员精神！",
       medal:"🔁 耐力跑健将"
+    }
+  },
+  {
+    name:"赛后采访", emoji:"🎤", concept:"input 输入", planet:"⚽",
+    desc:"input 让程序会「问话」——弹出问题，把你的回答装进盒子。程序能和人对话啦！",
+    title:"任务：赛后新闻发布会",
+    text:"比赛赢了，电脑变成小记者来采访你！\ninput 问一句话，你打字回答，回答就装进一个盒子里，程序还能把它说出来。",
+    concept_knowledge:{ title:"本关学：input 输入（程序会问会听）", body:"name = input(\"你叫什么名字？\") 意思是：弹出这个问题等你回答，回答装进盒子 name。左边做个盒子，右边 input 问话，回答就存进盒子啦。然后 print(name) 就能把回答说出来。每个 input 配一个新盒子，别都用同一个名字！", scratch:"💡 这就像 Scratch 的「询问…并等待」+「回答」积木——问一句，把回答存起来。" },
+    demo:[
+      {code:"name = input(\"球星，你叫什么名字？\")", cap:"input 弹出这个问题，你的回答装进盒子 name", k:{tag:"新招式", title:"input 会问话", body:"input(问题) 弹出这个问题等你打字回答，回答存进 name。程序会听人说话啦！注意：回答一定要装进盒子（name = ...），不然电脑记不住。"}, ops:[]},
+      {code:"print(name)", cap:"print 把 name 里的回答说出来——电脑记住你叫啥了！", k:{tag:"重点", title:"一问一答=对话", body:"input 问、print 说，一问一答就是在和电脑聊天。print(name) 不加引号，说的是盒子里装的回答。"}, ops:[]},
+      {code:"hao = input(\"你穿几号球衣？\")\nprint(hao)\nforward(50)", cap:"再问一句！每个 input 配一个新盒子。答完球员开心得跑了起来！", k:{tag:"哇", title:"一问一盒子", body:"再问一个问题，就再做一个新盒子（hao）装回答。别都用 name，不然新回答会把旧回答盖掉。"}, ops:[{cmd:'forward',val:50}]}
+    ],
+    breakSteps:["❓ input 问名字，回答装进 name","📢 print(name) 说出来","❓ 再问球衣号，装进 hao","📢 print(hao) 说出来"],
+    palette:["name = input(\"你叫什么？\")","print(name)","hao = input(\"几号球衣？\")","print(hao)","forward(50)"],
+    check(path){
+      if(printsArr.length>=2 && inputsArr.length>=1) return {ok:true};
+      return {ok:false, why:"need_more"};
+    },
+    hints:[
+      "想让电脑问你话，用 input(问题)，回答装进盒子：name = input(\"...\")",
+      "问了之后 print(name) 就能把回答说出来（变量不用引号）。",
+      "每个 input 配一个新盒子装回答，别都用同一个名字。"
+    ],
+    win:"你的程序会跟你聊天了！input 问、print 答，一问一答——这是以后做「生活小助手」的本事！",
+    medal:"🎤 金牌小记者",
+    homework:{
+      title:"⚽ 独立作业：新闻发布会",
+      text:"开一场新闻发布会！电脑问 3 个问题（名字 / 进了几球 / 下场目标），\n每个回答装进各自的盒子，并 print 出来。",
+      stepsHint:"拆解：问名字装进 name→print(name)；问进球装进 qiu→print(qiu)；问目标装进 mu→print(mu)。每个问题一个新盒子！",
+      emoji:"🎤",
+      check(path){
+        if(printsArr.length>=3 && inputsArr.length>=3) return {ok:true};
+        return {ok:false, why:"need_more"};
+      },
+      win:"漂亮的新闻发布会！3 问 3 答全记下来了——你已经会让程序和人对话了！",
+      medal:"🎤 王牌记者"
     }
   }
 ];
@@ -2646,7 +2685,8 @@ const LEVEL_FORMULAS = {
   11:'<span class="fk">📌 大任务2 = 全部招式大集合</span>\n\n函数 def + 列表 + 变量 + print\n\n<span class="fk">💡 自己拆解、自己实现，</span>\n<span class="fk">办一场属于你的太空足球赛！</span>\n\n🚀 <span class="fc">生活比喻：</span>\n   办一场比赛 = 做工具 + 选颜色 + 记分 + 播报\n   每个招式都用上',
   // 第14关 力度旋钮（函数参数）：练习用 chuanqiu(lidu)；公式卡讲"跳跃工具"（迁移：旋钮指挥动作）
   13:'<span class="fk">📌 参数 = 工具上的「旋钮」</span>\n\n<span class="fk">def</span> jump(gao):      <span class="fc">← 做工具，装个旋钮 gao</span>\n    forward(gao)    <span class="fc">← 旋钮指几，就走几</span>\n\njump(30)           <span class="fc">← 拧 30：走 30</span>\njump(80)           <span class="fc">← 拧 80：走 80</span>\n\n<span class="fk">💡 同一个工具，拧不同的数，</span>\n<span class="fk">就干不同的活！</span>\n\n🎚️ <span class="fc">生活比喻：</span>\n   电风扇的档位旋钮\n   拧 1 档风小，拧 3 档风大',
-  14:'<span class="fk">📌 while = 只要…就一直做（看条件）</span>\n\nx = 0\n<span class="fk">while</span> x < 200:      <span class="fc">← 只要 x 没到 200 就继续</span>\n    forward(20)\n    x = x + 20         <span class="fc">← 关键！让 x 变大，才会停</span>\n\n<span class="fk">💡 for 数次数，while 看条件。</span>\n<span class="fk">身体里不写 x = x + 20，就永远停不下来（死循环）！</span>\n\n🏃 <span class="fc">生活比喻：</span>\n   while 没到家: 继续走\n   （每走一步就离家更近）'
+  14:'<span class="fk">📌 while = 只要…就一直做（看条件）</span>\n\nx = 0\n<span class="fk">while</span> x < 200:      <span class="fc">← 只要 x 没到 200 就继续</span>\n    forward(20)\n    x = x + 20         <span class="fc">← 关键！让 x 变大，才会停</span>\n\n<span class="fk">💡 for 数次数，while 看条件。</span>\n<span class="fk">身体里不写 x = x + 20，就永远停不下来（死循环）！</span>\n\n🏃 <span class="fc">生活比喻：</span>\n   while 没到家: 继续走\n   （每走一步就离家更近）',
+  15:'<span class="fk">📌 input = 程序会问话，回答装进盒子</span>\n\nname = input("你叫什么？")   <span class="fc">← 问话，回答装进 name</span>\nprint(name)              <span class="fc">← 把回答说出来（变量不引号）</span>\n\n<span class="fk">💡 左边做盒子，右边 input 问话。</span>\n<span class="fk">每个 input 配一个新盒子！</span>\n\n🎤 <span class="fc">生活比喻：</span>\n   记者问(问题) → 你回答 → 记在本子上\n   name = input(问题)'
 };
 function fillKnowledgePanel(lv){
   const ck = lv.concept_knowledge;
@@ -2717,7 +2757,8 @@ const UNLOCK_CODES = {
   11:"星际联赛",     // 第12关 · 大任务2 太空足球联赛
   12:"冠军之夜",     // 第13关 · 大任务3 银河冠军之夜
   13:"力度旋钮",     // 第14关 · 力度旋钮（函数参数）
-  14:"跑到球门"      // 第15关 · 一直跑到球门（while 循环）
+  14:"跑到球门",     // 第15关 · 一直跑到球门（while 循环）
+  15:"赛后采访"      // 第16关 · 赛后采访（input 输入）
 };
 let pendingUnlock = -1;
 function openUnlock(i){
