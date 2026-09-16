@@ -479,7 +479,7 @@
     </div>
   </div>
 
-  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.13.0（新增第17关「📋首发点名」for-in列表遍历——c 就是拿到的那个，配套概念软闸、公式卡、问小航）</footer>
+  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.14.0（新增第18关「🎙️进球解说词」字符串拼接——文字戴引号帽子、+ 接龙，配套概念软闸、公式卡、问小航）</footer>
 </div>
 
 <script>
@@ -545,7 +545,8 @@ const CONCEPT_NEED = {
   13: { name:"力度旋钮（函数参数）", tip:"给工具装个旋钮：def chuanqiu(lidu): ，身体里写 forward(lidu)，用时 chuanqiu(50) 拧个数字", test:c=>{ const dm=c.match(/def\s+(\w+)\s*\(\s*\w+\s*\)/); if(!dm) return false; return new RegExp('\\b'+dm[1]+'\\s*\\(\\s*\\d').test(c); } },
   14: { name:"while 循环", tip:"试试 while x < 200: 只要条件成立就一直跑；身体里记得 x = x + 20 让条件会变，不然停不下来", test:c=>/\bwhile\b/.test(c) },
   15: { name:"input 输入", tip:"试试 name = input(\"你叫什么？\") 让电脑问你话，回答装进盒子，再 print(name) 说出来", test:c=>/\binput\s*\(/.test(c) },
-  16: { name:"for-in 点名", tip:"试试 for c in colors: 直接把列表里的东西一个个拿出来用（c 就是拿到的那个），不用数编号", test:c=>/for\s+\w+\s+in\s+(?!range)/.test(c) || /\[[^\]]*,[^\]]*\]/.test(c) }
+  16: { name:"for-in 点名", tip:"试试 for c in colors: 直接把列表里的东西一个个拿出来用（c 就是拿到的那个），不用数编号", test:c=>/for\s+\w+\s+in\s+(?!range)/.test(c) || /\[[^\]]*,[^\]]*\]/.test(c) },
+  17: { name:"字符串拼接", tip:"试试把文字装进盒子再 + 接起来：name = \"梅西\"，然后 print(name + \" 进球了！\")", test:c=>/["']\s*\+|\+\s*["']|=\s*["']/.test(c) }
 };
 
 /* =========================================================
@@ -582,7 +583,8 @@ const ASK_LEVEL = {
   13:[ { keys:["参数","旋钮","力度","lidu"], q:"括号里的 lidu 是什么", a:"lidu 是个「旋钮」（参数）。做工具时把它装进括号 def chuanqiu(lidu):，身体里 forward(lidu) 就用它；用工具时 chuanqiu(50)，50 就流进旋钮，工具就走 50 步。拧不同的数，走不同的距离！" } ],
   14:[ { keys:["while","一直","死循环","停不下"], q:"while 和 for 有什么不同", a:"for 是数好次数（跑4圈），while 是看条件（一直跑到球门为止）。while 身体里一定要让条件里的数变大（x = x + 20），不然条件永远成立、永远停不下来，这叫「死循环」。" } ],
   15:[ { keys:["input","问","回答","对话"], q:"input 的回答为什么要装进盒子", a:"input 问来的回答，只有装进盒子（name = input(...)）电脑才记得住。装进 name 后，写 print(name) 就能把它说出来。光写 input(...) 不装盒子，回答就丢了。" } ],
-  16:[ { keys:["for c","点名","遍历","c 是"], q:"for c in colors 里的 c 是什么", a:"c 是「当前拿到的那个东西本身」，不是编号！for c in colors 像点名：叫到谁，c 就是谁。比如叫到红色，c 就是 \"red\"，pencolor(c) 就换红色。" } ]
+  16:[ { keys:["for c","点名","遍历","c 是"], q:"for c in colors 里的 c 是什么", a:"c 是「当前拿到的那个东西本身」，不是编号！for c in colors 像点名：叫到谁，c 就是谁。比如叫到红色，c 就是 \"red\"，pencolor(c) 就换红色。" } ],
+  17:[ { keys:["字符串","拼接","文字","引号","+ "], q:"文字怎么接起来", a:"文字要戴引号帽子（\"梅西\"），用 + 接起来：\"梅西\" + \" 进球了\" = \"梅西 进球了\"。注意：数字和文字不能直接 +，文字一定要戴引号。" } ]
 };
 let askLevel = 0;
 function openAsk(){
@@ -1427,6 +1429,44 @@ const LEVELS = [
       },
       win:"梦幻首发全员登场！你点名点得又快又准——列表配上 for-in，威力翻倍！",
       medal:"📋 金牌教练"
+    }
+  },
+  {
+    name:"进球解说词", emoji:"🎙️", concept:"字符串拼接", planet:"⚽",
+    desc:"文字也能装进盒子、能用 + 接起来——name + \" 进球了！\" 拼出一句完整解说词！",
+    title:"任务：解说词生成器",
+    text:"进球瞬间，解说员要喊出「梅西 进球了！」这样的句子。\n用 + 把文字一段段接起来，就能拼出任何解说词！",
+    concept_knowledge:{ title:"本关学：字符串拼接（文字接龙）", body:"文字（字符串）要戴「引号帽子」：name = \"梅西\"。+ 不只加数字，还能把文字接起来：name + \" 进球了！\" 就拼成 \"梅西 进球了！\"。⚠️ 数字和文字不能直接 +（会报错）；文字一定要戴引号帽子，不然电脑以为它是盒子名。", scratch:"💡 这就像 Scratch 的「连接…和…」积木——把两段文字接成一段。" },
+    demo:[
+      {code:"name = \"梅西\"", cap:"盒子里装文字（字符串），文字要戴引号『帽子』", k:{tag:"新概念", title:"字符串=文字", body:"盒子不光能装数字，还能装文字！装文字要用英文引号包起来：\"梅西\"。不戴引号，电脑会以为 梅西 是个盒子名。"}, ops:[]},
+      {code:"jieri = name + \" 进球了！\"", cap:"+ 不只加数字，还能把文字『接』起来！", k:{tag:"新招式", title:"字符串拼接", body:"文字用 + 接龙：\"梅西\" + \" 进球了！\" = \"梅西 进球了！\"。拼好的句子装进新盒子 jieri。"}, ops:[]},
+      {code:"print(jieri)\nforward(60)", cap:"把拼好的解说词播出来！球员听完带球庆祝！", k:{tag:"哇", title:"拼接+播报", body:"print(jieri) 把拼好的解说词喊出来。你也可以直接 print(name + \" 加油！\")，不用先装盒子。"}, ops:[{cmd:'forward',val:60}]}
+    ],
+    breakSteps:["📝 盒子装文字 name = \"梅西\"（戴引号）","➕ 用 + 拼接 name + \" 进球了！\"","📢 print 播出拼好的解说词"],
+    palette:["name = \"梅西\"","jieri = name + \" 进球了！\"","print(jieri)","forward(60)"],
+    check(path){
+      if(printsArr.length>=1 && printsArr.some(s=>String(s).length>=4)) return {ok:true};
+      return {ok:false, why:"need_join"};
+    },
+    hints:[
+      "文字也能装进盒子，但要戴引号帽子：name = \"梅西\"。",
+      "用 + 把文字接起来：name + \" 进球了！\" 拼成一句话。",
+      "拼好的句子装进新盒子，再 print 出来；或直接 print(name + \" 加油！\")。"
+    ],
+    win:"你写出了会说话的解说词！文字用 + 一接，程序就能喊出任何句子——太有用了！",
+    medal:"🎙️ 金牌解说员",
+    homework:{
+      title:"⚽ 独立作业：解说词工厂",
+      text:"做两个盒子（球员名 + 动作），拼出 3 句不同的解说词 print 出来！\n比如「梅西 进球了」「C罗 帽子戏法」「包涵 绝杀」。",
+      stepsHint:"拆解：a = \"梅西\"、b = \"进球\" 做盒子 → print(a + \" \" + b)、print(a + \" 帽子戏法\")、print(\"球王 \" + a)。每句都要戴引号帽子！",
+      emoji:"🎙️",
+      check(path){
+        const long = printsArr.filter(s=>String(s).length>=4).length;
+        if(printsArr.length>=3 && long>=3) return {ok:true};
+        return {ok:false, why:"need_more"};
+      },
+      win:"3 句解说词一气呵成！你已经能用文字拼接让程序「出口成章」了！",
+      medal:"🎙️ 王牌解说员"
     }
   }
 ];
@@ -2726,7 +2766,8 @@ const LEVEL_FORMULAS = {
   13:'<span class="fk">📌 参数 = 工具上的「旋钮」</span>\n\n<span class="fk">def</span> jump(gao):      <span class="fc">← 做工具，装个旋钮 gao</span>\n    forward(gao)    <span class="fc">← 旋钮指几，就走几</span>\n\njump(30)           <span class="fc">← 拧 30：走 30</span>\njump(80)           <span class="fc">← 拧 80：走 80</span>\n\n<span class="fk">💡 同一个工具，拧不同的数，</span>\n<span class="fk">就干不同的活！</span>\n\n🎚️ <span class="fc">生活比喻：</span>\n   电风扇的档位旋钮\n   拧 1 档风小，拧 3 档风大',
   14:'<span class="fk">📌 while = 只要…就一直做（看条件）</span>\n\nx = 0\n<span class="fk">while</span> x < 200:      <span class="fc">← 只要 x 没到 200 就继续</span>\n    forward(20)\n    x = x + 20         <span class="fc">← 关键！让 x 变大，才会停</span>\n\n<span class="fk">💡 for 数次数，while 看条件。</span>\n<span class="fk">身体里不写 x = x + 20，就永远停不下来（死循环）！</span>\n\n🏃 <span class="fc">生活比喻：</span>\n   while 没到家: 继续走\n   （每走一步就离家更近）',
   15:'<span class="fk">📌 input = 程序会问话，回答装进盒子</span>\n\nname = input("你叫什么？")   <span class="fc">← 问话，回答装进 name</span>\nprint(name)              <span class="fc">← 把回答说出来（变量不引号）</span>\n\n<span class="fk">💡 左边做盒子，右边 input 问话。</span>\n<span class="fk">每个 input 配一个新盒子！</span>\n\n🎤 <span class="fc">生活比喻：</span>\n   记者问(问题) → 你回答 → 记在本子上\n   name = input(问题)',
-  16:'<span class="fk">📌 for-in = 把列表里的东西一个个直接拿出来</span>\n\ncolors = ["red","yellow","green"]\n<span class="fk">for</span> c <span class="fk">in</span> colors:    <span class="fc">← 逐个点名，c 是拿到的那个</span>\n    pencolor(c)\n    forward(50)\n\n<span class="fk">💡 c 不是编号，它就是那个东西本身！</span>\n\n📢 <span class="fc">生活比喻：</span>\n   for 同学 in 名单:\n       喊(同学)   <span class="fc">← 叫到谁谁答应</span>'
+  16:'<span class="fk">📌 for-in = 把列表里的东西一个个直接拿出来</span>\n\ncolors = ["red","yellow","green"]\n<span class="fk">for</span> c <span class="fk">in</span> colors:    <span class="fc">← 逐个点名，c 是拿到的那个</span>\n    pencolor(c)\n    forward(50)\n\n<span class="fk">💡 c 不是编号，它就是那个东西本身！</span>\n\n📢 <span class="fc">生活比喻：</span>\n   for 同学 in 名单:\n       喊(同学)   <span class="fc">← 叫到谁谁答应</span>',
+  17:'<span class="fk">📌 字符串拼接 = 文字接龙</span>\n\nname = "梅西"           <span class="fc">← 文字戴引号帽子</span>\nprint(name + " 进球了！")  <span class="fc">← 用 + 接起来</span>\n\n<span class="fk">💡 "1" + "1" = "11"（接起来），</span>\n<span class="fk">不是 2（那是数字加法）！</span>\n\n🧱 <span class="fc">生活比喻：</span>\n   乐高接龙：一段接一段，越接越长'
 };
 function fillKnowledgePanel(lv){
   const ck = lv.concept_knowledge;
@@ -2799,7 +2840,8 @@ const UNLOCK_CODES = {
   13:"力度旋钮",     // 第14关 · 力度旋钮（函数参数）
   14:"跑到球门",     // 第15关 · 一直跑到球门（while 循环）
   15:"赛后采访",     // 第16关 · 赛后采访（input 输入）
-  16:"点名上场"      // 第17关 · 首发点名（列表进阶 for-in）
+  16:"点名上场",     // 第17关 · 首发点名（列表进阶 for-in）
+  17:"进球解说"      // 第18关 · 进球解说词（字符串拼接）
 };
 let pendingUnlock = -1;
 function openUnlock(i){
