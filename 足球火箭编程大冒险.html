@@ -479,7 +479,7 @@
     </div>
   </div>
 
-  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.14.0（新增第18关「🎙️进球解说词」字符串拼接——文字戴引号帽子、+ 接龙，配套概念软闸、公式卡、问小航）</footer>
+  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.15.0（新增第19关「🎲幸运骰子」random随机——掷骰子抽签、每次结果都不同，配套概念软闸、公式卡、问小航）</footer>
 </div>
 
 <script>
@@ -546,7 +546,8 @@ const CONCEPT_NEED = {
   14: { name:"while 循环", tip:"试试 while x < 200: 只要条件成立就一直跑；身体里记得 x = x + 20 让条件会变，不然停不下来", test:c=>/\bwhile\b/.test(c) },
   15: { name:"input 输入", tip:"试试 name = input(\"你叫什么？\") 让电脑问你话，回答装进盒子，再 print(name) 说出来", test:c=>/\binput\s*\(/.test(c) },
   16: { name:"for-in 点名", tip:"试试 for c in colors: 直接把列表里的东西一个个拿出来用（c 就是拿到的那个），不用数编号", test:c=>/for\s+\w+\s+in\s+(?!range)/.test(c) || /\[[^\]]*,[^\]]*\]/.test(c) },
-  17: { name:"字符串拼接", tip:"试试把文字装进盒子再 + 接起来：name = \"梅西\"，然后 print(name + \" 进球了！\")", test:c=>/["']\s*\+|\+\s*["']|=\s*["']/.test(c) }
+  17: { name:"字符串拼接", tip:"试试把文字装进盒子再 + 接起来：name = \"梅西\"，然后 print(name + \" 进球了！\")", test:c=>/["']\s*\+|\+\s*["']|=\s*["']/.test(c) },
+  18: { name:"random 随机", tip:"试试 dice = random.randint(1,6) 掷骰子，或 c = random.choice(colors) 抽签，让程序每次都不一样", test:c=>/\brandom\s*\./.test(c) }
 };
 
 /* =========================================================
@@ -584,7 +585,8 @@ const ASK_LEVEL = {
   14:[ { keys:["while","一直","死循环","停不下"], q:"while 和 for 有什么不同", a:"for 是数好次数（跑4圈），while 是看条件（一直跑到球门为止）。while 身体里一定要让条件里的数变大（x = x + 20），不然条件永远成立、永远停不下来，这叫「死循环」。" } ],
   15:[ { keys:["input","问","回答","对话"], q:"input 的回答为什么要装进盒子", a:"input 问来的回答，只有装进盒子（name = input(...)）电脑才记得住。装进 name 后，写 print(name) 就能把它说出来。光写 input(...) 不装盒子，回答就丢了。" } ],
   16:[ { keys:["for c","点名","遍历","c 是"], q:"for c in colors 里的 c 是什么", a:"c 是「当前拿到的那个东西本身」，不是编号！for c in colors 像点名：叫到谁，c 就是谁。比如叫到红色，c 就是 \"red\"，pencolor(c) 就换红色。" } ],
-  17:[ { keys:["字符串","拼接","文字","引号","+ "], q:"文字怎么接起来", a:"文字要戴引号帽子（\"梅西\"），用 + 接起来：\"梅西\" + \" 进球了\" = \"梅西 进球了\"。注意：数字和文字不能直接 +，文字一定要戴引号。" } ]
+  17:[ { keys:["字符串","拼接","文字","引号","+ "], q:"文字怎么接起来", a:"文字要戴引号帽子（\"梅西\"），用 + 接起来：\"梅西\" + \" 进球了\" = \"梅西 进球了\"。注意：数字和文字不能直接 +，文字一定要戴引号。" } ],
+  18:[ { keys:["random","随机","骰子","抽","randint","choice"], q:"randint 和 choice 有什么不同", a:"randint(1,6) 是掷骰子：随机给一个 1~6 的数字。choice(colors) 是抽签：从列表里随机抽一个。都要装进盒子（dice = ...）。记得前面带 random. 哦！" } ]
 };
 let askLevel = 0;
 function openAsk(){
@@ -1467,6 +1469,49 @@ const LEVELS = [
       },
       win:"3 句解说词一气呵成！你已经能用文字拼接让程序「出口成章」了！",
       medal:"🎙️ 王牌解说员"
+    }
+  },
+  {
+    name:"幸运骰子", emoji:"🎲", concept:"random 随机", planet:"⚽",
+    desc:"random.randint(1,6) 掷骰子、random.choice(列表) 抽签——让程序也有「运气」，每次结果都不同！",
+    title:"任务：随机点球大战",
+    text:"点球大战，谁也不知道球会往哪踢！\n用 random 让程序随机出招：掷个骰子决定力度，抽签决定颜色，每次玩都不一样！",
+    concept_knowledge:{ title:"本关学：random 随机（程序有运气）", body:"random.randint(1,6) 是「掷骰子」：随机给一个 1 到 6 的数。random.choice(colors) 是「抽签」：从列表里随机抽一个。结果都要装进盒子（dice = random.randint(1,6)）。每次运行结果都不一样——这就是随机的乐趣！", scratch:"💡 这就像 Scratch 的「在 1 和 10 之间取随机数」积木——每次得到一个说不准的数。" },
+    demo:[
+      {code:"dice = random.randint(1,6)", cap:"randint(1,6) 是『掷骰子』：随机给一个 1 到 6 的数装进 dice", k:{tag:"新招式", title:"随机=掷骰子", body:"random.randint(1,6) 每次给一个说不准的数（1~6）。装进盒子 dice，程序就有了「运气」！注意前面要带 random."}, ops:[]},
+      {code:"print(dice)", cap:"看看这次掷到几", k:{tag:"重点", title:"看结果", body:"print(dice) 把这次掷到的数喊出来。多运行几次，每次都不一样！"}, ops:[]},
+      {code:"colors = [\"red\",\"gold\",\"blue\"]\nc = random.choice(colors)\npencolor(c)\nforward(50)", cap:"choice(列表) 是『抽签』：随机抽一个颜色来画", k:{tag:"哇", title:"随机=抽签", body:"random.choice(colors) 从 colors 里随机抽一个装进 c，pencolor(c) 就用抽到的颜色画。每次抽的可能都不同！"}, ops:[{cmd:'forward',val:50}]}
+    ],
+    breakSteps:["🎲 random.randint(1,6) 掷骰子装进 dice","📢 print(dice) 看结果","🎁 random.choice(colors) 抽一个颜色","🖊️ 用抽到的颜色画一段"],
+    palette:["dice = random.randint(1,6)","print(dice)","colors = [\"red\",\"gold\",\"blue\"]","c = random.choice(colors)","pencolor(c)","forward(50)"],
+    check(path){
+      if(printsArr.length>=1 && segLens(path).filter(l=>l>5).length>=1) return {ok:true};
+      return {ok:false, why:"need_more"};
+    },
+    hints:[
+      "想让程序有「运气」，用 random.randint(1,6) 掷骰子，或 random.choice(列表) 抽签。",
+      "randint 给随机数字，choice 从列表随机抽一个。结果都要装进盒子。",
+      "每次运行都不一样，这就是随机的乐趣！多跑几次看看。"
+    ],
+    win:"你的程序有「运气」了！掷骰子、抽签，每次都不一样——游戏就该这样充满惊喜！",
+    medal:"🎲 幸运星",
+    homework:{
+      title:"⚽ 独立作业：随机点球大战",
+      text:"来 5 轮随机点球！每轮 random.randint 掷力度、random.choice 抽颜色射门，并 print 结果。\n每次运行，都是一场全新的比赛！",
+      stepsHint:"拆解：colors=[...] 做颜色 → for i in range(5): → 身体里 dice=random.randint(1,6)、print(dice)、c=random.choice(colors)、pencolor(c)、forward(40)。",
+      emoji:"🎲",
+      diagram:{
+        route:[[0,0],[0,40],[30,70],[-30,110],[0,150],[20,190]],
+        segLabels:[{at:[-40,90],text:"随机射门"}],
+        defenders:[[0,120]],
+        goal:[0,230]
+      },
+      check(path){
+        if(printsArr.length>=3 && segLens(path).filter(l=>l>5).length>=3) return {ok:true};
+        return {ok:false, why:"need_more"};
+      },
+      win:"5 轮点球大战场场不同！你掌握了随机——以后做游戏、做抽签器都靠它！",
+      medal:"🎲 幸运射手"
     }
   }
 ];
@@ -2767,7 +2812,8 @@ const LEVEL_FORMULAS = {
   14:'<span class="fk">📌 while = 只要…就一直做（看条件）</span>\n\nx = 0\n<span class="fk">while</span> x < 200:      <span class="fc">← 只要 x 没到 200 就继续</span>\n    forward(20)\n    x = x + 20         <span class="fc">← 关键！让 x 变大，才会停</span>\n\n<span class="fk">💡 for 数次数，while 看条件。</span>\n<span class="fk">身体里不写 x = x + 20，就永远停不下来（死循环）！</span>\n\n🏃 <span class="fc">生活比喻：</span>\n   while 没到家: 继续走\n   （每走一步就离家更近）',
   15:'<span class="fk">📌 input = 程序会问话，回答装进盒子</span>\n\nname = input("你叫什么？")   <span class="fc">← 问话，回答装进 name</span>\nprint(name)              <span class="fc">← 把回答说出来（变量不引号）</span>\n\n<span class="fk">💡 左边做盒子，右边 input 问话。</span>\n<span class="fk">每个 input 配一个新盒子！</span>\n\n🎤 <span class="fc">生活比喻：</span>\n   记者问(问题) → 你回答 → 记在本子上\n   name = input(问题)',
   16:'<span class="fk">📌 for-in = 把列表里的东西一个个直接拿出来</span>\n\ncolors = ["red","yellow","green"]\n<span class="fk">for</span> c <span class="fk">in</span> colors:    <span class="fc">← 逐个点名，c 是拿到的那个</span>\n    pencolor(c)\n    forward(50)\n\n<span class="fk">💡 c 不是编号，它就是那个东西本身！</span>\n\n📢 <span class="fc">生活比喻：</span>\n   for 同学 in 名单:\n       喊(同学)   <span class="fc">← 叫到谁谁答应</span>',
-  17:'<span class="fk">📌 字符串拼接 = 文字接龙</span>\n\nname = "梅西"           <span class="fc">← 文字戴引号帽子</span>\nprint(name + " 进球了！")  <span class="fc">← 用 + 接起来</span>\n\n<span class="fk">💡 "1" + "1" = "11"（接起来），</span>\n<span class="fk">不是 2（那是数字加法）！</span>\n\n🧱 <span class="fc">生活比喻：</span>\n   乐高接龙：一段接一段，越接越长'
+  17:'<span class="fk">📌 字符串拼接 = 文字接龙</span>\n\nname = "梅西"           <span class="fc">← 文字戴引号帽子</span>\nprint(name + " 进球了！")  <span class="fc">← 用 + 接起来</span>\n\n<span class="fk">💡 "1" + "1" = "11"（接起来），</span>\n<span class="fk">不是 2（那是数字加法）！</span>\n\n🧱 <span class="fc">生活比喻：</span>\n   乐高接龙：一段接一段，越接越长',
+  18:'<span class="fk">📌 random = 让程序有「运气」</span>\n\ndice = random.randint(1,6)   <span class="fc">← 掷骰子：随机 1~6</span>\nprint(dice)\nc = random.choice(colors)    <span class="fc">← 抽签：列表里随机抽一个</span>\npencolor(c)\n\n<span class="fk">💡 每次运行结果都不一样！</span>\n\n🎲 <span class="fc">生活比喻：</span>\n   randint = 掷骰子\n   choice = 抽签 / 抽盲盒'
 };
 function fillKnowledgePanel(lv){
   const ck = lv.concept_knowledge;
@@ -2841,7 +2887,8 @@ const UNLOCK_CODES = {
   14:"跑到球门",     // 第15关 · 一直跑到球门（while 循环）
   15:"赛后采访",     // 第16关 · 赛后采访（input 输入）
   16:"点名上场",     // 第17关 · 首发点名（列表进阶 for-in）
-  17:"进球解说"      // 第18关 · 进球解说词（字符串拼接）
+  17:"进球解说",     // 第18关 · 进球解说词（字符串拼接）
+  18:"幸运骰子"      // 第19关 · 幸运骰子（random 随机）
 };
 let pendingUnlock = -1;
 function openUnlock(i){
