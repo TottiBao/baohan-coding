@@ -479,7 +479,7 @@
     </div>
   </div>
 
-  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.11.0（引擎扩展包：while条件循环/input输入/for-in列表遍历/字符串拼接/random随机；新增第15关「🔁一直跑到球门」while循环+防死循环，配套概念软闸、公式卡、问小航）</footer>
+  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.11.1（第12关大任务2判定放宽：四要素用三即过关；报错引导：裸中文文字→引导加引号 print("帽子戏法")，第11关报告驱动）</footer>
 </div>
 
 <script>
@@ -1195,7 +1195,7 @@ const LEVELS = [
     concept_knowledge:{ title:"大任务2：全部招式大集合", body:"把函数、列表、条件、变量全用上，办一场属于你的太空足球赛！自己拆解、自己实现。", scratch:"💡 这就是你做 Scratch 大游戏的本事，现在用 Python 代码实现！" },
     homework:{
       title:"⭐ 大任务2：太空足球联赛",
-      text:"在太空球场办一场比赛！要求：①用 def 做至少 2 个进攻工具 ②用列表+换颜色画出彩色进攻 ③用变量记分并 print 播报 ④球员要冲到球门区。全用上才算赢！",
+      text:"在太空球场办一场比赛！要求：①用 def 做至少 2 个进攻工具 ②用列表+换颜色画出彩色进攻 ③用变量记分并 print 播报 ④球员要冲到球门区。用上至少 3 样就算赢！",
       stepsHint:"先在「我的拆解」写出你的模块（做哪些工具？怎么换颜色？怎么记分？怎么冲门？），再逐个实现。",
       emoji:"🚀",
       diagram:{
@@ -1211,11 +1211,13 @@ const LEVELS = [
         const end = path[path.length-1];
         const hasColor = u.size >= 2;
         const hasPrint = printsArr.length >= 1;
+        const hasTurn = t >= 3;
         const nearGoal = end[1] > 120;
-        if(hasColor && hasPrint && t>=3 && nearGoal) return {ok:true};
+        const got = (hasColor?1:0)+(hasPrint?1:0)+(hasTurn?1:0)+(nearGoal?1:0);
+        if(got>=3) return {ok:true};   // 四要素用三即过关（大纲§5.1.5 降难度，v0.11.1 同步）
         if(!hasColor) return {ok:false, why:"no_color"};
         if(!hasPrint) return {ok:false, why:"no_print"};
-        if(t<3) return {ok:false, why:"too_simple"};
+        if(!hasTurn) return {ok:false, why:"too_simple"};
         return {ok:false, why:"not_goal"};
       },
       win:"震撼全场的太空联赛！函数、颜色、记分、播报——你把这一学期学的全用上了，这是你独立完成的第一个「大作品」！",
@@ -1859,8 +1861,8 @@ function parseCmd(line, lineNo, vars){
         return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：你写的是中文「${escapeHtml(cnHit[0])}」呀。<br>在这个代码世界里要用英文哦～「${escapeHtml(cnHit[0])}」应该写成 <span class="err-fix">${tip||en}</span>。试试看！`, errWord:cnHit[0] }};
       }
     }
-    // 有中文但没匹配到已知词
-    return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：代码里不能有中文哦。<br>把「${escapeHtml(cnHit[0])}」换成英文指令试试，比如 <span class="err-fix">forward(100)</span>。`, errWord:cnHit[0] }};
+    // 有中文但没匹配到已知词（可能是想打印的文字，如「帽子戏法」→ 顺带引导引号帽子，v0.11.1）
+    return { error:{ line:lineNo, errKind:'裸中文文字', errWord:cnHit[0], html:`🔍 第 ${lineNo} 行：「${escapeHtml(cnHit[0])}」是中文，代码里直接用不了哦。<br>想让球员<b>做动作</b> → 换英文指令，比如 <span class="err-fix">forward(100)</span>。<br>想<b>打印这句话</b> → 给文字戴上「引号帽子」：<span class="err-fix">print("${escapeHtml(cnHit[0])}")</span>` }};
   }
 
   /* ===== 真 turtle / Python 写法识别（看视频学来的，引导到我们的写法） ===== */
@@ -2238,7 +2240,7 @@ function onHomeworkWin(){
   document.getElementById('win-emoji').textContent = '⚽';
   document.getElementById('win-title').textContent = lv.name + " · 全部完成！";
   document.getElementById('win-text').textContent = hw.win;
-  let medalText = lv.medal + " ＋ " + hw.medal;
+  let medalText = (lv.medal ? lv.medal + " ＋ " : "") + hw.medal;   // 大任务关无顶层 medal，防空出 undefined（v0.11.1 修）
   if(stuckCount>=2) medalText += " ＋ 🕵️ 不放弃勋章";
   if(!peeked) medalText += "<br>🌟 全程没偷看，全靠自己想！";
   document.getElementById('win-medal').innerHTML = medalText;
