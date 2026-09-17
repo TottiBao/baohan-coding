@@ -479,7 +479,7 @@
     </div>
   </div>
 
-  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.16.0（新增第20关「🌌星际杯互动直播」大任务4——input/while/def参数/列表/字符串/random 全招式综合收官，全产品共20关 🎉）</footer>
+  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.16.1（大任务关「通关温和提示」：通关代码没用到 def 时，弹窗末尾温和引导一句——不卡关，引导用函数）</footer>
 </div>
 
 <script>
@@ -548,6 +548,12 @@ const CONCEPT_NEED = {
   16: { name:"for-in 点名", tip:"试试 for c in colors: 直接把列表里的东西一个个拿出来用（c 就是拿到的那个），不用数编号", test:c=>/for\s+\w+\s+in\s+(?!range)/.test(c) || /\[[^\]]*,[^\]]*\]/.test(c) },
   17: { name:"字符串拼接", tip:"试试把文字装进盒子再 + 接起来：name = \"梅西\"，然后 print(name + \" 进球了！\")", test:c=>/["']\s*\+|\+\s*["']|=\s*["']/.test(c) },
   18: { name:"random 随机", tip:"试试 dice = random.randint(1,6) 掷骰子，或 c = random.choice(colors) 抽签，让程序每次都不一样", test:c=>/\brandom\s*\./.test(c) }
+};
+/* 大任务关「通关温和提示」（v0.16.1）：大任务不设软闸（不卡关），但通关代码若没用到该关关键概念，
+   通关弹窗末尾温和引导一句。只提示、不阻断、不计 conceptMiss。 */
+const WIN_NUDGE = {
+  11: { tip:"这关的简报里藏着个大招「def 函数」——把重复的射门装进工具箱（def shemen(): 身体里写 forward(50)），想射门就写 shemen()，省力又帅气。下次试试？", test:c=>/\bdef\b/.test(c) },
+  19: { tip:"直播里如果有个带旋钮的射门工具（def shemen(lidu): 想射多远拧多少），整场直播会更有派头。下次试试？", test:c=>/\bdef\b/.test(c) }
 };
 
 /* =========================================================
@@ -2436,6 +2442,13 @@ function onHomeworkWin(){
   document.getElementById('win-emoji').textContent = '⚽';
   document.getElementById('win-title').textContent = lv.name + " · 全部完成！";
   document.getElementById('win-text').textContent = hw.win;
+  /* 大任务「通关温和提示」（v0.16.1）：没用到关键概念 → 弹窗末尾引导一句（不阻断不计卡） */
+  try{
+    const nudge = (typeof WIN_NUDGE !== 'undefined') ? WIN_NUDGE[curLevel] : null;
+    if(nudge && !nudge.test(document.getElementById('editor').value)){
+      document.getElementById('win-text').textContent += "\n\n💡 小航悄悄说：" + nudge.tip;
+    }
+  }catch(e){}
   let medalText = (lv.medal ? lv.medal + " ＋ " : "") + hw.medal;   // 大任务关无顶层 medal，防空出 undefined（v0.11.1 修）
   if(stuckCount>=2) medalText += " ＋ 🕵️ 不放弃勋章";
   if(!peeked) medalText += "<br>🌟 全程没偷看，全靠自己想！";
