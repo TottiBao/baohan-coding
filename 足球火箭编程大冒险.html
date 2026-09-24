@@ -165,6 +165,15 @@
   #err-tip .err-line{ font-family:"Consolas",monospace; background:rgba(0,0,0,.3); padding:2px 8px; border-radius:6px; color:#ffb3b3; }
   #err-tip .err-fix{ font-family:"Consolas",monospace; background:rgba(74,222,128,.15); padding:2px 8px; border-radius:6px; color:#b7f7cf; }
   #helper-zone{ margin-top:11px; }
+  /* 大任务语法急救卡（v0.16.2） */
+  #cheat-zone{ margin-bottom:11px; }
+  #cheat-toggle{ width:100%; background:rgba(255,214,107,.14); border:1px dashed rgba(255,214,107,.55); color:#ffe9ad; font-size:14px; font-weight:bold; padding:9px 12px; border-radius:11px; cursor:pointer; font-family:inherit; transition:.1s; }
+  #cheat-toggle:hover{ background:rgba(255,214,107,.22); }
+  #cheat-body{ margin-top:9px; display:flex; flex-direction:column; gap:8px; }
+  .cheat-tpl{ background:rgba(13,19,48,.7); border:1px solid rgba(140,170,255,.35); border-radius:10px; padding:8px 11px; cursor:pointer; text-align:left; transition:.1s; font-family:inherit; }
+  .cheat-tpl:hover{ border-color:#ffd66b; transform:translateY(-1px); }
+  .cheat-tpl .ct-name{ font-size:13px; color:#ffe9ad; font-weight:bold; margin-bottom:4px; }
+  .cheat-tpl pre{ margin:0; font-family:"Consolas",monospace; font-size:12.5px; color:#9fd0ff; white-space:pre-wrap; line-height:1.45; }
   #helper-toggle{ font-size:13px; color:#8ea0d8; background:none; border:1px dashed rgba(140,170,255,.4); border-radius:9px; padding:5px 11px; cursor:pointer; }
   #helper-toggle:hover{ color:#bcd0ff; border-color:#6ea8ff; }
   #palette{ display:flex; flex-wrap:wrap; gap:7px; margin-top:9px; }
@@ -399,6 +408,11 @@
             <input class="plan-input" placeholder="第3步：接着……（比如：遇到防守变向）">
             <input class="plan-input" placeholder="第4步：最后……（比如：射门！）">
           </div>
+          <!-- 大任务：语法急救卡（项目关可见，只给语法模板不给答案，点击插入编辑器） -->
+          <div id="cheat-zone" class="hidden">
+            <button id="cheat-toggle" onclick="toggleCheat()">🆘 忘记语法？点我打开急救卡</button>
+            <div id="cheat-body" class="hidden"></div>
+          </div>
           <textarea id="editor" spellcheck="false" placeholder="把任务拆解成步骤，一步一步敲成代码……"></textarea>
           <div id="err-tip"></div>
           <div id="helper-zone">
@@ -479,7 +493,7 @@
     </div>
   </div>
 
-  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.16.1（大任务关「通关温和提示」：通关代码没用到 def 时，弹窗末尾温和引导一句——不卡关，引导用函数）</footer>
+  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.16.2（第12关攻坚包：def 报错逐一点名错因（大写/中文名/同行身体/多旋钮/数字旋钮）、拼写守卫不再误导、漏括号专属提示；大任务新增「语法急救卡」——语法模板一键插入，只给格式不给答案）</footer>
 </div>
 
 <script>
@@ -1718,7 +1732,7 @@ function compile(src){
           let tip = `🔍 第 ${item.n} 行：${show}<br>`;
           if(hasMisspell) tip += `「range」拼错啦，是 <b>r-a-n-g-e</b>。<br>`;
           if(missing.length) tip += `for 循环的完整结构是：<br><span class="err-fix">for i in range(次数):</span><br>要这五样：<b>for</b>、计数器<b>i</b>、<b>in</b>、<b>range(次数)</b>、结尾<b>冒号:</b>。<br>你好像少了：${missing.join('、')}。补上试试！`;
-          return { error:{ line:item.n, html:tip, errWord:'for' }};
+          return { error:{ line:item.n, errKind:'for写法', html:tip }};
         }
       }
 
@@ -1748,11 +1762,11 @@ function compile(src){
         const show = `<span class="err-line">${escapeHtml(line)}</span>`;
         // 单等号误用（if i = 2:）→ 优先给 == 专属提示（比结构卡更精准）
         if(/[^=!<>]=[^=]/.test(cond)){
-          return { error:{ line:item.n, html:`🔍 第 ${item.n} 行：${show}<br>判断「相等」要用<b>两个等号</b> <span class="err-fix">==</span> 哦！<br>一个 = 是「装东西」（赋值），两个 == 才是「比一比」。把 <b>=</b> 改成 <b>==</b> 试试。`, errWord:'if' }};
+          return { error:{ line:item.n, errKind:'if写法', html:`🔍 第 ${item.n} 行：${show}<br>判断「相等」要用<b>两个等号</b> <span class="err-fix">==</span> 哦！<br>一个 = 是「装东西」（赋值），两个 == 才是「比一比」。把 <b>=</b> 改成 <b>==</b> 试试。` }};
         }
         // 有内容但完全不是条件（比如写成了 forward）→ 结构卡
         if(cond && !/==|<|>|%|\bin\b/.test(cond) && !/^[a-zA-Z_]\w*$/.test(cond)){
-          return { error:{ line:item.n, html:`🔍 第 ${item.n} 行：${show}<br>if 后面要写一个<b>条件</b>（比一比）。完整结构是：<br><span class="err-fix">if i == 2:</span> 或 <span class="err-fix">if i &lt; 3:</span><br>检查：比的对象（i 或变量）、比较符号（== 两个等号 / &lt; / &gt;）、结尾<b>冒号:</b>。`, errWord:'if' }};
+          return { error:{ line:item.n, errKind:'if写法', html:`🔍 第 ${item.n} 行：${show}<br>if 后面要写一个<b>条件</b>（比一比）。完整结构是：<br><span class="err-fix">if i == 2:</span> 或 <span class="err-fix">if i &lt; 3:</span><br>检查：比的对象（i 或变量）、比较符号（== 两个等号 / &lt; / &gt;）、结尾<b>冒号:</b>。` }};
         }
         if(!/:\s*$/.test(line) && !warn){ warn = {line:item.n, text:`第 ${item.n} 行：if 后面要加冒号 :，我帮你加上啦。`}; }
         const { body, next } = collectBody(i+1);
@@ -1808,17 +1822,28 @@ function compile(src){
         i = next;
         continue;
       }
-      // def 写法不对 → 结构卡提示
+      // def 写法不对 → 分型精准纠错（v0.16.2：逐一点名错因 + errKind，报告能看清是哪种错）
       if(/^def\b/i.test(line)){
         const show = `<span class="err-line">${escapeHtml(line)}</span>`;
         // 调用处误写 def（语法残缺但工具已存在）→ 优先给"调用不用 def"
         const dn = line.replace(/^def\s*/i,'').match(/^([a-zA-Z_]\w*)/);
         if(dn && funcs[dn[1]]) return { error:{ line:item.n, errKind:'调用误写def', errWord:dn[1], html:`🔍 第 ${item.n} 行：${show}<br><b>${escapeHtml(dn[1])}</b> 已经在工具箱里啦！想用它，直接写 <span class="err-fix">${escapeHtml(dn[1])}()</span>，<b>不用再加 def</b>。` }};
+        // ① 首字母大写（Def / DEF）：代码里大小写是两回事
+        if(/^[A-Z]/.test(line)) return { error:{ line:item.n, errKind:'def写法大写', html:`🔍 第 ${item.n} 行：${show}<br><b>def</b> 三个字母要<b>全小写</b>哦！代码里大小写是两回事，<b>Def</b> 和 <b>def</b> 不一样。<br>改成 <span class="err-fix">def 名字():</span> 试试。` }};
+        // ② 中文工具名：电脑只认英文/拼音名字
+        if(/[一-龥]/.test(line)) return { error:{ line:item.n, errKind:'def写法中文名', html:`🔍 第 ${item.n} 行：${show}<br>工具名字要用<b>英文或拼音</b>哦，中文名字电脑认不出来。<br>比如「射门」可以写成 <span class="err-fix">def shemen():</span>。` }};
+        // ③ 身体写在同一行（冒号后面还跟着动作）
+        if(/:\s*\S/.test(line)) return { error:{ line:item.n, errKind:'def写法同行身体', html:`🔍 第 ${item.n} 行：${show}<br>冒号后面<b>不要跟动作</b>哦。按回车另起一行，<b>空 4 格</b>再写动作，才算装进工具箱：<br><span class="err-fix">def 名字():</span><br><span class="err-fix">&nbsp;&nbsp;&nbsp;&nbsp;forward(50)</span>` }};
+        // ④ 多个旋钮（参数）：目前只支持一个
+        if(/\([^)]*,[^)]*\)/.test(line)) return { error:{ line:item.n, errKind:'def写法多旋钮', html:`🔍 第 ${item.n} 行：${show}<br>现在我们的工具只装<b>一个旋钮（参数）</b>就够用啦，括号里写<b>一个</b>名字就好：<span class="err-fix">def 名字(lidu):</span>` }};
+        // ⑤ 旋钮写成了数字：做工具写名字，用工具才拧数字
+        if(/\(\s*\d/.test(line)) return { error:{ line:item.n, errKind:'def写法数字旋钮', html:`🔍 第 ${item.n} 行：${show}<br>做工具时括号里要写旋钮的<b>名字</b>（比如 <b>lidu</b>），<b>用</b>工具时才拧数字：<br><span class="err-fix">def chuanqiu(lidu):</span> ← 做工具<br><span class="err-fix">chuanqiu(50)</span> ← 用的时候拧 50` }};
+        // ⑥ 兜底结构卡：指认缺少的要素
         const missing = [];
         if(!/[a-zA-Z_]\w*/.test(line.replace(/^def\s*/i,''))) missing.push("工具<b>名字</b>");
         if(!/\(/.test(line)) missing.push("一对<b>括号 ( )</b>");
         if(!/:\s*$/.test(line)) missing.push("结尾<b>冒号 :</b>");
-        return { error:{ line:item.n, html:`🔍 第 ${item.n} 行：${show}<br>def（做工具）的完整结构是：<br><span class="err-fix">def 名字():</span><br>然后下一行<b>缩进</b>写它要做的事。${missing.length?'<br>你好像少了：'+missing.join('、')+'。':''}补上试试！`, errWord:'def' }};
+        return { error:{ line:item.n, errKind:'def写法', html:`🔍 第 ${item.n} 行：${show}<br>def（做工具）的完整结构是：<br><span class="err-fix">def 名字():</span><br>然后下一行<b>缩进</b>写它要做的事。${missing.length?'<br>你好像少了：'+missing.join('、')+'。':''}补上试试！` }};
       }
 
       // ---- input 裸写（没装进盒子）→ 专属提示（第16关） ----
@@ -1862,6 +1887,14 @@ function compile(src){
         // 工具还没做出来：名字像某个已做好的工具（编辑距离≤2）→ 猜他想调用谁
         let near = null;
         for(const fn of Object.keys(funcs)){ if(lev(fname.toLowerCase(), fn.toLowerCase()) <= 2){ near = fn; break; } }
+        // 拼写守卫（v0.16.2）：名字像基本口令（lift→left）→ 小笔误卡，别误导他去造工具
+        if(!near){
+          for(const k of ['forward','left','right','pencolor','print']){
+            if(lev(fname.toLowerCase(), k) <= 2){
+              return { error:{ line:item.n, errKind:'拼写错误', errWord:fname, html:`🔍 第 ${item.n} 行有个小笔误哦：<span class="err-line">${escapeHtml(line)}</span><br>我不认识 <b>${escapeHtml(fname)}</b>。你是不是想写 <span class="err-fix">${k}</span>？<br>对比拼写：<b>${k.split('').join('-')}</b>，检查你哪里打错啦。` }};
+            }
+          }
+        }
         const tip = near
           ? `咦，你是不是想用工具箱里的 <b>${escapeHtml(near)}</b>？<br>那就写 <span class="err-fix">${escapeHtml(near)}()</span>，检查一下拼写哦。`
           : `先用 <span class="err-fix">def ${escapeHtml(fname)}():</span> 把它装进工具箱，下面缩进写上它要做的事。<br>记住：<b>def 要写在用它之前</b>哦。`;
@@ -2100,6 +2133,8 @@ function parseCmd(line, lineNo, vars){
   // 赋值写错：x == 20 或单独一个 x + 20
   if(/^[a-zA-Z_]\w*\s*==/.test(line)) return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：${show}<br>== 是"比一比"（用在 if 里），想装东西要用一个 <span class="err-fix">=</span> 哦，比如 <span class="err-fix">x = 20</span>。` }};
   if(/^[a-zA-Z_]\w*\s*[+-]/.test(line)) return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：${show}<br>算完要存回盒子里哦！应该写 <span class="err-fix">x = x + 20</span>，光写 <b>x + 20</b> 盒子里的数不会变。` }};
+  // 漏括号：forward 100 / left 90 / forward x 这样光写指令不带括号（v0.16.2）
+  if(m = line.match(/^(forward|left|right)\s+(-?\d+|[a-zA-Z_]\w*)$/)) return { error:{ line:lineNo, errKind:'漏括号', errWord:m[1], html:`🔍 第 ${lineNo} 行：${show}<br><b>${m[1]}</b> 后面要把数字装进<b>括号</b>里哦：<span class="err-fix">${m[1]}(${m[2]})</span>` }};
   return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：${show}<br>我看不懂 <b>${escapeHtml(word)}</b> 这个口令。<br>目前我会：<span class="err-fix">forward(步数)</span>、<span class="err-fix">left(角度)</span>、<span class="err-fix">right(角度)</span>、<span class="err-fix">pencolor(颜色)</span>、<span class="err-fix">print(播报)</span>、<span class="err-fix">for 循环</span>、<span class="err-fix">if 条件</span>、<span class="err-fix">变量</span>、<span class="err-fix">def 函数</span>。`, errWord:word }};
 }
 
@@ -2804,6 +2839,81 @@ function toggleHelper(){
   pal.classList.toggle('hidden');
   tog.textContent = pal.classList.contains('hidden') ? '🧩 不会拼？点我打开小积木' : '🧩 收起小积木';
 }
+
+/* =========================================================
+   🆘 大任务语法急救卡（v0.16.2，项目关作业期可见）
+   原则：只给语法模板（名字/数字都要自己改），不给答案；点击插入编辑器光标处。
+   每个模板都能独立运行（自含变量定义），插进去就能跑。cheatUse 进学习报告。
+   数据与内容分离：按关卡索引查表，不改动 LEVELS。
+   ========================================================= */
+const CHEAT_CARD = {
+  6:[ // 第7关 · 大任务1：顺序/循环/嵌套/条件/变量
+    { name:"for 循环", code:"for i in range(4):\n    forward(50)\n    right(90)" },
+    { name:"嵌套循环（循环套循环）", code:"for i in range(3):\n    for j in range(4):\n        forward(40)\n        right(90)\n    right(120)" },
+    { name:"if / else 条件", code:"for i in range(3):\n    if i == 1:\n        forward(50)\n    else:\n        left(90)" },
+    { name:"变量记分", code:"score = 0\nscore = score + 1" },
+    { name:"print 文字（戴引号帽子）", code:"print(\"加油\")" }
+  ],
+  11:[ // 第12关 · 大任务2：def/列表颜色/变量/print
+    { name:"def 做工具", code:"def shemen():\n    forward(80)\n    right(90)\nshemen()" },
+    { name:"列表 + 换颜色", code:"colors = [\"red\", \"blue\"]\npencolor(colors[0])" },
+    { name:"变量记分 + print", code:"score = 0\nscore = score + 1\nprint(score)" },
+    { name:"print 文字（戴引号帽子）", code:"print(\"进球啦\")" }
+  ],
+  12:[ // 第13关 · 大任务3：嵌套循环/def/颜色/变量/if
+    { name:"def 做工具（装循环）", code:"def yanhua():\n    for i in range(6):\n        forward(30)\n        right(60)\nyanhua()" },
+    { name:"嵌套循环（烟花）", code:"for i in range(6):\n    for j in range(4):\n        forward(30)\n        right(90)\n    right(60)" },
+    { name:"换颜色", code:"pencolor(\"gold\")" },
+    { name:"变量记分 + print", code:"score = 3\nprint(score)" },
+    { name:"if / else 变色灯", code:"for i in range(4):\n    if i % 2 == 0:\n        pencolor(\"red\")\n    else:\n        pencolor(\"blue\")\n    forward(30)" }
+  ],
+  19:[ // 第20关 · 大任务4：input/def带参/while/for-in/拼接/random
+    { name:"input 问观众", code:"name = input(\"你支持哪队？\")\nprint(name)" },
+    { name:"def 带旋钮（参数）", code:"def shemen(lidu):\n    forward(lidu)\nshemen(80)" },
+    { name:"while 循环", code:"x = 0\nwhile x < 3:\n    forward(30)\n    x = x + 1" },
+    { name:"for-in 点名", code:"for p in [\"梅西\", \"C罗\"]:\n    print(p)" },
+    { name:"拼接解说词", code:"team = \"火箭\"\nprint(\"加油 \" + team)" },
+    { name:"random 掷骰子", code:"dice = random.randint(1,6)\nprint(dice)" }
+  ]
+};
+function buildCheat(i){
+  const zone = document.getElementById('cheat-zone');
+  const body = document.getElementById('cheat-body');
+  const list = CHEAT_CARD[i];
+  if(!list){ zone.classList.add('hidden'); return; }
+  body.innerHTML = '';
+  list.forEach((t,idx)=>{
+    const b = document.createElement('button');
+    b.className = 'cheat-tpl';
+    b.innerHTML = '<div class="ct-name">📌 ' + escapeHtml(t.name) + '（点我插入）</div><pre>' + escapeHtml(t.code) + '</pre>';
+    b.onclick = ()=>insertCheat(idx);
+    body.appendChild(b);
+  });
+  body.classList.add('hidden');
+  document.getElementById('cheat-toggle').textContent = '🆘 忘记语法？点我打开急救卡';
+  zone.classList.remove('hidden');
+}
+function toggleCheat(){
+  const body = document.getElementById('cheat-body');
+  const tog = document.getElementById('cheat-toggle');
+  body.classList.toggle('hidden');
+  tog.textContent = body.classList.contains('hidden') ? '🆘 忘记语法？点我打开急救卡' : '🆘 收起急救卡';
+}
+function insertCheat(idx){
+  const t = (CHEAT_CARD[curLevel]||[])[idx];
+  if(!t) return;
+  const ed = document.getElementById('editor');
+  const pos = (ed.selectionStart!=null) ? ed.selectionStart : ed.value.length;
+  const before = ed.value.slice(0,pos), after = ed.value.slice(pos);
+  let ins = t.code;
+  if(before && !before.endsWith('\n')) ins = '\n' + ins;
+  if(after && !after.startsWith('\n')) ins = ins + '\n';
+  ed.value = before + ins + after;
+  ed.focus();
+  ed.selectionStart = ed.selectionEnd = before.length + ins.length;
+  const d = LV(curLevel); d.cheatUse = (d.cheatUse||0)+1; persistTrack();  // 埋点：急救卡用模板次数
+  coachSay("急救卡模板放进编辑器啦！把它改成你自己的代码——换名字、换数字，它就听你的了。","");
+}
 function buildPalette(lv){
   const pal=document.getElementById('palette'); pal.innerHTML='';
   lv.palette.forEach(cmd=>{
@@ -3026,6 +3136,9 @@ function openLevel(i){
     document.getElementById('ref-steps').classList.add('hidden');
     document.getElementById('plan-zone').classList.remove('hidden');
     document.getElementById('palette').classList.add('hidden');
+    document.getElementById('peek-zone').classList.add('hidden');    // 大任务没有演示可偷看（他点过 3 次只看到空面板）
+    document.getElementById('helper-zone').classList.add('hidden');  // 小积木换成更对症的语法急救卡（v0.16.2）
+    buildCheat(i);
     updateStepbar();
     resetTurtle(); draw(); coachReset(); hideErr();
     coachThink(`⭐ 终于到大任务啦！这次把你学过的全部招式（顺序、循环、嵌套、条件）都用上。\n先在「我的拆解」里把大任务写成几个小模块，再一个一个写成代码。看右边的战术图，全靠你自己！`);
@@ -3042,6 +3155,9 @@ function openLevel(i){
   document.getElementById('break-panel').classList.add('hidden');
   document.getElementById('work-wrap').classList.add('hidden');
   document.getElementById('plan-zone').classList.add('hidden');
+  document.getElementById('cheat-zone').classList.add('hidden');     // 急救卡只在项目关出现（v0.16.2）
+  document.getElementById('peek-zone').classList.remove('hidden');
+  document.getElementById('helper-zone').classList.remove('hidden');
   updateStepbar();
   resetTurtle(); draw(); coachReset(); hideErr();
   renderDemoStatic();
@@ -3078,6 +3194,7 @@ function buildReportText(){
     out += `  ②拆解：尝试${d.breakTry}次${d.breakTry===0?'（一次排对）':''}\n`;
     out += `  ③模仿写：卡${d.imitateStuck}次｜偷看${d.imitatePeek}次｜运行${d.imitateRun}次成功\n`;
     out += `  ④独立作业：尝试${d.hwTry}次｜卡${d.hwStuck}次\n`;
+    if(d.cheatUse){ out += `  🆘急救卡：用模板${d.cheatUse}次（大任务语法模板，用得多说明在滚动遗忘，属于正常求助）\n`; }
     if(d.askCount){ out += `  ⑤问小航：${d.askCount}次（问了：${(d.coachAsk||[]).slice(-6).join('、')}）\n`; }
     if(d.conceptMiss){ out += `  ⚠️概念软闸：轨迹达标但没用核心招式 ${d.conceptMiss}次（可能绕过了本关概念，建议家长看一眼他用的方法）\n`; }
     const errKeys = Object.keys(d.errors||{});
