@@ -493,7 +493,7 @@
     </div>
   </div>
 
-  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.16.2（第12关攻坚包：def 报错逐一点名错因（大写/中文名/同行身体/多旋钮/数字旋钮）、拼写守卫不再误导、漏括号专属提示；大任务新增「语法急救卡」——语法模板一键插入，只给格式不给答案）</footer>
+  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.16.3（第15-20关前瞻优化：拼写守卫词表扩到8个口令（+while/input/random），wihle/imput/radom 写错不再掉坑；random 模块名/方法名笔误逐一点名；for 循环误用 of 也有专属提示）</footer>
 </div>
 
 <script>
@@ -1714,6 +1714,10 @@ function compile(src){
       if(/^for\b/i.test(line)){
         const show = `<span class="err-line">${escapeHtml(line)}</span>`;
         const bodyTxt = line.replace(/^for\s*/i,'').trim();
+        // 把别的语言的 of 带过来了：for c of colors → Python 用 in（v0.16.3）
+        if(/\bof\b/.test(bodyTxt)){
+          return { error:{ line:item.n, errKind:'for写法of', html:`🔍 第 ${item.n} 行：${show}<br>Python 里点名用 <b>in</b>，不用 of 哦：<br>点列表：<span class="err-fix">for c in colors:</span><br>数次数：<span class="err-fix">for i in range(4):</span>` }};
+        }
         // 拼错 range：rang 后面不是 e（rang( / rnage / raange / ragne），但 range 本身不算
         const hasMisspell = /rang(?!e)|rnage|raange|ragne/.test(bodyTxt);
         // 缺计数器：for 后面紧跟 in 或 range（中间没有名字）
@@ -1887,10 +1891,12 @@ function compile(src){
         // 工具还没做出来：名字像某个已做好的工具（编辑距离≤2）→ 猜他想调用谁
         let near = null;
         for(const fn of Object.keys(funcs)){ if(lev(fname.toLowerCase(), fn.toLowerCase()) <= 2){ near = fn; break; } }
-        // 拼写守卫（v0.16.2）：名字像基本口令（lift→left）→ 小笔误卡，别误导他去造工具
+        // 拼写守卫（v0.16.2 起）：名字像基本口令（lift→left）→ 小笔误卡，别误导他去造工具
+        // v0.16.3 词表扩到 8 个：+while/input/random（第15/16/19关新词，拼错了别掉坑）
+        // （def/for/if 太短容易误伤，不加；input/random 精确拼写已在上方排除，这里只会接住笔误）
         if(!near){
-          for(const k of ['forward','left','right','pencolor','print']){
-            if(lev(fname.toLowerCase(), k) <= 2){
+          for(const k of ['forward','left','right','pencolor','print','while','input','random']){
+            if(fname.toLowerCase() !== k && lev(fname.toLowerCase(), k) <= 2){
               return { error:{ line:item.n, errKind:'拼写错误', errWord:fname, html:`🔍 第 ${item.n} 行有个小笔误哦：<span class="err-line">${escapeHtml(line)}</span><br>我不认识 <b>${escapeHtml(fname)}</b>。你是不是想写 <span class="err-fix">${k}</span>？<br>对比拼写：<b>${k.split('').join('-')}</b>，检查你哪里打错啦。` }};
             }
           }
@@ -2039,6 +2045,14 @@ function evalExpr(expr, vars, lineNo){
   }
   // 少 random. 前缀：randint(...) / choice(...) 裸用（第19关）
   if(/^(randint|choice)\s*\(/.test(expr)) return { error:{ line:lineNo, errKind:'random写法', html:'🔍 第 '+lineNo+' 行：随机口令前面要带上 <b>random.</b> 哦：<br><span class="err-fix">dice = random.randint(1,6)</span> ← 掷骰子<br><span class="err-fix">c = random.choice(colors)</span> ← 抽签' }};
+  // random 模块名/方法名笔误（v0.16.3）：radom.randint / random.randit → 点名错因，别掉进笼统式子卡
+  let rmm = expr.match(/^([a-zA-Z_]\w*)\s*\.\s*([a-z]+)\s*\(/);
+  if(rmm){
+    if(rmm[1] !== 'random'){
+      return { error:{ line:lineNo, errKind:'拼写错误', errWord:rmm[1], html:'🔍 第 '+lineNo+' 行：'+show+'<br>我不认识 <b>'+escapeHtml(rmm[1])+'</b>。你是不是想写 <span class="err-fix">random</span>？<br>对比拼写：<b>r-a-n-d-o-m</b>，检查你哪里打错啦。' }};
+    }
+    return { error:{ line:lineNo, errKind:'random写法', html:'🔍 第 '+lineNo+' 行：'+show+'<br>random 只有两件兵器哦：<span class="err-fix">random.randint(1,6)</span> 掷骰子、<span class="err-fix">random.choice(colors)</span> 抽签。<br>检查 <b>'+escapeHtml(rmm[2])+'</b> 是不是写错啦。' }};
+  }
   if(/^([a-zA-Z_]\w*)$/.test(expr)) return getVar(expr, vars, lineNo);
   // 求余：a % b
   let mm = expr.match(/^([a-zA-Z_]\w*|-?\d+)\s*%\s*(-?\d+)$/);
@@ -2122,7 +2136,8 @@ function parseCmd(line, lineNo, vars){
   const show = `<span class="err-line">${escapeHtml(line)}</span>`;
   let sp = line.match(/^([a-z]+)\s*\(/i);
   const word = sp ? sp[1].toLowerCase() : line.split(/[\s(]/)[0];
-  for(const k of ['forward','left','right','pencolor','print']){
+  // v0.16.3 词表扩到 8 个：+while/input/random（wihle x < 3 这种裸写笔误也能接住）
+  for(const k of ['forward','left','right','pencolor','print','while','input','random']){
     if(word!==k && lev(word,k)<=2){
       return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行有个小笔误哦：${show}<br>我不认识 <b>${escapeHtml(word)}</b>。你是不是想写 <span class="err-fix">${k}</span>？<br>对比拼写：<b>${k.split('').join('-')}</b>，检查你哪里打错啦。`, errWord:word }};
     }
