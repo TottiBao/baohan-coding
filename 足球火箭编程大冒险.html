@@ -534,7 +534,7 @@
     </div>
   </div>
 
-  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.20.0（新增第23关「直到进球」：while+if+random 综合，事件循环点球特训）</footer>
+  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.21.0（新增第24关「战术工具箱」：函数组合进阶，多 def 带参工具组合调用）</footer>
 </div>
 
 <script>
@@ -605,7 +605,8 @@ const CONCEPT_NEED = {
   18: { name:"random 随机", tip:"试试 dice = random.randint(1,6) 掷骰子，或 c = random.choice(colors) 抽签，让程序每次都不一样", test:c=>/\brandom\s*\./.test(c) },
   20: { name:"循环与角度", tip:"试试 for i in range(边数): 配 right(角度) 画正多边形——每次转的角度 = 360÷边数", test:c=>/\bfor\b/.test(c) && /\bright\s*\(/.test(c) },
   21: { name:"嵌套循环进阶", tip:"试试循环套循环：外层 for j in range(几枚): ，内层 for i in range(几瓣): 缩进在外层身体里", test:c=>(c.match(/for\s+\w+\s+in/g)||[]).length>=2 },
-  22: { name:"while+if 综合", tip:"试试 while 里放 if：while goals < 3: 一直射，身体里 if dice >= 4: 判断进没进", test:c=>/\bwhile\b/.test(c) && /\bif\b/.test(c) }
+  22: { name:"while+if 综合", tip:"试试 while 里放 if：while goals < 3: 一直射，身体里 if dice >= 4: 判断进没进", test:c=>/\bwhile\b/.test(c) && /\bif\b/.test(c) },
+  23: { name:"函数组合进阶", tip:"试试做一整套工具：def chuan(li): 、def shemen(li): 各做一个，再按顺序组合调用", test:c=>(c.match(/\bdef\s+\w+\s*\(/g)||[]).length>=2 }
 };
 /* 大任务关「通关温和提示」（v0.16.1）：大任务不设软闸（不卡关），但通关代码若没用到该关关键概念，
    通关弹窗末尾温和引导一句。只提示、不阻断、不计 conceptMiss。 */
@@ -654,7 +655,8 @@ const ASK_LEVEL = {
   19:[ { keys:["大任务","直播","综合","拆"], q:"大任务4先做什么", a:"先在「我的拆解」把直播拆成模块：开场互动→比赛循环→射门→播报→解说→随机。再一个一个写成代码。想想第14-19关的旋钮/while/点名/解说词/骰子能不能用上？" } ],
   20:[ { keys:["角度","360","72","多边形","几边形","边数"], q:"为什么正五边形每次转72度", a:"因为转一整圈是 360°，正五边形有 5 个角，360÷5=72，所以每次转 72°。规律是：每次转的角度 = 360 ÷ 边数。正三角形转 120°（360÷3），正六边形转 60°（360÷6）。边数越多，每次转得越少！" } ],
   21:[ { keys:["嵌套","外层","内层","套","几瓣","几枚"], q:"外层和内层分别管什么", a:"外层管「重复几轮」，内层管「每轮做几次」。外层转 1 次，内层就完整跑一遍。比如 3 枚烟花每枚 6 瓣：外层 range(3)、内层 range(6)，一共 3×6=18 个动作。记住：内层要缩进在外层身体里（多空 4 格）！" } ],
-  22:[ { keys:["while","if","一起","综合","事件","骰子","判断"], q:"while 和 if 怎么一起用", a:"while 管「一直重复」，if 管「这次做不做」。把 if 缩进在 while 身体里：while goals < 3: 一直射，身体里 if dice >= 4: 判断这脚进没进。while 让程序不停试，if 让程序挑着做——合起来就是游戏里的「事件循环」。" } ]
+  22:[ { keys:["while","if","一起","综合","事件","骰子","判断"], q:"while 和 if 怎么一起用", a:"while 管「一直重复」，if 管「这次做不做」。把 if 缩进在 while 身体里：while goals < 3: 一直射，身体里 if dice >= 4: 判断这脚进没进。while 让程序不停试，if 让程序挑着做——合起来就是游戏里的「事件循环」。" } ],
+  23:[ { keys:["工具","组合","几个","多个","模块","def"], q:"为什么要做多个工具", a:"一个工具干一件事，多个工具组合就能干大事！做 chuan(传)、tupo(突)、shemen(射) 三个工具，再按战术顺序调用，就打出一次配合。好处是：每个工具只写一次，想用几次用几次，改起来也只改一处。这叫「模块化」，是程序员的核心武器。" } ]
 };
 let askLevel = 0;
 function openAsk(){
@@ -1739,6 +1741,51 @@ const LEVELS = [
       },
       win:"5 次精彩扑救！你把 while、if、random 用得炉火纯青——这就是守门员的「条件反射」！",
       medal:"🥅 金牌守门员"
+    }
+  },
+  {
+    name:"战术工具箱", emoji:"🧰", concept:"函数组合进阶", planet:"🪐",
+    desc:"def 做一整套带旋钮的工具：传球、突破、射门——像教练排战术一样组合它们！",
+    title:"任务：三人配合进攻",
+    text:"好教练都有一本战术手册！用 def 做三个带旋钮的工具：chuan(传球)、tupo(突破)、shemen(射门)。\n再把它们像排战术一样组合调用，打出一次漂亮配合！",
+    concept_knowledge:{ title:"本关学：函数组合进阶（工具箱）", body:"你已经会做一个工具了，现在学做「一整套」并组合。每个工具都是 def 名字(lidu): 身体里 forward(lidu)。做三个工具：chuan(传)、tupo(突)、shemen(射)。用的时候按战术顺序调用：chuan(50) 传给队友、tupo(30) 突破、shemen(80) 大力射门！工具随便调、顺序随便排——这就是「模块化」的威力。", scratch:"💡 这就像 Scratch 里做好几个「自制积木」，再把它们按顺序拼起来——每块干一件事，组合出大动作。" },
+    demo:[
+      {code:"def chuan(li):", cap:"做传球工具，带个力度旋钮 li", k:{tag:"复习", title:"def带参", body:"def chuan(li): 做工具，li 是力度旋钮。做工具写名字，用工具才拧数字。"}, ops:[]},
+      {code:"    forward(li)\ndef shemen(li):", cap:"传球工具的身体是 forward(li)；再做射门工具 shemen", k:{tag:"重点", title:"多做几个", body:"一个工具不够！同样的方法再做 shemen(射门)。每个工具都是 def + 缩进身体。工具箱里能装好多工具。"}, ops:[]},
+      {code:"    forward(li)\nchuan(50)\nshemen(80)", cap:"组合调用：先 chuan(50) 传 50 步，再 shemen(80) 大力射 80 步——配合！", k:{tag:"哇", title:"组合拳", body:"chuan(50) 拧 50、shemen(80) 拧 80，顺序调用就是一套进攻配合！工具做好后想怎么用就怎么用，这就是模块化。"}, ops:[{cmd:'forward',val:50},{cmd:'forward',val:80}]}
+    ],
+    breakSteps:["🧰 def chuan(li): 做传球工具","🧰 def shemen(li): 做射门工具","⚽ 组合调用 chuan(50) 再 shemen(80)","💡 做工具写名字，用工具拧数字"],
+    palette:["def chuan(li):","    forward(li)","def shemen(li):","chuan(50)","shemen(80)","right(45)"],
+    check(path){
+      const lens = segLens(path).filter(l=>l>5);
+      if(lens.length>=2) return {ok:true};
+      return {ok:false, why:"need_more"};
+    },
+    hints:[
+      "做一整套工具：每个都是 def 名字(li): 身体里 forward(li)。",
+      "做工具时括号里写旋钮名字（li），用工具时才拧数字 chuan(50)。",
+      "做好 chuan 和 shemen，按顺序 chuan(50)、shemen(80) 调用就是配合。"
+    ],
+    win:"你打造了一整套战术工具箱！传球、射门随调随用——这就是教练的「模块化」思维！",
+    medal:"🧰 战术大师",
+    homework:{
+      title:"🧰 独立作业：三人配合",
+      text:"编排一次三人配合进攻！做 3 个带旋钮的工具（比如 chuan传、tupo突、shemen射），\n组合调用至少 4 次，打出你的战术。",
+      stepsHint:"拆解：def 三个工具（chuan/tupo/shemen，身体都 forward(li)）→ 按战术顺序调用 4 次以上，中间可插 right 变向。",
+      emoji:"🧰",
+      diagram:{
+        route:[[0,0],[0,50],[40,50],[40,100]],
+        segLabels:[{at:[-50,25],text:"传"},{at:[10,80],text:"射"}],
+        defenders:[[20,50]],
+        goal:[40,140]
+      },
+      check(path){
+        const lens = segLens(path).filter(l=>l>5);
+        if(lens.length>=3 && turns(path)>=2) return {ok:true};
+        return {ok:false, why:"need_more"};
+      },
+      win:"三人配合行云流水！你把工具箱用得炉火纯青——模块化思维，是程序员的核心武器！",
+      medal:"🧰 金牌教练"
     }
   }
 ];
@@ -3268,7 +3315,8 @@ const LEVEL_FORMULAS = {
   19:'<span class="fk">📌 大任务4 = 秋季全部招式大综合</span>\n\ninput 问观众 + while 比赛 + def参数射门\n+ 列表点名 + 字符串解说 + random随机\n\n<span class="fk">💡 先在「我的拆解」拆模块，</span>\n<span class="fk">再一个一个写成代码。</span>\n\n🌌 <span class="fc">这是你的秋季收官大作，</span>\n<span class="fc">做完请给爸爸妈妈完整演示一遍！</span>',
   20:'<span class="fk">📌 角度魔法 = 360 ÷ 边数</span>\n\n<span class="fk">for</span> i <span class="fk">in</span> range(5):   <span class="fc">← 画5条边</span>\n    forward(70)   <span class="fc">← 每条边一样长</span>\n    right(72)     <span class="fc">← 72 = 360÷5</span>\n\n<span class="fk">💡 每次转的角度 = 360 ÷ 边数</span>\n<span class="fk">三角形120° 正方形90° 五边形72° 六边形60°</span>\n\n📐 <span class="fc">生活比喻：</span>\n   切披萨：切几刀，每瓣就是 360÷几',
   21:'<span class="fk">📌 嵌套循环 = 大圈套小圈</span>\n\n<span class="fk">for</span> j <span class="fk">in</span> range(3):      <span class="fc">← 外层：放3枚</span>\n    <span class="fk">for</span> i <span class="fk">in</span> range(6):  <span class="fc">← 内层：炸6瓣(缩进)</span>\n        forward(30)\n        right(60)\n    right(120)      <span class="fc">← 内层跑完换方向</span>\n\n<span class="fk">💡 外层转1次，内层跑一整遍。</span>\n<span class="fk">3 × 6 = 18 个动作！</span>\n\n🎆 <span class="fc">生活比喻：</span>\n   阅兵：几个方阵(外)，每方阵几排(内)',
-  22:'<span class="fk">📌 while+if = 一直做 + 挑着做</span>\n\ngoals = 0\n<span class="fk">while</span> goals < 3:        <span class="fc">← 一直射到进3球</span>\n    dice = random.randint(1,6)\n    <span class="fk">if</span> dice >= 4:         <span class="fc">← 掷到4才算进</span>\n        goals = goals + 1\n        print("进球啦")\n    forward(30)\n\n<span class="fk">💡 while管重复，if管判断，random管悬念。</span>\n\n🥅 <span class="fc">生活比喻：</span>\n   一直投篮(while)，进了才算(if)，</span>\n   进不进看手感(random)'
+  22:'<span class="fk">📌 while+if = 一直做 + 挑着做</span>\n\ngoals = 0\n<span class="fk">while</span> goals < 3:        <span class="fc">← 一直射到进3球</span>\n    dice = random.randint(1,6)\n    <span class="fk">if</span> dice >= 4:         <span class="fc">← 掷到4才算进</span>\n        goals = goals + 1\n        print("进球啦")\n    forward(30)\n\n<span class="fk">💡 while管重复，if管判断，random管悬念。</span>\n\n🥅 <span class="fc">生活比喻：</span>\n   一直投篮(while)，进了才算(if)，</span>\n   进不进看手感(random)',
+  23:'<span class="fk">📌 工具箱 = 多个 def 组合调用</span>\n\n<span class="fk">def</span> chuan(li):      <span class="fc">← 做传球工具</span>\n    forward(li)\n<span class="fk">def</span> shemen(li):    <span class="fc">← 做射门工具</span>\n    forward(li)\n\nchuan(50)        <span class="fc">← 用：拧50</span>\nshemen(80)       <span class="fc">← 用：拧80</span>\n\n<span class="fk">💡 每个工具做一件事，组合起来做大事！</span>\n\n🧰 <span class="fc">生活比喻：</span>\n   工具箱：锤子、螺丝刀各管一样，</span>\n   配合起来能造大东西'
 };
 function fillKnowledgePanel(lv){
   const ck = lv.concept_knowledge;
@@ -3348,6 +3396,7 @@ const UNLOCK_CODES = {
   20:"角度魔法",     // 第21关 · 角度魔法（循环与角度）
   21:"烟花矩阵",     // 第22关 · 烟花矩阵（嵌套循环进阶）
   22:"直到进球",     // 第23关 · 直到进球（while+if 综合）
+  23:"战术工具",     // 第24关 · 战术工具箱（函数组合进阶）
 };
 let pendingUnlock = -1;
 function openUnlock(i){
