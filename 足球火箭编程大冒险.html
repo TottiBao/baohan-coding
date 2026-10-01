@@ -534,7 +534,7 @@
     </div>
   </div>
 
-  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.19.0（新增第22关「烟花矩阵」：嵌套循环进阶，外层管枚数内层管瓣数）</footer>
+  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.20.0（新增第23关「直到进球」：while+if+random 综合，事件循环点球特训）</footer>
 </div>
 
 <script>
@@ -604,7 +604,8 @@ const CONCEPT_NEED = {
   17: { name:"字符串拼接", tip:"试试把文字装进盒子再 + 接起来：name = \"梅西\"，然后 print(name + \" 进球了！\")", test:c=>/["']\s*\+|\+\s*["']|=\s*["']/.test(c) },
   18: { name:"random 随机", tip:"试试 dice = random.randint(1,6) 掷骰子，或 c = random.choice(colors) 抽签，让程序每次都不一样", test:c=>/\brandom\s*\./.test(c) },
   20: { name:"循环与角度", tip:"试试 for i in range(边数): 配 right(角度) 画正多边形——每次转的角度 = 360÷边数", test:c=>/\bfor\b/.test(c) && /\bright\s*\(/.test(c) },
-  21: { name:"嵌套循环进阶", tip:"试试循环套循环：外层 for j in range(几枚): ，内层 for i in range(几瓣): 缩进在外层身体里", test:c=>(c.match(/for\s+\w+\s+in/g)||[]).length>=2 }
+  21: { name:"嵌套循环进阶", tip:"试试循环套循环：外层 for j in range(几枚): ，内层 for i in range(几瓣): 缩进在外层身体里", test:c=>(c.match(/for\s+\w+\s+in/g)||[]).length>=2 },
+  22: { name:"while+if 综合", tip:"试试 while 里放 if：while goals < 3: 一直射，身体里 if dice >= 4: 判断进没进", test:c=>/\bwhile\b/.test(c) && /\bif\b/.test(c) }
 };
 /* 大任务关「通关温和提示」（v0.16.1）：大任务不设软闸（不卡关），但通关代码若没用到该关关键概念，
    通关弹窗末尾温和引导一句。只提示、不阻断、不计 conceptMiss。 */
@@ -652,7 +653,8 @@ const ASK_LEVEL = {
   18:[ { keys:["random","随机","骰子","抽","randint","choice"], q:"randint 和 choice 有什么不同", a:"randint(1,6) 是掷骰子：随机给一个 1~6 的数字。choice(colors) 是抽签：从列表里随机抽一个。都要装进盒子（dice = ...）。记得前面带 random. 哦！" } ],
   19:[ { keys:["大任务","直播","综合","拆"], q:"大任务4先做什么", a:"先在「我的拆解」把直播拆成模块：开场互动→比赛循环→射门→播报→解说→随机。再一个一个写成代码。想想第14-19关的旋钮/while/点名/解说词/骰子能不能用上？" } ],
   20:[ { keys:["角度","360","72","多边形","几边形","边数"], q:"为什么正五边形每次转72度", a:"因为转一整圈是 360°，正五边形有 5 个角，360÷5=72，所以每次转 72°。规律是：每次转的角度 = 360 ÷ 边数。正三角形转 120°（360÷3），正六边形转 60°（360÷6）。边数越多，每次转得越少！" } ],
-  21:[ { keys:["嵌套","外层","内层","套","几瓣","几枚"], q:"外层和内层分别管什么", a:"外层管「重复几轮」，内层管「每轮做几次」。外层转 1 次，内层就完整跑一遍。比如 3 枚烟花每枚 6 瓣：外层 range(3)、内层 range(6)，一共 3×6=18 个动作。记住：内层要缩进在外层身体里（多空 4 格）！" } ]
+  21:[ { keys:["嵌套","外层","内层","套","几瓣","几枚"], q:"外层和内层分别管什么", a:"外层管「重复几轮」，内层管「每轮做几次」。外层转 1 次，内层就完整跑一遍。比如 3 枚烟花每枚 6 瓣：外层 range(3)、内层 range(6)，一共 3×6=18 个动作。记住：内层要缩进在外层身体里（多空 4 格）！" } ],
+  22:[ { keys:["while","if","一起","综合","事件","骰子","判断"], q:"while 和 if 怎么一起用", a:"while 管「一直重复」，if 管「这次做不做」。把 if 缩进在 while 身体里：while goals < 3: 一直射，身体里 if dice >= 4: 判断这脚进没进。while 让程序不停试，if 让程序挑着做——合起来就是游戏里的「事件循环」。" } ]
 };
 let askLevel = 0;
 function openAsk(){
@@ -1698,6 +1700,45 @@ const LEVELS = [
       },
       win:"烟花阵太壮观了！你已是嵌套循环的高手——外层内层配合，千变万化！",
       medal:"🎆 烟花导演"
+    }
+  },
+  {
+    name:"直到进球", emoji:"🥅", concept:"while+if 综合", planet:"🪐",
+    desc:"while 里放 if：每轮掷骰子，运气够好才算进球——一直射到进 3 球！",
+    title:"任务：点球特训",
+    text:"点球特训！每轮先掷骰子 random.randint(1,6)，掷到 4 以上（if dice >= 4）才算进球。\ngoals 盒子记着进了几球，一直射，直到进满 3 球！",
+    concept_knowledge:{ title:"本关学：while + if + random 综合（事件循环）", body:"这是三个旧朋友的第一次合作：while goals < 3: 管「一直射到进 3 球」；身体里 dice = random.randint(1,6) 掷骰子；if dice >= 4: 判断这脚进没进，进了就 goals = goals + 1 并 print(\"进球啦\")。while 负责重复、if 负责判断、random 负责制造悬念、变量负责计数——这就是真实游戏里的「事件循环」！", scratch:"💡 这就像 Scratch 的「重复执行直到进球」里套一个「如果骰子>3」——一直尝试，直到成功。" },
+    demo:[
+      {code:"goals = 0", cap:"先做盒子 goals，记「进了几球」，一开始是 0", k:{tag:"复习", title:"变量计数", body:"goals 是计数盒子，每进一球就加 1。还没进，所以是 0。"}, ops:[]},
+      {code:"while goals < 3:", cap:"while：只要还没进满 3 球，就一直射", k:{tag:"复习", title:"while看条件", body:"while goals < 3: 只要 goals 没到 3 就一直踢。进了 3 球条件不成立，自动停。"}, ops:[]},
+      {code:"    dice = random.randint(1,6)\n    if dice >= 4:\n        goals = goals + 1\n        print(\"进球啦\")\n    forward(30)", cap:"身体里(空4格)：掷骰子→if判断进没进→进了就加1喊出来；每轮都往前冲30", k:{tag:"新招式", title:"三招合体", body:"random 掷骰子制造悬念，if dice >= 4 判断这脚进没进（掷到4/5/6才算进），进了 goals+1 并 print。while 把它们一圈圈转起来——这就是游戏里的「事件循环」！"}, ops:[{cmd:'forward',val:30},{cmd:'forward',val:30},{cmd:'forward',val:30},{cmd:'forward',val:30}]}
+    ],
+    breakSteps:["🎁 做盒子 goals = 0（记进了几球）","🔁 while goals < 3: 一直射到进3球","🎲 身体里掷骰子 + if dice >= 4 判断","⚽ 进了 goals+1 喊出来，每轮冲30"],
+    palette:["goals = 0","while goals < 3:","    dice = random.randint(1,6)","    if dice >= 4:","        goals = goals + 1","        print(\"进球啦\")","    forward(30)"],
+    check(path){
+      const lens = segLens(path).filter(l=>l>5);
+      if(printsArr.length>=2 && lens.length>=3) return {ok:true};
+      return {ok:false, why:"need_more"};
+    },
+    hints:[
+      "while 负责一直射，if 负责判断这脚进没进，random 负责掷骰子。",
+      "dice = random.randint(1,6) 掷骰子；if dice >= 4: 掷到4以上才算进。",
+      "while goals < 3: 身体里先掷骰子，再 if 判断，进了就 goals = goals + 1。"
+    ],
+    win:"你写出了「事件循环」！while 转着圈、if 把着关、random 藏着惊喜——这就是真游戏的骨架！",
+    medal:"🥅 点球杀手",
+    homework:{
+      title:"🥅 独立作业：星际守门员",
+      text:"换你当守门员！一直扑救，直到扑出 5 球。\n每轮掷骰子，掷到 3 以上（if dice >= 3）算扑出，扑出就 print(\"扑出去了\") 并前进一步。",
+      stepsHint:"拆解：saves = 0 → while saves < 5: → 身体里掷骰子、if dice >= 3: saves+1 并 print → 每轮 forward。",
+      emoji:"🥅",
+      check(path){
+        const lens = segLens(path).filter(l=>l>5);
+        if(printsArr.length>=3 && lens.length>=3) return {ok:true};
+        return {ok:false, why:"need_more"};
+      },
+      win:"5 次精彩扑救！你把 while、if、random 用得炉火纯青——这就是守门员的「条件反射」！",
+      medal:"🥅 金牌守门员"
     }
   }
 ];
@@ -3226,7 +3267,8 @@ const LEVEL_FORMULAS = {
   18:'<span class="fk">📌 random = 让程序有「运气」</span>\n\ndice = random.randint(1,6)   <span class="fc">← 掷骰子：随机 1~6</span>\nprint(dice)\nc = random.choice(colors)    <span class="fc">← 抽签：列表里随机抽一个</span>\npencolor(c)\n\n<span class="fk">💡 每次运行结果都不一样！</span>\n\n🎲 <span class="fc">生活比喻：</span>\n   randint = 掷骰子\n   choice = 抽签 / 抽盲盒',
   19:'<span class="fk">📌 大任务4 = 秋季全部招式大综合</span>\n\ninput 问观众 + while 比赛 + def参数射门\n+ 列表点名 + 字符串解说 + random随机\n\n<span class="fk">💡 先在「我的拆解」拆模块，</span>\n<span class="fk">再一个一个写成代码。</span>\n\n🌌 <span class="fc">这是你的秋季收官大作，</span>\n<span class="fc">做完请给爸爸妈妈完整演示一遍！</span>',
   20:'<span class="fk">📌 角度魔法 = 360 ÷ 边数</span>\n\n<span class="fk">for</span> i <span class="fk">in</span> range(5):   <span class="fc">← 画5条边</span>\n    forward(70)   <span class="fc">← 每条边一样长</span>\n    right(72)     <span class="fc">← 72 = 360÷5</span>\n\n<span class="fk">💡 每次转的角度 = 360 ÷ 边数</span>\n<span class="fk">三角形120° 正方形90° 五边形72° 六边形60°</span>\n\n📐 <span class="fc">生活比喻：</span>\n   切披萨：切几刀，每瓣就是 360÷几',
-  21:'<span class="fk">📌 嵌套循环 = 大圈套小圈</span>\n\n<span class="fk">for</span> j <span class="fk">in</span> range(3):      <span class="fc">← 外层：放3枚</span>\n    <span class="fk">for</span> i <span class="fk">in</span> range(6):  <span class="fc">← 内层：炸6瓣(缩进)</span>\n        forward(30)\n        right(60)\n    right(120)      <span class="fc">← 内层跑完换方向</span>\n\n<span class="fk">💡 外层转1次，内层跑一整遍。</span>\n<span class="fk">3 × 6 = 18 个动作！</span>\n\n🎆 <span class="fc">生活比喻：</span>\n   阅兵：几个方阵(外)，每方阵几排(内)'
+  21:'<span class="fk">📌 嵌套循环 = 大圈套小圈</span>\n\n<span class="fk">for</span> j <span class="fk">in</span> range(3):      <span class="fc">← 外层：放3枚</span>\n    <span class="fk">for</span> i <span class="fk">in</span> range(6):  <span class="fc">← 内层：炸6瓣(缩进)</span>\n        forward(30)\n        right(60)\n    right(120)      <span class="fc">← 内层跑完换方向</span>\n\n<span class="fk">💡 外层转1次，内层跑一整遍。</span>\n<span class="fk">3 × 6 = 18 个动作！</span>\n\n🎆 <span class="fc">生活比喻：</span>\n   阅兵：几个方阵(外)，每方阵几排(内)',
+  22:'<span class="fk">📌 while+if = 一直做 + 挑着做</span>\n\ngoals = 0\n<span class="fk">while</span> goals < 3:        <span class="fc">← 一直射到进3球</span>\n    dice = random.randint(1,6)\n    <span class="fk">if</span> dice >= 4:         <span class="fc">← 掷到4才算进</span>\n        goals = goals + 1\n        print("进球啦")\n    forward(30)\n\n<span class="fk">💡 while管重复，if管判断，random管悬念。</span>\n\n🥅 <span class="fc">生活比喻：</span>\n   一直投篮(while)，进了才算(if)，</span>\n   进不进看手感(random)'
 };
 function fillKnowledgePanel(lv){
   const ck = lv.concept_knowledge;
@@ -3305,6 +3347,7 @@ const UNLOCK_CODES = {
   19:"星际直播",     // 第20关 · 大任务4 星际杯互动直播（综合）
   20:"角度魔法",     // 第21关 · 角度魔法（循环与角度）
   21:"烟花矩阵",     // 第22关 · 烟花矩阵（嵌套循环进阶）
+  22:"直到进球",     // 第23关 · 直到进球（while+if 综合）
 };
 let pendingUnlock = -1;
 function openUnlock(i){
