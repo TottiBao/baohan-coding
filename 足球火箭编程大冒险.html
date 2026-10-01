@@ -269,6 +269,25 @@
   #win-card .medal{ margin:14px 0; font-size:15px; background:rgba(255,214,107,.15); border-radius:12px; padding:10px; color:#ffe9ad; }
   #win-card .btn-row{ display:flex; gap:10px; justify-content:center; margin-top:18px; }
 
+  /* ⚡ 每日特训·找茬热身（v0.17.0） */
+  #drill-mask{ position:fixed; inset:0; background:rgba(5,8,25,.9); display:flex; align-items:center; justify-content:center; z-index:95; padding:16px; }
+  #drill-card{ background:linear-gradient(160deg,#1a2350,#0f1638); border:2px solid rgba(255,214,107,.6); border-radius:20px; max-width:600px; width:100%; padding:20px 24px; box-shadow:0 0 50px rgba(255,214,107,.2); animation:pop .3s cubic-bezier(.2,1.6,.4,1); }
+  #drill-head{ display:flex; align-items:center; gap:12px; margin-bottom:8px; }
+  #drill-head .av{ font-size:34px; }
+  #drill-head .t{ font-size:19px; font-weight:bold; color:#ffd66b; }
+  #drill-head .s{ font-size:12px; color:#9fb4e8; margin-top:2px; }
+  #drill-progress{ text-align:right; font-size:12px; color:#9fb4e8; margin-bottom:4px; }
+  #drill-q{ font-size:14px; color:#c9d6ff; margin-bottom:6px; }
+  #drill-code{ background:#0a0f28; border:1px solid rgba(140,170,255,.25); border-radius:12px; padding:10px; font-family:Consolas,monospace; font-size:15px; }
+  .drill-line{ padding:4px 10px; border-radius:8px; cursor:pointer; white-space:pre; color:#d8e6ff; border:1px solid transparent; transition:background .15s; }
+  .drill-line:hover{ background:rgba(120,200,255,.15); }
+  .drill-line.hit{ background:rgba(80,220,140,.22); border-color:rgba(80,220,140,.6); }
+  .drill-line.miss{ background:rgba(255,120,120,.18); }
+  #drill-feedback{ min-height:46px; font-size:14px; line-height:1.7; color:#d8e6ff; margin:8px 0 2px; }
+  #drill-feedback .fix{ color:#7dffab; font-family:Consolas,monospace; }
+  #drill-btns{ display:flex; gap:10px; justify-content:flex-end; margin-top:8px; }
+  #drill-stars{ color:#ffd66b; }
+
   footer{ text-align:center; color:#5a6ba8; font-size:12px; padding:16px 0 8px; }
   .star-ctx{ position:fixed; pointer-events:none; font-size:26px; animation:fly 1s ease-out forwards; z-index:60; }
   @keyframes fly{ to{ transform:translateY(-140px) scale(1.6); opacity:0; } }
@@ -493,7 +512,29 @@
     </div>
   </div>
 
-  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.16.3（第15-20关前瞻优化：拼写守卫词表扩到8个口令（+while/input/random），wihle/imput/radom 写错不再掉坑；random 模块名/方法名笔误逐一点名；for 循环误用 of 也有专属提示）</footer>
+  <!-- ⚡ 每日特训·找茬热身（v0.17.0）：每天第一次进关弹出，点出藏毛病的那一行 -->
+  <div id="drill-mask" class="hidden">
+    <div id="drill-card">
+      <div id="drill-head">
+        <div class="av">🤖</div>
+        <div>
+          <div class="t">⚡ 每日特训 · 找找小毛病</div>
+          <div class="s">球员上场前要先热身！每段代码藏着一个小毛病，点出它的那一行</div>
+        </div>
+      </div>
+      <div id="drill-progress"></div>
+      <div id="drill-q"></div>
+      <div id="drill-code"></div>
+      <div id="drill-feedback"></div>
+      <div id="drill-btns">
+        <button class="btn btn-ghost btn-small" onclick="skipDrill()">跳过今天</button>
+        <button class="btn btn-run btn-small hidden" id="drill-next" onclick="nextDrill()">下一题 →</button>
+        <button class="btn btn-run btn-small hidden" id="drill-done" onclick="finishDrill()">热身完，去闯关 →</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.17.0（新增「每日特训·找茬热身」：每天第一次进关弹 2 道找茬题，优先从他自己历史报错里出题，点错不惩罚、可跳过、答对得⭐，专治滚动遗忘；顺手给「空盒子」报错挂了分型，报告看得更清）</footer>
 </div>
 
 <script>
@@ -2083,7 +2124,7 @@ function evalExpr(expr, vars, lineNo){
 /* 取变量（未声明则给专属提示） */
 function getVar(name, vars, lineNo){
   if(name in vars) return { val: vars[name] };
-  return { error:{ line:lineNo, errWord:name, html:`🔍 第 ${lineNo} 行：你用到了盒子 <b>${escapeHtml(name)}</b>，但它是<b>空的</b>（还没装数字）！<br>变量要<b>先定义、再使用</b>：<br>&nbsp;&nbsp;<span class="err-fix">${escapeHtml(name)} = 20</span>&nbsp;&nbsp;← 先做盒子，装进数字<br>&nbsp;&nbsp;<span class="err-fix">forward(${escapeHtml(name)})</span>&nbsp;&nbsp;← 再拿出来用<br>在这行前面补一句 <b>${escapeHtml(name)} = 数字</b> 就好啦。` }};
+  return { error:{ line:lineNo, errKind:'空盒子', errWord:name, html:`🔍 第 ${lineNo} 行：你用到了盒子 <b>${escapeHtml(name)}</b>，但它是<b>空的</b>（还没装数字）！<br>变量要<b>先定义、再使用</b>：<br>&nbsp;&nbsp;<span class="err-fix">${escapeHtml(name)} = 20</span>&nbsp;&nbsp;← 先做盒子，装进数字<br>&nbsp;&nbsp;<span class="err-fix">forward(${escapeHtml(name)})</span>&nbsp;&nbsp;← 再拿出来用<br>在这行前面补一句 <b>${escapeHtml(name)} = 数字</b> 就好啦。` }};
 }
 
 /* 普通指令解析（参数可为数字或变量） */
@@ -2891,6 +2932,33 @@ const CHEAT_CARD = {
     { name:"random 掷骰子", code:"dice = random.randint(1,6)\nprint(dice)" }
   ]
 };
+
+/* =========================================================
+   ⚡ 每日特训题库（v0.17.0）· 找茬热身：每题埋一个真实高频错型
+   err：对应报错分型 errKind（选题时优先匹配他的历史错题）
+   minLv：解锁过这一关（0基 idx）才可能出现，保证不超纲
+   cap：情境一句话；code：展示代码（按行）；bad：错误行下标
+   fix：正确写法；why：一句讲解
+   ========================================================= */
+const DRILLS = [
+  { err:'漏括号', minLv:0, cap:'想画一条带转弯的跑道', code:["forward(100)","right(90)","forward 80"], bad:2, fix:"forward(80)", why:"指令后面要把数字装进括号里哦" },
+  { err:'拼写错误', minLv:0, cap:'想让球员前进', code:["foward(100)","right(90)","forward(60)"], bad:0, fix:"forward(100)", why:"forward 的拼写是 f-o-r-w-a-r-d，中间的 r 别丢啦" },
+  { err:'for写法', minLv:1, cap:'想用循环画正方形', code:["for i in range(4)","    forward(100)","    right(90)"], bad:0, fix:"for i in range(4):", why:"for 开头那句话，结尾要戴「冒号帽子」:" },
+  { err:'for写法', minLv:1, cap:'想用循环画正方形', code:["for i in rang(4):","    forward(100)","    right(90)"], bad:0, fix:"for i in range(4):", why:"range 的拼写是 r-a-n-g-e，末尾有个 e" },
+  { err:'for体空', minLv:1, cap:'想用循环画正方形', code:["for i in range(4):","forward(100)","    right(90)"], bad:1, fix:"    forward(100)（前面空4格）", why:"循环身体里的动作要空 4 格（缩进），才算装进循环" },
+  { err:'if写法', minLv:3, cap:'想在第3圈拐个弯', code:["for i in range(6):","    if i = 2:","        right(90)","    forward(60)"], bad:1, fix:"    if i == 2:", why:"比一比要用两个等号 ==；一个 = 是装东西" },
+  { err:'else配对', minLv:4, cap:'想用 if-else 做变色灯', code:["if i == 1:","    left(60)","  else:","    right(60)"], bad:2, fix:"else:（和 if 对齐，不缩进）", why:"else 要和它的 if 对齐（缩进一样），紧紧跟在后面" },
+  { err:'空盒子', minLv:5, cap:'想用变量控制步数', code:["forward(x)","x = 50"], bad:0, fix:"先写 x = 50，再写 forward(x)", why:"盒子要先装东西才能用：先做盒子，再拿出来用" },
+  { err:'调用误写def', minLv:7, cap:'想用工具箱里的 shemen 工具', code:["def shemen():","    forward(50)","def shemen()"], bad:2, fix:"shemen()", why:"用工具时光写名字加括号；def 只在「做工具」时写一次" },
+  { err:'def写法同行身体', minLv:7, cap:'想做一个 shemen 工具', code:["def shemen(): forward(50)","shemen()","shemen()"], bad:0, fix:"def shemen():（回车另起一行，空4格写动作）", why:"冒号后面不要跟动作，另起一行缩进才算装进工具箱" },
+  { err:'def写法大写', minLv:7, cap:'想做一个 chongci 工具', code:["Def chongci():","    forward(80)","chongci()"], bad:0, fix:"def chongci():", why:"def 三个字母要全小写，代码里大小写是两回事" },
+  { err:'print写法', minLv:9, cap:'想说出比分', code:["score = 3","print(\"score\")"], bad:1, fix:"print(score)", why:"变量不戴引号帽子；戴了帽子就只会原样念出 score 这几个字母" },
+  { err:'文字没引号', minLv:10, cap:'想打印一句解说', code:["name = \"梅西\"","print(进球了)"], bad:1, fix:"print(\"进球了\")", why:"文字要戴「引号帽子」，用英文引号把文字包住" },
+  { err:'数字文字混加', minLv:10, cap:'想把文字和分数接起来', code:["score = 3","print(\"进球\" + score)"], bad:1, fix:"数字和文字要分开 print，不能直接 +", why:"文字 + 文字 = 接起来；数字 + 数字 = 算总数；文字 + 数字 = 电脑就懵了" },
+  { err:'while体空', minLv:14, cap:'想一直跑到球门', code:["x = 0","while x < 100:","forward(20)","    x = x + 20"], bad:2, fix:"    forward(20)（前面空4格）", why:"while 身体里也要空 4 格，不然电脑不知道哪些事要重复" },
+  { err:'for写法of', minLv:16, cap:'想给颜色列表点名', code:["colors = [\"red\",\"gold\"]","for c of colors:","    pencolor(c)"], bad:1, fix:"for c in colors:", why:"Python 里点名用 in，不用 of 哦" },
+  { err:'random写法', minLv:18, cap:'想掷个骰子', code:["dice = randint(1,6)","print(dice)"], bad:0, fix:"dice = random.randint(1,6)", why:"随机口令前面要带上 random. 哦" }
+];
 function buildCheat(i){
   const zone = document.getElementById('cheat-zone');
   const body = document.getElementById('cheat-body');
@@ -2928,6 +2996,85 @@ function insertCheat(idx){
   ed.selectionStart = ed.selectionEnd = before.length + ins.length;
   const d = LV(curLevel); d.cheatUse = (d.cheatUse||0)+1; persistTrack();  // 埋点：急救卡用模板次数
   coachSay("急救卡模板放进编辑器啦！把它改成你自己的代码——换名字、换数字，它就听你的了。","");
+}
+
+/* =========================================================
+   ⚡ 每日特训·找茬热身（v0.17.0）
+   对抗滚动遗忘：每天第一次进关（第1关除外）弹 2 道找茬题，
+   题目优先从他自己的历史报错（bh_track 各关 errors 的 errKind）
+   里出——他忘过什么，就复习什么。点错行不惩罚，可跳过今天，
+   答对得⭐。E2E 驱动设 window.__noDrill 关闭。
+   ========================================================= */
+let drillQueue=[], drillIdx=0, drillRight=0, drillSolved=false;
+function todayStr(){ const n=new Date(); return n.getFullYear()+'-'+(n.getMonth()+1)+'-'+n.getDate(); }
+function pickDrills(){
+  let maxLv=0;
+  Object.keys(save.unlocked||{}).forEach(k=>{ if(save.unlocked[k]) maxLv=Math.max(maxLv,+k); });
+  const hist={};   // 汇总全部关卡的报错分型：errKind → 次数
+  Object.keys(track).forEach(k=>{
+    const errs=track[k].errors||{};
+    Object.keys(errs).forEach(t=>{ const kind=t.split(':')[0]; hist[kind]=(hist[kind]||0)+errs[t]; });
+  });
+  const seen=save.drillSeen||[];
+  const pool=DRILLS.map((d,i)=>({d:d,i:i})).filter(x=>x.d.minLv<=maxLv);
+  // 错题驱动（+1000）> 最近没出过（+100）> 随机打散；取前 2
+  const score=x=> (hist[x.d.err]?1000+hist[x.d.err]:0) + (seen.indexOf(x.i)<0?100:0) + Math.random()*10;
+  pool.sort((a,b)=>score(b)-score(a));
+  return pool.slice(0,2).map(x=>x.i);
+}
+function maybeDrill(lv){
+  if(window.__noDrill) return;                 // E2E 驱动关闭
+  if(lv<1) return;                             // 第1关还没有老知识可复习
+  if(save.lastDrill===todayStr()) return;      // 今天已做过（含跳过）
+  drillQueue=pickDrills(); drillIdx=0; drillRight=0;
+  if(drillQueue.length) showDrill();
+}
+function showDrill(){
+  const q=DRILLS[drillQueue[drillIdx]]; drillSolved=false;
+  document.getElementById('drill-progress').innerHTML='第 '+(drillIdx+1)+' / '+drillQueue.length+' 题 ｜ ⭐ <span id="drill-stars">'+(save.drillStars||0)+'</span>';
+  document.getElementById('drill-q').textContent='⚽ '+q.cap+'，可是有一个小毛病……';
+  const box=document.getElementById('drill-code'); box.innerHTML='';
+  q.code.forEach((ln,idx)=>{
+    const div=document.createElement('div');
+    div.className='drill-line';
+    div.textContent=ln;
+    div.onclick=()=>answerDrill(idx, div);
+    box.appendChild(div);
+  });
+  document.getElementById('drill-feedback').innerHTML='🔍 哪一行有小毛病？点它！';
+  document.getElementById('drill-next').classList.add('hidden');
+  document.getElementById('drill-done').classList.add('hidden');
+  document.getElementById('drill-mask').classList.remove('hidden');
+}
+function answerDrill(idx, div){
+  if(drillSolved) return;
+  const q=DRILLS[drillQueue[drillIdx]];
+  if(idx===q.bad){
+    drillSolved=true; drillRight++;
+    save.drillStars=(save.drillStars||0)+1; persist();
+    div.classList.add('hit');
+    document.getElementById('drill-feedback').innerHTML='✅ 找对啦！正确写法：<span class="fix">'+escapeHtml(q.fix)+'</span><br>💡 '+q.why;
+    const st=document.getElementById('drill-stars'); if(st) st.textContent=save.drillStars;
+    document.getElementById(drillIdx<drillQueue.length-1?'drill-next':'drill-done').classList.remove('hidden');
+  }else{
+    div.classList.add('miss');
+    setTimeout(()=>div.classList.remove('miss'),600);
+    document.getElementById('drill-feedback').innerHTML='🤔 这行没毛病哦，再找找看～';
+  }
+}
+function nextDrill(){ drillIdx++; showDrill(); }
+function finishDrill(){
+  save.lastDrill=todayStr();
+  save.drillSeen=(save.drillSeen||[]).concat(drillQueue).slice(-6);
+  save.drillDays=(save.drillDays||0)+1;
+  save.drillRight=(save.drillRight||0)+drillRight;
+  persist();
+  document.getElementById('drill-mask').classList.add('hidden');
+  coachSay("热身完成，状态满满！去闯关吧！","");
+}
+function skipDrill(){
+  save.lastDrill=todayStr(); persist();
+  document.getElementById('drill-mask').classList.add('hidden');
 }
 function buildPalette(lv){
   const pal=document.getElementById('palette'); pal.innerHTML='';
@@ -3124,6 +3271,7 @@ function buildMap(){
 }
 function openLevel(i){
   curLevel=i; runAttempts=0; stuckCount=0;
+  maybeDrill(i);   // ⚡ 每日特训：今天第一次进关先热身（v0.17.0，内部有每日一次闸门）
   phase='demo'; isHomework=false; peeked=false;
   const lv=LEVELS[i];
   // 埋点：记录进入本关时间 + 本次会话起点（活跃时长用）
@@ -3228,6 +3376,7 @@ function buildReportText(){
     }
   });
   out += `═══════════════════════════════\n`;
+  if(save.drillDays){ out += `⚡ 每日特训（找茬复习，防滚动遗忘）：热身${save.drillDays}天｜累计答对${save.drillRight||0}题｜⭐${save.drillStars||0}颗\n`; }
   out += `（请 AI 教练根据以上数据，分析包涵的掌握情况并调整后续教学大纲/关卡难度）\n`;
   return out;
 }
