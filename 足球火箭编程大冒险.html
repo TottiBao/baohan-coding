@@ -534,7 +534,7 @@
     </div>
   </div>
 
-  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.18.0（新增第21关「角度魔法」：循环与角度，360÷边数画正多边形）</footer>
+  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.19.0（新增第22关「烟花矩阵」：嵌套循环进阶，外层管枚数内层管瓣数）</footer>
 </div>
 
 <script>
@@ -603,7 +603,8 @@ const CONCEPT_NEED = {
   16: { name:"for-in 点名", tip:"试试 for c in colors: 直接把列表里的东西一个个拿出来用（c 就是拿到的那个），不用数编号", test:c=>/for\s+\w+\s+in\s+(?!range)/.test(c) || /\[[^\]]*,[^\]]*\]/.test(c) },
   17: { name:"字符串拼接", tip:"试试把文字装进盒子再 + 接起来：name = \"梅西\"，然后 print(name + \" 进球了！\")", test:c=>/["']\s*\+|\+\s*["']|=\s*["']/.test(c) },
   18: { name:"random 随机", tip:"试试 dice = random.randint(1,6) 掷骰子，或 c = random.choice(colors) 抽签，让程序每次都不一样", test:c=>/\brandom\s*\./.test(c) },
-  20: { name:"循环与角度", tip:"试试 for i in range(边数): 配 right(角度) 画正多边形——每次转的角度 = 360÷边数", test:c=>/\bfor\b/.test(c) && /\bright\s*\(/.test(c) }
+  20: { name:"循环与角度", tip:"试试 for i in range(边数): 配 right(角度) 画正多边形——每次转的角度 = 360÷边数", test:c=>/\bfor\b/.test(c) && /\bright\s*\(/.test(c) },
+  21: { name:"嵌套循环进阶", tip:"试试循环套循环：外层 for j in range(几枚): ，内层 for i in range(几瓣): 缩进在外层身体里", test:c=>(c.match(/for\s+\w+\s+in/g)||[]).length>=2 }
 };
 /* 大任务关「通关温和提示」（v0.16.1）：大任务不设软闸（不卡关），但通关代码若没用到该关关键概念，
    通关弹窗末尾温和引导一句。只提示、不阻断、不计 conceptMiss。 */
@@ -650,7 +651,8 @@ const ASK_LEVEL = {
   17:[ { keys:["字符串","拼接","文字","引号","+ "], q:"文字怎么接起来", a:"文字要戴引号帽子（\"梅西\"），用 + 接起来：\"梅西\" + \" 进球了\" = \"梅西 进球了\"。注意：数字和文字不能直接 +，文字一定要戴引号。" } ],
   18:[ { keys:["random","随机","骰子","抽","randint","choice"], q:"randint 和 choice 有什么不同", a:"randint(1,6) 是掷骰子：随机给一个 1~6 的数字。choice(colors) 是抽签：从列表里随机抽一个。都要装进盒子（dice = ...）。记得前面带 random. 哦！" } ],
   19:[ { keys:["大任务","直播","综合","拆"], q:"大任务4先做什么", a:"先在「我的拆解」把直播拆成模块：开场互动→比赛循环→射门→播报→解说→随机。再一个一个写成代码。想想第14-19关的旋钮/while/点名/解说词/骰子能不能用上？" } ],
-  20:[ { keys:["角度","360","72","多边形","几边形","边数"], q:"为什么正五边形每次转72度", a:"因为转一整圈是 360°，正五边形有 5 个角，360÷5=72，所以每次转 72°。规律是：每次转的角度 = 360 ÷ 边数。正三角形转 120°（360÷3），正六边形转 60°（360÷6）。边数越多，每次转得越少！" } ]
+  20:[ { keys:["角度","360","72","多边形","几边形","边数"], q:"为什么正五边形每次转72度", a:"因为转一整圈是 360°，正五边形有 5 个角，360÷5=72，所以每次转 72°。规律是：每次转的角度 = 360 ÷ 边数。正三角形转 120°（360÷3），正六边形转 60°（360÷6）。边数越多，每次转得越少！" } ],
+  21:[ { keys:["嵌套","外层","内层","套","几瓣","几枚"], q:"外层和内层分别管什么", a:"外层管「重复几轮」，内层管「每轮做几次」。外层转 1 次，内层就完整跑一遍。比如 3 枚烟花每枚 6 瓣：外层 range(3)、内层 range(6)，一共 3×6=18 个动作。记住：内层要缩进在外层身体里（多空 4 格）！" } ]
 };
 let askLevel = 0;
 function openAsk(){
@@ -1652,6 +1654,50 @@ const LEVELS = [
       },
       win:"万花筒绽放！三角形+六边形，你用角度魔法画出了几何之美！",
       medal:"📐 万花筒大师"
+    }
+  },
+  {
+    name:"烟花矩阵", emoji:"🎆", concept:"嵌套循环进阶", planet:"🪐",
+    desc:"循环套循环：外层管「放几枚烟花」，内层管「每枚炸几瓣」——烟花矩阵腾空而起！",
+    title:"任务：银河烟花秀",
+    text:"闭幕式要放烟花！一枚烟花炸 6 个瓣（内层循环 6 次），一连放 3 枚（外层循环 3 次）。\n外层管「放几枚」，内层管「炸几瓣」——循环套循环，威力翻倍！",
+    concept_knowledge:{ title:"本关学：嵌套循环进阶（循环套循环）", body:"嵌套循环是「循环里再装一个循环」。外层 for j in range(3): 管放 3 枚烟花；内层 for i in range(6): 缩进在外层身体里，管每枚炸 6 个瓣。外层每转 1 次，内层就完整跑 6 次，一共 3×6=18 个动作！记住：内层要缩进在外层的身体里（空 4 格再空 4 格）。", scratch:"💡 这就像 Scratch 里「重复执行」积木里再套一个「重复执行」——大圈套小圈。" },
+    demo:[
+      {code:"for j in range(3):", cap:"外层循环：一共放 3 枚烟花", k:{tag:"复习", title:"外层循环", body:"外层循环管「放几枚」。j 是外层计数器，数 0,1,2。"}, ops:[]},
+      {code:"    for i in range(6):", cap:"内层循环：每枚炸 6 个瓣（缩进 4 格，装进外层身体里）", k:{tag:"新招式", title:"内层套外层", body:"内层循环缩进在外层身体里。外层每转 1 次，内层就完整跑 6 次。3×6=18 个动作！"}, ops:[]},
+      {code:"        forward(30)\n        right(60)\n    right(120)", cap:"内层身体（空8格）：前进+转60°炸一瓣；内层跑完，外层 right(120) 换方向放下一枚", k:{tag:"哇", title:"18个动作", body:"forward(30)+right(60) 被两层循环包着，一共执行 3×6=18 次！一行代码 18 个动作，这就是嵌套循环的威力。"}, ops:[{cmd:'forward',val:30},{cmd:'right',val:60},{cmd:'forward',val:30},{cmd:'right',val:60},{cmd:'forward',val:30},{cmd:'right',val:60},{cmd:'forward',val:30},{cmd:'right',val:60},{cmd:'forward',val:30},{cmd:'right',val:60},{cmd:'forward',val:30},{cmd:'right',val:120}]}
+    ],
+    breakSteps:["🔁 外层 for j in range(3): 放3枚","🔁 内层 for i in range(6): 炸6瓣","🎆 内层身体(空8格) forward(30)+right(60)","🔄 内层跑完 right(120) 换方向"],
+    palette:["for j in range(3):","    for i in range(6):","        forward(30)","        right(60)","    right(120)","pencolor(\"gold\")"],
+    check(path){
+      const lens = segLens(path).filter(l=>l>5);
+      if(lens.length>=12 && turns(path)>=12) return {ok:true};
+      return {ok:false, why:"need_more"};
+    },
+    hints:[
+      "嵌套循环=循环里再装循环。外层放几枚，内层炸几瓣。",
+      "内层 for 要缩进在外层身体里（比外层多空 4 格）。",
+      "外层 for j in range(3): 内层 for i in range(6): 内层身体空 8 格写 forward(30)+right(60)。"
+    ],
+    win:"烟花矩阵腾空！你用嵌套循环一次放出 3 枚 6 瓣的烟花——外层管枚数，内层管瓣数！",
+    medal:"🎆 烟花大师",
+    homework:{
+      title:"🎆 独立作业：我的烟花阵",
+      text:"设计你的烟花阵！至少放 4 枚烟花、每枚至少 4 瓣，用上至少 2 种颜色。\n比如 4 枚 4 瓣的金色 + 2 枚 5 瓣的青色，自由设计！",
+      stepsHint:"拆解：pencolor 换色 → 外层 for j in range(4): 内层 for i in range(4): 身体空8格 forward+right → 换色再放一组。",
+      emoji:"🎆",
+      diagram:{
+        route:[[0,0],[0,30],[30,30],[30,0],[0,0]],
+        segLabels:[{at:[-50,15],text:"一枚烟花一个方阵"}],
+        goal:[0,60]
+      },
+      check(path){
+        const lens = segLens(path).filter(l=>l>5);
+        if(lens.length>=16 && turns(path)>=14 && new Set(trailColors).size>=2) return {ok:true};
+        return {ok:false, why:"need_more"};
+      },
+      win:"烟花阵太壮观了！你已是嵌套循环的高手——外层内层配合，千变万化！",
+      medal:"🎆 烟花导演"
     }
   }
 ];
@@ -3179,7 +3225,8 @@ const LEVEL_FORMULAS = {
   17:'<span class="fk">📌 字符串拼接 = 文字接龙</span>\n\nname = "梅西"           <span class="fc">← 文字戴引号帽子</span>\nprint(name + " 进球了！")  <span class="fc">← 用 + 接起来</span>\n\n<span class="fk">💡 "1" + "1" = "11"（接起来），</span>\n<span class="fk">不是 2（那是数字加法）！</span>\n\n🧱 <span class="fc">生活比喻：</span>\n   乐高接龙：一段接一段，越接越长',
   18:'<span class="fk">📌 random = 让程序有「运气」</span>\n\ndice = random.randint(1,6)   <span class="fc">← 掷骰子：随机 1~6</span>\nprint(dice)\nc = random.choice(colors)    <span class="fc">← 抽签：列表里随机抽一个</span>\npencolor(c)\n\n<span class="fk">💡 每次运行结果都不一样！</span>\n\n🎲 <span class="fc">生活比喻：</span>\n   randint = 掷骰子\n   choice = 抽签 / 抽盲盒',
   19:'<span class="fk">📌 大任务4 = 秋季全部招式大综合</span>\n\ninput 问观众 + while 比赛 + def参数射门\n+ 列表点名 + 字符串解说 + random随机\n\n<span class="fk">💡 先在「我的拆解」拆模块，</span>\n<span class="fk">再一个一个写成代码。</span>\n\n🌌 <span class="fc">这是你的秋季收官大作，</span>\n<span class="fc">做完请给爸爸妈妈完整演示一遍！</span>',
-  20:'<span class="fk">📌 角度魔法 = 360 ÷ 边数</span>\n\n<span class="fk">for</span> i <span class="fk">in</span> range(5):   <span class="fc">← 画5条边</span>\n    forward(70)   <span class="fc">← 每条边一样长</span>\n    right(72)     <span class="fc">← 72 = 360÷5</span>\n\n<span class="fk">💡 每次转的角度 = 360 ÷ 边数</span>\n<span class="fk">三角形120° 正方形90° 五边形72° 六边形60°</span>\n\n📐 <span class="fc">生活比喻：</span>\n   切披萨：切几刀，每瓣就是 360÷几'
+  20:'<span class="fk">📌 角度魔法 = 360 ÷ 边数</span>\n\n<span class="fk">for</span> i <span class="fk">in</span> range(5):   <span class="fc">← 画5条边</span>\n    forward(70)   <span class="fc">← 每条边一样长</span>\n    right(72)     <span class="fc">← 72 = 360÷5</span>\n\n<span class="fk">💡 每次转的角度 = 360 ÷ 边数</span>\n<span class="fk">三角形120° 正方形90° 五边形72° 六边形60°</span>\n\n📐 <span class="fc">生活比喻：</span>\n   切披萨：切几刀，每瓣就是 360÷几',
+  21:'<span class="fk">📌 嵌套循环 = 大圈套小圈</span>\n\n<span class="fk">for</span> j <span class="fk">in</span> range(3):      <span class="fc">← 外层：放3枚</span>\n    <span class="fk">for</span> i <span class="fk">in</span> range(6):  <span class="fc">← 内层：炸6瓣(缩进)</span>\n        forward(30)\n        right(60)\n    right(120)      <span class="fc">← 内层跑完换方向</span>\n\n<span class="fk">💡 外层转1次，内层跑一整遍。</span>\n<span class="fk">3 × 6 = 18 个动作！</span>\n\n🎆 <span class="fc">生活比喻：</span>\n   阅兵：几个方阵(外)，每方阵几排(内)'
 };
 function fillKnowledgePanel(lv){
   const ck = lv.concept_knowledge;
@@ -3257,6 +3304,7 @@ const UNLOCK_CODES = {
   18:"幸运骰子",     // 第19关 · 幸运骰子（random 随机）
   19:"星际直播",     // 第20关 · 大任务4 星际杯互动直播（综合）
   20:"角度魔法",     // 第21关 · 角度魔法（循环与角度）
+  21:"烟花矩阵",     // 第22关 · 烟花矩阵（嵌套循环进阶）
 };
 let pendingUnlock = -1;
 function openUnlock(i){
