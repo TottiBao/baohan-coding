@@ -534,7 +534,7 @@
     </div>
   </div>
 
-  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.17.0（新增「每日特训·找茬热身」：每天第一次进关弹 2 道找茬题，优先从他自己历史报错里出题，点错不惩罚、可跳过、答对得⭐，专治滚动遗忘；顺手给「空盒子」报错挂了分型，报告看得更清）</footer>
+  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.18.0（新增第21关「角度魔法」：循环与角度，360÷边数画正多边形）</footer>
 </div>
 
 <script>
@@ -602,7 +602,8 @@ const CONCEPT_NEED = {
   15: { name:"input 输入", tip:"试试 name = input(\"你叫什么？\") 让电脑问你话，回答装进盒子，再 print(name) 说出来", test:c=>/\binput\s*\(/.test(c) },
   16: { name:"for-in 点名", tip:"试试 for c in colors: 直接把列表里的东西一个个拿出来用（c 就是拿到的那个），不用数编号", test:c=>/for\s+\w+\s+in\s+(?!range)/.test(c) || /\[[^\]]*,[^\]]*\]/.test(c) },
   17: { name:"字符串拼接", tip:"试试把文字装进盒子再 + 接起来：name = \"梅西\"，然后 print(name + \" 进球了！\")", test:c=>/["']\s*\+|\+\s*["']|=\s*["']/.test(c) },
-  18: { name:"random 随机", tip:"试试 dice = random.randint(1,6) 掷骰子，或 c = random.choice(colors) 抽签，让程序每次都不一样", test:c=>/\brandom\s*\./.test(c) }
+  18: { name:"random 随机", tip:"试试 dice = random.randint(1,6) 掷骰子，或 c = random.choice(colors) 抽签，让程序每次都不一样", test:c=>/\brandom\s*\./.test(c) },
+  20: { name:"循环与角度", tip:"试试 for i in range(边数): 配 right(角度) 画正多边形——每次转的角度 = 360÷边数", test:c=>/\bfor\b/.test(c) && /\bright\s*\(/.test(c) }
 };
 /* 大任务关「通关温和提示」（v0.16.1）：大任务不设软闸（不卡关），但通关代码若没用到该关关键概念，
    通关弹窗末尾温和引导一句。只提示、不阻断、不计 conceptMiss。 */
@@ -648,7 +649,8 @@ const ASK_LEVEL = {
   16:[ { keys:["for c","点名","遍历","c 是"], q:"for c in colors 里的 c 是什么", a:"c 是「当前拿到的那个东西本身」，不是编号！for c in colors 像点名：叫到谁，c 就是谁。比如叫到红色，c 就是 \"red\"，pencolor(c) 就换红色。" } ],
   17:[ { keys:["字符串","拼接","文字","引号","+ "], q:"文字怎么接起来", a:"文字要戴引号帽子（\"梅西\"），用 + 接起来：\"梅西\" + \" 进球了\" = \"梅西 进球了\"。注意：数字和文字不能直接 +，文字一定要戴引号。" } ],
   18:[ { keys:["random","随机","骰子","抽","randint","choice"], q:"randint 和 choice 有什么不同", a:"randint(1,6) 是掷骰子：随机给一个 1~6 的数字。choice(colors) 是抽签：从列表里随机抽一个。都要装进盒子（dice = ...）。记得前面带 random. 哦！" } ],
-  19:[ { keys:["大任务","直播","综合","拆"], q:"大任务4先做什么", a:"先在「我的拆解」把直播拆成模块：开场互动→比赛循环→射门→播报→解说→随机。再一个一个写成代码。想想第14-19关的旋钮/while/点名/解说词/骰子能不能用上？" } ]
+  19:[ { keys:["大任务","直播","综合","拆"], q:"大任务4先做什么", a:"先在「我的拆解」把直播拆成模块：开场互动→比赛循环→射门→播报→解说→随机。再一个一个写成代码。想想第14-19关的旋钮/while/点名/解说词/骰子能不能用上？" } ],
+  20:[ { keys:["角度","360","72","多边形","几边形","边数"], q:"为什么正五边形每次转72度", a:"因为转一整圈是 360°，正五边形有 5 个角，360÷5=72，所以每次转 72°。规律是：每次转的角度 = 360 ÷ 边数。正三角形转 120°（360÷3），正六边形转 60°（360÷6）。边数越多，每次转得越少！" } ]
 };
 let askLevel = 0;
 function openAsk(){
@@ -1606,6 +1608,50 @@ const LEVELS = [
       },
       win:"星际杯互动直播圆满收官！对话、循环、射门、播报、随机全是你自己攒的——你是真正的星际直播导演！",
       medal:"🌌 星际直播导演"
+    }
+  },
+  {
+    name:"角度魔法", emoji:"📐", concept:"循环与角度", planet:"🪐",
+    desc:"转一圈是 360°——画正几边形，每次就转 360÷几 度！数学和编程牵上手啦！",
+    title:"任务：正五边形徽章",
+    text:"空间站要画一枚正五边形徽章！\n正方形每次转 90°（360÷4），那五边形每次转几度？360÷5=72°！用循环画出来。",
+    concept_knowledge:{ title:"本关学：循环与角度（360°的秘密）", body:"画正多边形有个魔法公式：每次转的角度 = 360 ÷ 边数。正方形是 360÷4=90°，正五边形是 360÷5=72°，正三角形是 360÷3=120°。用 for i in range(边数): 身体里 forward(边长) 再 right(角度)，就能画出任何正多边形！", scratch:"💡 这就像 Scratch 里「重复执行N次」配「右转…度」——关键是你得算对每次转几度。" },
+    demo:[
+      {code:"for i in range(5):", cap:"画 5 条边，循环 5 次", k:{tag:"复习", title:"for循环", body:"range(5) 重复 5 次，每条边画一次。边数是几，range 里就写几。"}, ops:[]},
+      {code:"    forward(70)", cap:"每条边前进 70，每条边一样长才是「正」五边形", k:{tag:"重点", title:"边长一致", body:"正多边形的每条边都一样长，所以每次 forward 的数字相同。"}, ops:[]},
+      {code:"    right(72)", cap:"关键一步！72 = 360÷5，每次转 72°", k:{tag:"新招式", title:"角度魔法", body:"转一整圈是 360°。正五边形有 5 个角，360÷5=72，所以每次转 72°。算对角度，多边形才能正好合上！"}, ops:[{cmd:'forward',val:70},{cmd:'right',val:72},{cmd:'forward',val:70},{cmd:'right',val:72},{cmd:'forward',val:70},{cmd:'right',val:72},{cmd:'forward',val:70},{cmd:'right',val:72},{cmd:'forward',val:70},{cmd:'right',val:72}]}
+    ],
+    breakSteps:["🔁 for i in range(5): 画5条边","⚽ 每条边 forward(70)","📐 每条边后 right(72)","💡 记住 72 = 360 ÷ 5"],
+    palette:["for i in range(5):","    forward(70)","    right(72)","pencolor(\"gold\")"],
+    check(path){
+      const lens = segLens(path).filter(l=>l>5);
+      if(lens.length>=5 && turns(path)>=4) return {ok:true};
+      return {ok:false, why:"need_more"};
+    },
+    hints:[
+      "画正多边形，先想有几条边，range 里就写几。",
+      "每次转的角度 = 360 ÷ 边数。五边形就是 360÷5=72。",
+      "for i in range(5): 身体里写 forward(70) 和 right(72)，都缩进 4 格。"
+    ],
+    win:"你画出了正五边形！发现了吗——360÷边数就是每次要转的角。数学和编程是好朋友！",
+    medal:"📐 角度魔法师",
+    homework:{
+      title:"🪐 独立作业：正多边形万花筒",
+      text:"画一座万花筒！先画一个正三角形（360÷3=120°），换一种颜色，再画一个正六边形（360÷6=60°）。\n两个多边形颜色不同，万花筒才炫！",
+      stepsHint:"拆解：pencolor 换色 → for i in range(3): forward+right(120) → 换色 → for i in range(6): forward+right(60)。",
+      emoji:"🪐",
+      diagram:{
+        route:[[0,0],[0,40],[35,60],[69,40],[69,0],[35,-20],[0,0]],
+        segLabels:[{at:[-40,30],text:"正六边形"}],
+        goal:[0,80]
+      },
+      check(path){
+        const lens = segLens(path).filter(l=>l>5);
+        if(lens.length>=9 && turns(path)>=8 && new Set(trailColors).size>=2) return {ok:true};
+        return {ok:false, why:"need_more"};
+      },
+      win:"万花筒绽放！三角形+六边形，你用角度魔法画出了几何之美！",
+      medal:"📐 万花筒大师"
     }
   }
 ];
@@ -3132,7 +3178,8 @@ const LEVEL_FORMULAS = {
   16:'<span class="fk">📌 for-in = 把列表里的东西一个个直接拿出来</span>\n\ncolors = ["red","yellow","green"]\n<span class="fk">for</span> c <span class="fk">in</span> colors:    <span class="fc">← 逐个点名，c 是拿到的那个</span>\n    pencolor(c)\n    forward(50)\n\n<span class="fk">💡 c 不是编号，它就是那个东西本身！</span>\n\n📢 <span class="fc">生活比喻：</span>\n   for 同学 in 名单:\n       喊(同学)   <span class="fc">← 叫到谁谁答应</span>',
   17:'<span class="fk">📌 字符串拼接 = 文字接龙</span>\n\nname = "梅西"           <span class="fc">← 文字戴引号帽子</span>\nprint(name + " 进球了！")  <span class="fc">← 用 + 接起来</span>\n\n<span class="fk">💡 "1" + "1" = "11"（接起来），</span>\n<span class="fk">不是 2（那是数字加法）！</span>\n\n🧱 <span class="fc">生活比喻：</span>\n   乐高接龙：一段接一段，越接越长',
   18:'<span class="fk">📌 random = 让程序有「运气」</span>\n\ndice = random.randint(1,6)   <span class="fc">← 掷骰子：随机 1~6</span>\nprint(dice)\nc = random.choice(colors)    <span class="fc">← 抽签：列表里随机抽一个</span>\npencolor(c)\n\n<span class="fk">💡 每次运行结果都不一样！</span>\n\n🎲 <span class="fc">生活比喻：</span>\n   randint = 掷骰子\n   choice = 抽签 / 抽盲盒',
-  19:'<span class="fk">📌 大任务4 = 秋季全部招式大综合</span>\n\ninput 问观众 + while 比赛 + def参数射门\n+ 列表点名 + 字符串解说 + random随机\n\n<span class="fk">💡 先在「我的拆解」拆模块，</span>\n<span class="fk">再一个一个写成代码。</span>\n\n🌌 <span class="fc">这是你的秋季收官大作，</span>\n<span class="fc">做完请给爸爸妈妈完整演示一遍！</span>'
+  19:'<span class="fk">📌 大任务4 = 秋季全部招式大综合</span>\n\ninput 问观众 + while 比赛 + def参数射门\n+ 列表点名 + 字符串解说 + random随机\n\n<span class="fk">💡 先在「我的拆解」拆模块，</span>\n<span class="fk">再一个一个写成代码。</span>\n\n🌌 <span class="fc">这是你的秋季收官大作，</span>\n<span class="fc">做完请给爸爸妈妈完整演示一遍！</span>',
+  20:'<span class="fk">📌 角度魔法 = 360 ÷ 边数</span>\n\n<span class="fk">for</span> i <span class="fk">in</span> range(5):   <span class="fc">← 画5条边</span>\n    forward(70)   <span class="fc">← 每条边一样长</span>\n    right(72)     <span class="fc">← 72 = 360÷5</span>\n\n<span class="fk">💡 每次转的角度 = 360 ÷ 边数</span>\n<span class="fk">三角形120° 正方形90° 五边形72° 六边形60°</span>\n\n📐 <span class="fc">生活比喻：</span>\n   切披萨：切几刀，每瓣就是 360÷几'
 };
 function fillKnowledgePanel(lv){
   const ck = lv.concept_knowledge;
@@ -3208,7 +3255,8 @@ const UNLOCK_CODES = {
   16:"点名上场",     // 第17关 · 首发点名（列表进阶 for-in）
   17:"进球解说",     // 第18关 · 进球解说词（字符串拼接）
   18:"幸运骰子",     // 第19关 · 幸运骰子（random 随机）
-  19:"星际直播"      // 第20关 · 大任务4 星际杯互动直播（综合）
+  19:"星际直播",     // 第20关 · 大任务4 星际杯互动直播（综合）
+  20:"角度魔法",     // 第21关 · 角度魔法（循环与角度）
 };
 let pendingUnlock = -1;
 function openUnlock(i){
