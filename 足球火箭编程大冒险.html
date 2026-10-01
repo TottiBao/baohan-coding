@@ -534,7 +534,7 @@
     </div>
   </div>
 
-  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.21.0（新增第24关「战术工具箱」：函数组合进阶，多 def 带参工具组合调用）</footer>
+  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.22.0（新增第25关「冬季银河杯闭幕式」：⭐大任务5，秋冬季全部招式综合收官）</footer>
 </div>
 
 <script>
@@ -612,7 +612,8 @@ const CONCEPT_NEED = {
    通关弹窗末尾温和引导一句。只提示、不阻断、不计 conceptMiss。 */
 const WIN_NUDGE = {
   11: { tip:"这关的简报里藏着个大招「def 函数」——把重复的射门装进工具箱（def shemen(): 身体里写 forward(50)），想射门就写 shemen()，省力又帅气。下次试试？", test:c=>/\bdef\b/.test(c) },
-  19: { tip:"直播里如果有个带旋钮的射门工具（def shemen(lidu): 想射多远拧多少），整场直播会更有派头。下次试试？", test:c=>/\bdef\b/.test(c) }
+  19: { tip:"直播里如果有个带旋钮的射门工具（def shemen(lidu): 想射多远拧多少），整场直播会更有派头。下次试试？", test:c=>/\bdef\b/.test(c) },
+  24: { tip:"闭幕式如果有「一直放到…」的环节（while x < 3: 只要没放够就一直放），气氛会更燃。下次试试？", test:c=>/\bwhile\b/.test(c) }
 };
 
 /* =========================================================
@@ -656,7 +657,8 @@ const ASK_LEVEL = {
   20:[ { keys:["角度","360","72","多边形","几边形","边数"], q:"为什么正五边形每次转72度", a:"因为转一整圈是 360°，正五边形有 5 个角，360÷5=72，所以每次转 72°。规律是：每次转的角度 = 360 ÷ 边数。正三角形转 120°（360÷3），正六边形转 60°（360÷6）。边数越多，每次转得越少！" } ],
   21:[ { keys:["嵌套","外层","内层","套","几瓣","几枚"], q:"外层和内层分别管什么", a:"外层管「重复几轮」，内层管「每轮做几次」。外层转 1 次，内层就完整跑一遍。比如 3 枚烟花每枚 6 瓣：外层 range(3)、内层 range(6)，一共 3×6=18 个动作。记住：内层要缩进在外层身体里（多空 4 格）！" } ],
   22:[ { keys:["while","if","一起","综合","事件","骰子","判断"], q:"while 和 if 怎么一起用", a:"while 管「一直重复」，if 管「这次做不做」。把 if 缩进在 while 身体里：while goals < 3: 一直射，身体里 if dice >= 4: 判断这脚进没进。while 让程序不停试，if 让程序挑着做——合起来就是游戏里的「事件循环」。" } ],
-  23:[ { keys:["工具","组合","几个","多个","模块","def"], q:"为什么要做多个工具", a:"一个工具干一件事，多个工具组合就能干大事！做 chuan(传)、tupo(突)、shemen(射) 三个工具，再按战术顺序调用，就打出一次配合。好处是：每个工具只写一次，想用几次用几次，改起来也只改一处。这叫「模块化」，是程序员的核心武器。" } ]
+  23:[ { keys:["工具","组合","几个","多个","模块","def"], q:"为什么要做多个工具", a:"一个工具干一件事，多个工具组合就能干大事！做 chuan(传)、tupo(突)、shemen(射) 三个工具，再按战术顺序调用，就打出一次配合。好处是：每个工具只写一次，想用几次用几次，改起来也只改一处。这叫「模块化」，是程序员的核心武器。" } ],
+  24:[ { keys:["大任务","闭幕式","综合","拆","收官"], q:"大任务5先做什么", a:"先在「我的拆解」把闭幕式拆成模块：开场烟花→颁奖名单→颁奖词→抽奖→观众互动→收尾。再一个一个写成代码。想想你学过的：嵌套循环放烟花、for-in 点名、字符串拼颁奖词、random 抽奖、input 互动、def 带参做工具、while 控制环节。全都能用上！" } ]
 };
 let askLevel = 0;
 function openAsk(){
@@ -1786,6 +1788,38 @@ const LEVELS = [
       },
       win:"三人配合行云流水！你把工具箱用得炉火纯青——模块化思维，是程序员的核心武器！",
       medal:"🧰 金牌教练"
+    }
+  },
+  {
+    name:"冬季银河杯闭幕式", emoji:"🏟️", concept:"综合项目", planet:"🌟",
+    desc:"大任务5：把秋冬季全部招式攒成一场闭幕式——烟花、颁奖、抽奖、互动，全靠你自己！",
+    title:"⭐ 大任务5：冬季银河杯闭幕式",
+    text:"",
+    project:true,
+    concept_knowledge:{ title:"大任务5：冬季收官大作", body:"这是你秋冬季的收官大作！把全部招式用上：嵌套循环放闭幕式烟花、for-in 点名播报获奖名单、字符串拼接写颁奖词、random 抽幸运观众、input 和观众互动、while 控制环节进行、def 带参做你的专属工具。先在「我的拆解」写出模块，再逐个实现。", scratch:"💡 就像你做过的最大型的 Scratch 作品，但这次全用 Python，而且模块由你自己拆。" },
+    homework:{
+      title:"⭐ 大任务5：冬季银河杯闭幕式",
+      text:"办一场银河杯闭幕式！能用上的招式越多越好：\n①嵌套循环放闭幕式烟花 ②for-in 点名播报获奖名单 ③字符串拼接写颁奖词 ④random 抽幸运观众 ⑤input 问观众感受 ⑥def 带参做专属工具 ⑦while 控制环节进行",
+      stepsHint:"先拆模块：开场烟花→颁奖名单→颁奖词→抽奖→观众互动→收尾。先在「我的拆解」写中文步骤，再一个一个写成代码。",
+      emoji:"🏟️",
+      diagram:{
+        route:[[0,0],[0,50],[-40,50],[-40,90],[40,90],[40,130],[0,130],[0,170]],
+        segLabels:[{at:[-30,25],text:"开场烟花"},{at:[-90,70],text:"颁奖"},{at:[50,110],text:"抽奖"},{at:[-50,150],text:"互动"}],
+        cones:[[-40,50],[40,90]],
+        defenders:[[0,90]],
+        goal:[0,210]
+      },
+      check(path){
+        const colors = new Set(trailColors).size;
+        const t = turns(path);
+        const prints = printsArr.length;
+        if(prints>=4 && colors>=2 && t>=6) return {ok:true};
+        if(prints<4) return {ok:false, why:"no_print"};
+        if(colors<2) return {ok:false, why:"no_color"};
+        return {ok:false, why:"too_simple"};
+      },
+      win:"冬季银河杯闭幕式圆满落幕！烟花、颁奖、抽奖、互动全是你一手操办——你是名副其实的银河总导演！秋冬季，完美收官！",
+      medal:"🏟️ 银河总导演"
     }
   }
 ];
@@ -3110,6 +3144,15 @@ const CHEAT_CARD = {
     { name:"for-in 点名", code:"for p in [\"梅西\", \"C罗\"]:\n    print(p)" },
     { name:"拼接解说词", code:"team = \"火箭\"\nprint(\"加油 \" + team)" },
     { name:"random 掷骰子", code:"dice = random.randint(1,6)\nprint(dice)" }
+  ],
+  24:[ // 第25关 · 大任务5：嵌套/for-in/拼接/random/input/def带参/while
+    { name:"嵌套循环放烟花", code:"for j in range(3):\n    for i in range(4):\n        forward(30)\n        right(90)\n    right(120)" },
+    { name:"def 带旋钮工具", code:"def shemen(lidu):\n    forward(lidu)\nshemen(80)" },
+    { name:"while 环节进行", code:"x = 0\nwhile x < 3:\n    forward(30)\n    x = x + 1" },
+    { name:"input 问观众", code:"gan = input(\"好看吗？\")\nprint(gan)" },
+    { name:"for-in 点名播报", code:"for p in [\"梅西\", \"包涵\"]:\n    print(p)" },
+    { name:"拼接颁奖词", code:"name = \"包涵\"\nprint(name + \" 获得金球奖！\")" },
+    { name:"random 抽奖", code:"dice = random.randint(1,6)\nprint(dice)" }
   ]
 };
 
@@ -3316,7 +3359,8 @@ const LEVEL_FORMULAS = {
   20:'<span class="fk">📌 角度魔法 = 360 ÷ 边数</span>\n\n<span class="fk">for</span> i <span class="fk">in</span> range(5):   <span class="fc">← 画5条边</span>\n    forward(70)   <span class="fc">← 每条边一样长</span>\n    right(72)     <span class="fc">← 72 = 360÷5</span>\n\n<span class="fk">💡 每次转的角度 = 360 ÷ 边数</span>\n<span class="fk">三角形120° 正方形90° 五边形72° 六边形60°</span>\n\n📐 <span class="fc">生活比喻：</span>\n   切披萨：切几刀，每瓣就是 360÷几',
   21:'<span class="fk">📌 嵌套循环 = 大圈套小圈</span>\n\n<span class="fk">for</span> j <span class="fk">in</span> range(3):      <span class="fc">← 外层：放3枚</span>\n    <span class="fk">for</span> i <span class="fk">in</span> range(6):  <span class="fc">← 内层：炸6瓣(缩进)</span>\n        forward(30)\n        right(60)\n    right(120)      <span class="fc">← 内层跑完换方向</span>\n\n<span class="fk">💡 外层转1次，内层跑一整遍。</span>\n<span class="fk">3 × 6 = 18 个动作！</span>\n\n🎆 <span class="fc">生活比喻：</span>\n   阅兵：几个方阵(外)，每方阵几排(内)',
   22:'<span class="fk">📌 while+if = 一直做 + 挑着做</span>\n\ngoals = 0\n<span class="fk">while</span> goals < 3:        <span class="fc">← 一直射到进3球</span>\n    dice = random.randint(1,6)\n    <span class="fk">if</span> dice >= 4:         <span class="fc">← 掷到4才算进</span>\n        goals = goals + 1\n        print("进球啦")\n    forward(30)\n\n<span class="fk">💡 while管重复，if管判断，random管悬念。</span>\n\n🥅 <span class="fc">生活比喻：</span>\n   一直投篮(while)，进了才算(if)，</span>\n   进不进看手感(random)',
-  23:'<span class="fk">📌 工具箱 = 多个 def 组合调用</span>\n\n<span class="fk">def</span> chuan(li):      <span class="fc">← 做传球工具</span>\n    forward(li)\n<span class="fk">def</span> shemen(li):    <span class="fc">← 做射门工具</span>\n    forward(li)\n\nchuan(50)        <span class="fc">← 用：拧50</span>\nshemen(80)       <span class="fc">← 用：拧80</span>\n\n<span class="fk">💡 每个工具做一件事，组合起来做大事！</span>\n\n🧰 <span class="fc">生活比喻：</span>\n   工具箱：锤子、螺丝刀各管一样，</span>\n   配合起来能造大东西'
+  23:'<span class="fk">📌 工具箱 = 多个 def 组合调用</span>\n\n<span class="fk">def</span> chuan(li):      <span class="fc">← 做传球工具</span>\n    forward(li)\n<span class="fk">def</span> shemen(li):    <span class="fc">← 做射门工具</span>\n    forward(li)\n\nchuan(50)        <span class="fc">← 用：拧50</span>\nshemen(80)       <span class="fc">← 用：拧80</span>\n\n<span class="fk">💡 每个工具做一件事，组合起来做大事！</span>\n\n🧰 <span class="fc">生活比喻：</span>\n   工具箱：锤子、螺丝刀各管一样，</span>\n   配合起来能造大东西',
+  24:'<span class="fk">📌 大任务5 = 秋冬季全部招式大综合</span>\n\n嵌套循环烟花 + for-in 点名 + 字符串颁奖词\n+ random 抽奖 + input 互动 + def 工具 + while 环节\n\n<span class="fk">💡 先在「我的拆解」拆模块，</span>\n<span class="fk">再一个一个写成代码。</span>\n\n🏟️ <span class="fc">这是你的冬季收官大作，</span>\n<span class="fc">做完请给爸爸妈妈完整演示一遍！</span>'
 };
 function fillKnowledgePanel(lv){
   const ck = lv.concept_knowledge;
@@ -3397,6 +3441,7 @@ const UNLOCK_CODES = {
   21:"烟花矩阵",     // 第22关 · 烟花矩阵（嵌套循环进阶）
   22:"直到进球",     // 第23关 · 直到进球（while+if 综合）
   23:"战术工具",     // 第24关 · 战术工具箱（函数组合进阶）
+  24:"银河闭幕"      // 第25关 · 大任务5 冬季银河杯闭幕式（综合）
 };
 let pendingUnlock = -1;
 function openUnlock(i){
