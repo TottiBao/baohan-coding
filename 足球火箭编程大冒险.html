@@ -534,7 +534,7 @@
     </div>
   </div>
 
-  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.22.0（新增第25关「冬季银河杯闭幕式」：⭐大任务5，秋冬季全部招式综合收官）</footer>
+  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.23.0（「过关状态看得见」：作业动画播完若已达标会主动说「能过关啦，点检查确认」；大任务没过关时教练直接说出差什么——差播报/差颜色/太简单/没到目标点）</footer>
 </div>
 
 <script>
@@ -2649,7 +2649,18 @@ function applyOp(op, done, delay){
   }
 }
 function stopAnim(){ running=false; if(animTimer){clearTimeout(animTimer); animTimer=null;} }
-function onRunEnd(){ coachSay("落地啦！觉得画对了吗？点「🔍 检查」让我看看～",""); }
+function onRunEnd(){
+  /* 作业关主动报过关状态（v0.23.0）：动画播完若已达标，直接告诉他「能过关啦」，消除"球进了却不知过没过"的茫然；仍由他自己点检查 */
+  if(isHomework){
+    let ok=false;
+    try{ ok = LEVELS[curLevel].homework.check(trail).ok; }catch(e){}
+    if(ok && document.getElementById('win-mask').classList.contains('hidden')){
+      coachSay("⚽ 这一趟跑得漂亮，我觉得能过关啦！快点「🔍 检查」确认一下～","");
+      return;
+    }
+  }
+  coachSay("落地啦！觉得画对了吗？点「🔍 检查」让我看看～","");
+}
 
 /* print 播报台 */
 function printLine(text){
@@ -2709,6 +2720,14 @@ function checkAnswer(){
 }
 function detectiveMode(why){
   const lv = LEVELS[curLevel];
+  /* 「球进了却不知过没过」对症卡（v0.23.0）：大任务检查失败时，把 why 分型翻译给孩子听，告诉他具体差什么 */
+  const WHY_TIP = {
+    no_print:"🥅 球滚得漂亮！不过裁判还要听播报台——用 print 把进球喊出来（比如 print(\"进球啦\")），再点「🔍 检查」！",
+    no_color:"🎨 就差一点点！试试 pencolor 多换几种颜色，让作品炫起来，再点「🔍 检查」！",
+    too_simple:"⚽ 有模有样啦！不过还不够丰富——多用几样学过的招式（循环、函数、print），再点「🔍 检查」！",
+    not_goal:"🧭 动作都做出来了！再看看战术图上的目标点在哪，把球带过去，再点「🔍 检查」！"
+  };
+  if(WHY_TIP[why]){ coachThink(WHY_TIP[why]); flashTrail(); return; }
   const hint = isHomework ? "这是你的独立作业，我不多说提示哦～ 先自己拆解一下：第一步要做什么？再想想代码怎么写。" : pickHint(lv);
   coachThink(`🕵️ 嗯，还差一点点！别急，我们当回侦探。\n${hint}\n\n💡 把「慢速回放」调慢一点，再点运行，仔细看是哪一步走歪的？`);
   flashTrail();
