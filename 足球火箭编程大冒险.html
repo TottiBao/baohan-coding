@@ -527,14 +527,14 @@
       <div id="drill-code"></div>
       <div id="drill-feedback"></div>
       <div id="drill-btns">
-        <button class="btn btn-ghost btn-small" onclick="skipDrill()">跳过今天</button>
+        <button class="btn btn-ghost btn-small" id="drill-skip" onclick="skipDrill()">跳过今天</button>
         <button class="btn btn-run btn-small hidden" id="drill-next" onclick="nextDrill()">下一题 →</button>
         <button class="btn btn-run btn-small hidden" id="drill-done" onclick="finishDrill()">热身完，去闯关 →</button>
       </div>
     </div>
   </div>
 
-  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.23.0（「过关状态看得见」：作业动画播完若已达标会主动说「能过关啦，点检查确认」；大任务没过关时教练直接说出差什么——差播报/差颜色/太简单/没到目标点）</footer>
+  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.24.0（特训跳过可见：跳过会计入学习报告「跳过X次」，且第一次点跳过先给一句轻引导、再点才真跳过——不强迫，但让你看得见）</footer>
 </div>
 
 <script>
@@ -3247,7 +3247,7 @@ function insertCheat(idx){
    里出——他忘过什么，就复习什么。点错行不惩罚，可跳过今天，
    答对得⭐。E2E 驱动设 window.__noDrill 关闭。
    ========================================================= */
-let drillQueue=[], drillIdx=0, drillRight=0, drillSolved=false;
+let drillQueue=[], drillIdx=0, drillRight=0, drillSolved=false, drillSkipArm=false;
 function todayStr(){ const n=new Date(); return n.getFullYear()+'-'+(n.getMonth()+1)+'-'+n.getDate(); }
 function pickDrills(){
   let maxLv=0;
@@ -3284,6 +3284,7 @@ function showDrill(){
     box.appendChild(div);
   });
   document.getElementById('drill-feedback').innerHTML='🔍 哪一行有小毛病？点它！';
+  drillSkipArm=false; document.getElementById('drill-skip').textContent='跳过今天';
   document.getElementById('drill-next').classList.add('hidden');
   document.getElementById('drill-done').classList.add('hidden');
   document.getElementById('drill-mask').classList.remove('hidden');
@@ -3315,6 +3316,16 @@ function finishDrill(){
   coachSay("热身完成，状态满满！去闯关吧！","");
 }
 function skipDrill(){
+  /* 跳过两步确认 + 记数（v0.24.0）：第一次点只给轻引导（不强迫），再点才真跳过并计入报告 */
+  const btn = document.getElementById('drill-skip');
+  if(!drillSkipArm){
+    drillSkipArm = true;
+    btn.textContent = '还是要跳过';
+    document.getElementById('drill-feedback').innerHTML = '⚽ 热身只要 1 分钟，答对还有 ⭐ 哦！<br>真的不想练，就再点一次「还是要跳过」';
+    return;
+  }
+  drillSkipArm = false;
+  save.drillSkips = (save.drillSkips||0)+1;
   save.lastDrill=todayStr(); persist();
   document.getElementById('drill-mask').classList.add('hidden');
 }
@@ -3628,7 +3639,7 @@ function buildReportText(){
     }
   });
   out += `═══════════════════════════════\n`;
-  if(save.drillDays){ out += `⚡ 每日特训（找茬复习，防滚动遗忘）：热身${save.drillDays}天｜累计答对${save.drillRight||0}题｜⭐${save.drillStars||0}颗\n`; }
+  if(save.drillDays || save.drillSkips){ out += `⚡ 每日特训（找茬复习，防滚动遗忘）：热身${save.drillDays||0}天｜跳过${save.drillSkips||0}次｜累计答对${save.drillRight||0}题｜⭐${save.drillStars||0}颗\n`; }
   out += `（请 AI 教练根据以上数据，分析包涵的掌握情况并调整后续教学大纲/关卡难度）\n`;
   return out;
 }
