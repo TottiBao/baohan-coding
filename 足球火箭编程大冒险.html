@@ -534,7 +534,7 @@
     </div>
   </div>
 
-  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.24.0（特训跳过可见：跳过会计入学习报告「跳过X次」，且第一次点跳过先给一句轻引导、再点才真跳过——不强迫，但让你看得见）</footer>
+  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.25.0（「体空」报错分型升级：身体写了但没缩进时，直接点名那一行「前面没空 4 格」，不再笼统说「是空的」——第14关 734 次卡点专项修复；特训新增「def 身体要缩进」题）</footer>
 </div>
 
 <script>
@@ -1923,13 +1923,21 @@ function compile(src){
         while(j < block.length && block[j].indent > myIndent){ body.push(block[j]); j++; }
         return { body, next: j };
       }
+      // 体空精准分型（v0.25.0）：下一行明明写了东西、只是没缩进 → 点名那一行，别再说「是空的」（包涵第14关被旧提示误导点了 700+ 次运行）
+      function unindentedBodyErr(kind, what, errWord){
+        const nx = block[i+1];
+        if(!nx) return null;
+        const t = nx.text.trim();
+        if(!t || t.startsWith('#')) return null;
+        return { line:item.n, errKind:kind, errWord:errWord, html:`🔍 第 ${item.n} 行：${what}的身体<b>就写在下面（第 ${nx.n} 行），可是前面没空 4 格</b>，电脑不知道它属于这个${what}。<br>给 <span class="err-line">${escapeHtml(t)}</span> 前面<b>空 4 格</b>，就把它装进去啦。` };
+      }
 
       // ---- for 循环（结构卡纠错：指认缺少的要素） ----
       let m = line.match(/^for\s+([a-zA-Z_]\w*)\s+in\s+range\s*\(\s*(\d+)\s*\)\s*:?$/);
       if(m){
         if(!/:\s*$/.test(line) && !warn){ warn = {line:item.n, text:`第 ${item.n} 行：循环后面要戴个小帽子（冒号 :），我帮你加上啦。`}; }
         const { body, next } = collectBody(i+1);
-        if(body.length===0) return { error:{ line:item.n, html:`🔍 第 ${item.n} 行：循环下面是空的哦。把要做的事<b>缩进</b>（空4格）写到 for 的下一行，装进循环里。` }};
+        if(body.length===0) return { error: unindentedBodyErr('for体空','循环') || { line:item.n, errKind:'for体空', html:`🔍 第 ${item.n} 行：循环下面是空的哦。把要做的事<b>缩进</b>（空4格）写到 for 的下一行，装进循环里。` }};
         const times = parseInt(m[2]), varName = m[1];
         for(let k=0;k<times;k++){
           vars[varName] = k;
@@ -1944,7 +1952,7 @@ function compile(src){
       if(m){
         if(!/:\s*$/.test(line) && !warn){ warn = {line:item.n, text:'第 '+item.n+' 行：循环后面要戴个小帽子（冒号 :），我帮你加上啦。'}; }
         const { body, next } = collectBody(i+1);
-        if(body.length===0) return { error:{ line:item.n, errKind:'for体空', html:'🔍 第 '+item.n+' 行：循环下面是空的哦。把要做的事<b>缩进</b>（空4格）写到 for 的下一行。' }};
+        if(body.length===0) return { error: unindentedBodyErr('for体空','循环') || { line:item.n, errKind:'for体空', html:'🔍 第 '+item.n+' 行：循环下面是空的哦。把要做的事<b>缩进</b>（空4格）写到 for 的下一行。' }};
         let items;
         const src2 = m[2].trim();
         if(src2[0] === '['){
@@ -2000,7 +2008,7 @@ function compile(src){
       if(m){
         if(!/:\s*$/.test(line) && !warn){ warn = {line:item.n, text:'第 '+item.n+' 行：while 后面要戴个小帽子（冒号 :），我帮你加上啦。'}; }
         const { body, next } = collectBody(i+1);
-        if(body.length===0) return { error:{ line:item.n, errKind:'while体空', html:'🔍 第 '+item.n+' 行：while 下面是空的哦。把要做的事<b>缩进</b>（空4格）写到 while 的下一行。' }};
+        if(body.length===0) return { error: unindentedBodyErr('while体空','循环') || { line:item.n, errKind:'while体空', html:'🔍 第 '+item.n+' 行：while 下面是空的哦。把要做的事<b>缩进</b>（空4格）写到 while 的下一行。' }};
         let guard = 0;
         while(true){
           const c = evalCond(m[1], vars, item.n);
@@ -2075,7 +2083,7 @@ function compile(src){
         if(funcs[m[1]]) return { error:{ line:item.n, errKind:'调用误写def', errWord:m[1], html:`🔍 第 ${item.n} 行：<b>${escapeHtml(m[1])}</b> 已经在工具箱里啦！<br>想用它，直接写 <span class="err-fix">${escapeHtml(m[1])}()</span> 就好，<b>不用再加 def</b>。<br>def 是「做工具」，只写一次；用工具时光写名字。` }};
         if(!/:\s*$/.test(line) && !warn){ warn = {line:item.n, text:`第 ${item.n} 行：def 后面要戴个小帽子（冒号 :），我帮你加上啦。`}; }
         const { body, next } = collectBody(i+1);
-        if(body.length===0) return { error:{ line:item.n, errKind:'def函数体空', errWord:m[1], html:`🔍 第 ${item.n} 行：函数 <b>${m[1]}</b> 里面是空的哦。把它要做的事<b>缩进</b>（空4格）写到 def 的下一行，装进工具箱。` }};
+        if(body.length===0) return { error: unindentedBodyErr('def函数体空','工具', m[1]) || { line:item.n, errKind:'def函数体空', errWord:m[1], html:`🔍 第 ${item.n} 行：函数 <b>${m[1]}</b> 里面是空的哦。把它要做的事<b>缩进</b>（空4格）写到 def 的下一行，装进工具箱。` }};
         funcs[m[1]] = body;
         funcParams[m[1]] = m[2] || null;   // v0.10.0：记住这个工具有没有旋钮（参数）
         i = next;
@@ -3194,6 +3202,7 @@ const DRILLS = [
   { err:'调用误写def', minLv:7, cap:'想用工具箱里的 shemen 工具', code:["def shemen():","    forward(50)","def shemen()"], bad:2, fix:"shemen()", why:"用工具时光写名字加括号；def 只在「做工具」时写一次" },
   { err:'def写法同行身体', minLv:7, cap:'想做一个 shemen 工具', code:["def shemen(): forward(50)","shemen()","shemen()"], bad:0, fix:"def shemen():（回车另起一行，空4格写动作）", why:"冒号后面不要跟动作，另起一行缩进才算装进工具箱" },
   { err:'def写法大写', minLv:7, cap:'想做一个 chongci 工具', code:["Def chongci():","    forward(80)","chongci()"], bad:0, fix:"def chongci():", why:"def 三个字母要全小写，代码里大小写是两回事" },
+  { err:'def函数体空', minLv:7, cap:'想做一个 shemen 射门工具', code:["def shemen():","forward(80)","shemen()"], bad:1, fix:"    forward(80)（前面空4格）", why:"def 的身体要空 4 格缩进，电脑才知道它属于这个工具" },
   { err:'print写法', minLv:9, cap:'想说出比分', code:["score = 3","print(\"score\")"], bad:1, fix:"print(score)", why:"变量不戴引号帽子；戴了帽子就只会原样念出 score 这几个字母" },
   { err:'文字没引号', minLv:10, cap:'想打印一句解说', code:["name = \"梅西\"","print(进球了)"], bad:1, fix:"print(\"进球了\")", why:"文字要戴「引号帽子」，用英文引号把文字包住" },
   { err:'数字文字混加', minLv:10, cap:'想把文字和分数接起来', code:["score = 3","print(\"进球\" + score)"], bad:1, fix:"数字和文字要分开 print，不能直接 +", why:"文字 + 文字 = 接起来；数字 + 数字 = 算总数；文字 + 数字 = 电脑就懵了" },
