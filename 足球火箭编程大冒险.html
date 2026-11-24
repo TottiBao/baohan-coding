@@ -34,6 +34,19 @@
   .level-card.locked{ opacity:.45; cursor:pointer; }
   .level-card.locked:hover{ opacity:.6; border-color:rgba(255,214,107,.5); }
   .level-card.done{ border-color:#4ade80; }
+  .level-card.cocube-done{ box-shadow:inset 0 0 0 1px rgba(251,191,36,.55); }
+  .level-entries{ display:flex; flex-direction:column; gap:7px; align-items:stretch; min-width:126px; }
+  .entry-btn{ border:1px solid rgba(140,170,255,.35); background:rgba(110,168,255,.12); color:#dbe8ff; border-radius:10px; padding:7px 10px; font:700 12px "Microsoft YaHei",sans-serif; cursor:pointer; white-space:nowrap; }
+  .entry-btn:hover{ border-color:#ffd66b; transform:translateY(-1px); }
+  .entry-btn.cocube{ background:rgba(251,191,36,.12); color:#ffe9ad; border-color:rgba(251,191,36,.45); }
+  .entry-btn .entry-state{ font-size:11px; opacity:.85; margin-left:4px; }
+  .completed-levels{ border:1px solid rgba(74,222,128,.35); border-radius:16px; background:rgba(74,222,128,.055); overflow:hidden; }
+  .completed-levels summary{ cursor:pointer; user-select:none; padding:15px 18px; color:#b9f6cf; font-weight:bold; list-style-position:inside; }
+  .completed-levels summary:hover{ background:rgba(74,222,128,.08); }
+  .completed-levels summary .review-tip{ display:inline; float:right; color:#8ea0d8; font-size:12px; font-weight:normal; }
+  #completed-list{ display:flex; flex-direction:column; gap:13px; padding:4px 10px 12px; }
+  .completed-levels:not([open]) #completed-list{ display:none; }
+  @media(max-width:600px){ .level-card{gap:9px;padding:12px 10px;} .level-card .planet{font-size:29px;} .level-card .info .name{font-size:16px;} .level-entries{min-width:105px;} .entry-btn{padding:7px 6px;font-size:11px;} .completed-levels summary{padding:13px 12px;font-size:14px;} .completed-levels summary .review-tip{font-size:11px;} #completed-list{padding:4px 6px 10px;} }
 
   #stage{ display:flex; flex-direction:column; gap:12px; }
   #stage-topbar{ display:flex; justify-content:space-between; align-items:center; }
@@ -185,6 +198,24 @@
   #speed-row{ display:flex; align-items:center; gap:10px; margin-top:10px; font-size:13px; color:#9fb0e0; }
   #speed{ flex:1; accent-color:#ffd66b; }
 
+  /* CoCube 实体模式：连接、预检、执行状态都保持可见 */
+  #cocube-panel{ background:linear-gradient(135deg,rgba(251,191,36,.13),rgba(32,185,158,.08)); border:2px solid rgba(251,191,36,.48); border-radius:16px; padding:14px 16px; }
+  .cc-head{ display:flex; justify-content:space-between; gap:12px; align-items:center; }
+  .cc-title{ color:#ffe9ad; font-size:17px; font-weight:bold; }
+  .cc-state{ font-size:12px; border-radius:999px; padding:4px 10px; background:rgba(255,255,255,.1); color:#c9d6ff; white-space:nowrap; }
+  .cc-state.ok{ background:rgba(74,222,128,.15); color:#b7f7cf; }
+  .cc-state.bad{ background:rgba(255,120,120,.15); color:#ffd0d0; }
+  .cc-help{ margin-top:8px; color:#d9e3ff; font-size:13px; line-height:1.65; }
+  .cc-coords{ margin-top:7px; color:#9fd8c8; font:12px/1.65 Consolas,"Microsoft YaHei",monospace; }
+  .cc-controls{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:11px; }
+  .cc-controls select{ background:#0d1330; color:#eaf0ff; border:1px solid rgba(140,170,255,.4); border-radius:9px; padding:8px; font:13px "Microsoft YaHei",sans-serif; }
+  .btn-cocube{ background:linear-gradient(160deg,#fbbf24,#d97706); color:#352000; }
+  .btn-stop{ background:linear-gradient(160deg,#fb7185,#dc2626); color:#fff; font-size:18px; }
+  .cc-status{ margin-top:10px; min-height:24px; padding:7px 10px; border-radius:9px; background:rgba(5,12,35,.45); color:#cfe1ff; font-size:13px; line-height:1.55; }
+  .cc-progress{ margin-top:6px; color:#ffe9ad; font-size:13px; min-height:20px; }
+  .cc-legend{ display:flex; gap:16px; margin-top:8px; color:#9fb0e0; font-size:12px; }
+  .cc-legend i{ display:inline-block; width:20px; height:3px; vertical-align:middle; margin-right:5px; }
+
   /* 偷看按钮 */
   #peek-btn{ margin-top:9px; font-size:13px; color:#8ea0d8; background:none; border:1px dashed rgba(255,214,107,.4); border-radius:9px; padding:5px 11px; cursor:pointer; }
   #peek-btn:hover{ color:#ffe9ad; }
@@ -209,6 +240,9 @@
   .ask-chips{ display:flex; flex-wrap:wrap; gap:7px; padding:10px 14px; border-top:1px solid rgba(140,170,255,.15); flex:none; }
   .ask-chip{ background:rgba(255,214,107,.1); border:1px solid rgba(255,214,107,.35); color:#ffe9ad; font-size:12.5px; padding:6px 11px; border-radius:999px; cursor:pointer; transition:.15s; font-family:inherit; }
   .ask-chip:hover{ background:rgba(255,214,107,.2); transform:translateY(-1px); }
+  .ask-feedback{ display:flex; gap:8px; justify-content:flex-end; margin:-3px 0 12px; }
+  .ask-feedback button{ background:rgba(94,234,212,.08); border:1px solid rgba(94,234,212,.28); color:#a9e9dc; border-radius:999px; padding:4px 10px; font-size:12px; cursor:pointer; font-family:inherit; }
+  .ask-feedback button:disabled{ opacity:.45; cursor:default; }
   #ask-input-row{ display:flex; gap:8px; padding:12px 14px; border-top:1px solid rgba(140,170,255,.15); flex:none; }
   #ask-input{ flex:1; background:#0d1330; border:1px solid rgba(140,170,255,.4); border-radius:10px; color:#eaf0ff; font-size:14px; padding:9px 12px; outline:none; font-family:inherit; }
   #ask-input:focus{ border-color:#ffd66b; }
@@ -374,6 +408,27 @@
       </div>
     </div>
 
+    <!-- CoCube 实体模式控制台；虚拟模式始终隐藏 -->
+    <div id="cocube-panel" class="hidden">
+      <div class="cc-head">
+        <div class="cc-title">🤖 CoCube 实体挑战 · 同一套 Python 思维</div>
+        <div class="cc-state" id="cc-state">尚未预检</div>
+      </div>
+      <div class="cc-help">先把 CoCube 中心对准地图 <b>A=(100,150)</b>，车头朝地图上方（180°）。代码先在网页模拟；目标点、动作数量和安全边界都通过后，才能上机。请清空路线，孩子第一次操作时由家长陪同。</div>
+      <div class="cc-coords">地图：X=0～300，Y=0～200 ｜ 模拟青色线 / 实机橙色线 ｜ 足球与球门暂不参与第 1、2 关判定</div>
+      <div class="cc-controls">
+        <select id="cc-transport" onchange="changeCocubeTransport()" aria-label="机器人连接方式">
+          <option value="mock">模拟机器人（验收）</option>
+          <option value="ble">真实 CoCube（蓝牙）</option>
+        </select>
+        <button class="btn btn-ghost btn-small" id="btn-cc-connect" onclick="connectCocube()">连接模拟机器人</button>
+        <button class="btn btn-cocube" id="btn-cc-run" onclick="runCocube()" disabled>先完成模拟预检</button>
+        <button class="btn btn-stop" id="btn-cc-stop" onclick="stopCocube()" disabled>■ 急停</button>
+      </div>
+      <div class="cc-status" id="cc-status">第 1 步：写代码并点「模拟运行」。只有预检通过，才会开放上机按钮。</div>
+      <div class="cc-progress" id="cc-progress"></div>
+    </div>
+
     <!-- ① 演示区（常驻，可点代码看解释） -->
     <div id="demo-panel">
       <div class="dp-head">
@@ -453,7 +508,7 @@
         </div>
         <div class="panel">
           <h3>🌠 发射场 / 球场</h3>
-          <canvas id="cv" width="520" height="380"></canvas>
+          <canvas id="cv" width="520" height="360"></canvas>
           <div id="speed-row">
             🐢 慢速回放
             <input type="range" id="speed" min="1" max="20" value="9">
@@ -534,9 +589,10 @@
     </div>
   </div>
 
-  <footer>为包涵 ❤ 定制 · 看演示→拆解→模仿→独立 · v0.25.0（「体空」报错分型升级：身体写了但没缩进时，直接点名那一行「前面没空 4 格」，不再笼统说「是空的」——第14关 734 次卡点专项修复；特训新增「def 身体要缩进」题）</footer>
+  <footer>为包涵 ❤ 定制 · 虚拟 Python ＋ 实体 CoCube 双轨 · v0.32.0（40 关课程 · 第 17～40 关情境问答 · 已完成关卡回顾区）</footer>
 </div>
 
+<script src="cocube.js"></script>
 <script>
 /* =========================================================
    核心引擎
@@ -551,10 +607,14 @@ let penColor = '#7ef0c0';       // 当前画笔颜色（pencolor 改变）
 let trailColors = [];           // 每条轨迹分段的颜色（彩色轨迹）
 let printsArr = [];             // 本次运行的 print 输出（判定用）
 let inputsArr = [];             // 本次运行的 input 问答（判定+埋点用，第16关）
+let lastRun = null;               // 情境问答只读取与当前代码一致的真实运行记录
 let curLevel = 0, runAttempts = 0, stuckCount = 0;
 let phase = 'demo';      // demo -> break -> imitate -> homework
 let peeked = false;      // 本环节是否偷看过
 let isHomework = false;  // 当前是否在独立作业
+let hardwareMode = false; // true = CoCube 实体入口；原虚拟入口默认 false
+let ccPlan = null, ccPrechecked = false, ccExecuting = false;
+let ccTransport = null, ccRunner = null, ccRealTrail = [], ccPose = null;
 
 /* =========================================================
    学习数据埋点（存 localStorage，供一键导出报告）
@@ -578,7 +638,13 @@ function LV(i){
   };
   return track[i];
 }
-function trackErr(type){ const d=LV(curLevel); d.errors[type]=(d.errors[type]||0)+1; persistTrack(); }
+function trackErr(type){
+  const d=LV(curLevel);
+  d.errors[type]=(d.errors[type]||0)+1;
+  // 累计 errors 保留给学习报告；带时间的事件只用于“近期错题优先”，每关最多留 300 条。
+  d.errorEvents=(d.errorEvents||[]).concat({type:type,at:Date.now()}).slice(-300);
+  persistTrack();
+}
 
 /* =========================================================
    🎯 概念软闸（温和阻断式，2026-09-04 用户拍板）
@@ -600,20 +666,35 @@ const CONCEPT_NEED = {
   13: { name:"力度旋钮（函数参数）", tip:"给工具装个旋钮：def chuanqiu(lidu): ，身体里写 forward(lidu)，用时 chuanqiu(50) 拧个数字", test:c=>{ const dm=c.match(/def\s+(\w+)\s*\(\s*\w+\s*\)/); if(!dm) return false; return new RegExp('\\b'+dm[1]+'\\s*\\(\\s*\\d').test(c); } },
   14: { name:"while 循环", tip:"试试 while x < 200: 只要条件成立就一直跑；身体里记得 x = x + 20 让条件会变，不然停不下来", test:c=>/\bwhile\b/.test(c) },
   15: { name:"input 输入", tip:"试试 name = input(\"你叫什么？\") 让电脑问你话，回答装进盒子，再 print(name) 说出来", test:c=>/\binput\s*\(/.test(c) },
-  16: { name:"for-in 点名", tip:"试试 for c in colors: 直接把列表里的东西一个个拿出来用（c 就是拿到的那个），不用数编号", test:c=>/for\s+\w+\s+in\s+(?!range)/.test(c) || /\[[^\]]*,[^\]]*\]/.test(c) },
-  17: { name:"字符串拼接", tip:"试试把文字装进盒子再 + 接起来：name = \"梅西\"，然后 print(name + \" 进球了！\")", test:c=>/["']\s*\+|\+\s*["']|=\s*["']/.test(c) },
+  16: { name:"for-in 点名", tip:"试试 for c in colors: 直接把列表里的东西一个个拿出来用（c 就是拿到的那个），不用数编号", test:c=>/for\s+\w+\s+in\s+(?!range)/.test(c) && /\[[^\]]*,[^\]]*\]/.test(c) },
+  17: { name:"字符串拼接", tip:"试试把文字装进盒子再 + 接起来：name = \"梅西\"，然后 print(name + \" 进球了！\")", test:c=>/=\s*["']/.test(c) && /["']\s*\+|\+\s*["']/.test(c) },
   18: { name:"random 随机", tip:"试试 dice = random.randint(1,6) 掷骰子，或 c = random.choice(colors) 抽签，让程序每次都不一样", test:c=>/\brandom\s*\./.test(c) },
   20: { name:"循环与角度", tip:"试试 for i in range(边数): 配 right(角度) 画正多边形——每次转的角度 = 360÷边数", test:c=>/\bfor\b/.test(c) && /\bright\s*\(/.test(c) },
   21: { name:"嵌套循环进阶", tip:"试试循环套循环：外层 for j in range(几枚): ，内层 for i in range(几瓣): 缩进在外层身体里", test:c=>(c.match(/for\s+\w+\s+in/g)||[]).length>=2 },
   22: { name:"while+if 综合", tip:"试试 while 里放 if：while goals < 3: 一直射，身体里 if dice >= 4: 判断进没进", test:c=>/\bwhile\b/.test(c) && /\bif\b/.test(c) },
-  23: { name:"函数组合进阶", tip:"试试做一整套工具：def chuan(li): 、def shemen(li): 各做一个，再按顺序组合调用", test:c=>(c.match(/\bdef\s+\w+\s*\(/g)||[]).length>=2 }
+  23: { name:"函数组合进阶", tip:"试试做一整套工具：def chuan(li): 、def shemen(li): 各做一个，再按顺序组合调用", test:c=>(c.match(/\bdef\s+\w+\s*\(/g)||[]).length>=2 },
+  25: { name:"for-in＋变量＋print", tip:"试试名单先准备好，再 for name in players: 逐个 print；每点一人，记得 score = score + 1", test:c=>/for\s+\w+\s+in\s+(?!range)/.test(c) && /\w+\s*=\s*\w+\s*\+\s*\d+/.test(c) && /\bprint\s*\(/.test(c) },
+  26: { name:"if/else＋random", tip:"每轮先用 random 掷骰子，再让 if 和 else 对齐，两种结果分别播报", test:c=>/\bif\b/.test(c) && /\belse\s*:/.test(c) && /\brandom\s*\./.test(c) },
+  28: { name:"数字列表＋累加", tip:"准备数字列表和 total=0，再 for g in goals: 逐个 total=total+g", test:c=>/for\s+\w+\s+in\s+(?!range)/.test(c) && /\w+\s*=\s*\w+\s*\+\s*\w+/.test(c) && /\[[^\]]*\d[^\]]*\]/.test(c) },
+  29: { name:"变量比较＋if/else", tip:"把两队比分装进 home 和 away，再 if home > away: 判断，else 处理另一种结果", test:c=>/\bif\b/.test(c) && /\belse\s*:/.test(c) && /\w+\s*>\s*\w+/.test(c) },
+  30: { name:"input＋列表＋拼接", tip:"先用 input 把回答装进盒子，再 for-in 取出列表项，用 + 拼成专属播报", test:c=>/\binput\s*\(/.test(c) && /for\s+\w+\s+in\s+(?!range)/.test(c) && /["']\s*\+|\+\s*["']/.test(c) },
+  31: { name:"choice＋循环", tip:"在循环里写 c=random.choice(colors)，抽到后 pencolor(c) 并 print(c)", test:c=>/\bfor\b/.test(c) && /random\s*\.\s*choice\s*\(/.test(c) && /pencolor\s*\(/.test(c) },
+  32: { name:"函数参数＋if/else", tip:"在 def shemen(li): 的身体里用 if li>=60 / else 判断，再 forward(li)", test:c=>/def\s+\w+\s*\(\s*\w+\s*\)/.test(c) && /\bif\b/.test(c) && /\belse\s*:/.test(c) },
+  33: { name:"while＋随机＋分支", tip:"while wins<目标: 每轮 random，if/else 处理胜负，只有胜利才 wins=wins+1", test:c=>/\bwhile\b/.test(c) && /\brandom\s*\./.test(c) && /\bif\b/.test(c) && /\belse\s*:/.test(c) },
+  35: { name:"数字列表＋双统计", tip:"让 for-in 逐项读成绩：total 每轮累加，passed 只在达标分支加 1", test:c=>/for\s+\w+\s+in\s+(?!range)/.test(c) && /\bif\b/.test(c) && /\belse\s*:/.test(c) && /\w+\s*=\s*\w+\s*\+\s*\w+/.test(c) },
+  36: { name:"带参函数＋列表巡回", tip:"让数字列表配 for-in，每轮把当前 li 送进带参数的 tupo(li)", test:c=>/def\s+\w+\s*\(\s*\w+\s*\)/.test(c) && /for\s+\w+\s+in\s+(?!range)/.test(c) && /\bif\b/.test(c) && /\belse\s*:/.test(c) },
+  37: { name:"while＋两种随机＋统计", tip:"while 里每轮用 choice 抽对手、randint 掷点数，wins 和 rounds 分开统计", test:c=>/\bwhile\b/.test(c) && /random\s*\.\s*choice\s*\(/.test(c) && /random\s*\.\s*randint\s*\(/.test(c) && /\bif\b/.test(c) && /\belse\s*:/.test(c) }
 };
 /* 大任务关「通关温和提示」（v0.16.1）：大任务不设软闸（不卡关），但通关代码若没用到该关关键概念，
    通关弹窗末尾温和引导一句。只提示、不阻断、不计 conceptMiss。 */
 const WIN_NUDGE = {
   11: { tip:"这关的简报里藏着个大招「def 函数」——把重复的射门装进工具箱（def shemen(): 身体里写 forward(50)），想射门就写 shemen()，省力又帅气。下次试试？", test:c=>/\bdef\b/.test(c) },
   19: { tip:"直播里如果有个带旋钮的射门工具（def shemen(lidu): 想射多远拧多少），整场直播会更有派头。下次试试？", test:c=>/\bdef\b/.test(c) },
-  24: { tip:"闭幕式如果有「一直放到…」的环节（while x < 3: 只要没放够就一直放），气氛会更燃。下次试试？", test:c=>/\bwhile\b/.test(c) }
+  24: { tip:"闭幕式如果有「一直放到…」的环节（while x < 3: 只要没放够就一直放），气氛会更燃。下次试试？", test:c=>/\bwhile\b/.test(c) },
+  27: { tip:"这块战术板至少要有一个 def 工具、一张列表配 for-in，还有一个 if/else。下次试着把缺的那一招补进去吧！", test:c=>/\bdef\b/.test(c) && /for\s+\w+\s+in\s+(?!range)/.test(c) && /\bif\b/.test(c) && /\belse\s*:/.test(c) },
+  34: { tip:"收官作品需要有 input、列表 for-in、带参数 def、random、if/else 和变量统计。下次把缺到的模块补进去，作品会更完整！", test:c=>/\binput\s*\(/.test(c) && /for\s+\w+\s+in\s+(?!range)/.test(c) && /def\s+\w+\s*\(\s*\w+\s*\)/.test(c) && /\brandom\s*\./.test(c) && /\bif\b/.test(c) && /\belse\s*:/.test(c) && /\w+\s*=\s*\w+\s*\+/.test(c) },
+  38: { tip:"直播间要有 input、数字列表 for-in＋统计、带参数 def、random 和 if/else。下次把缺少的直播模块补进去吧！", test:c=>/\binput\s*\(/.test(c) && /\[[^\]]*\d[^\]]*\]/.test(c) && /for\s+\w+\s+in\s+(?!range)/.test(c) && /\w+\s*=\s*\w+\s*\+/.test(c) && /def\s+\w+\s*\(\s*\w+\s*\)/.test(c) && /\brandom\s*\./.test(c) && /\bif\b/.test(c) && /\belse\s*:/.test(c) },
+  39: { tip:"传奇冠军杯需要 input、列表 for-in、两个带参数 def、random、if/else 和变量统计，并且两个工具都要真正调用。下次补上缺少的模块吧！", test:c=>{const defs=new Set(Array.from(c.matchAll(/def\s+(\w+)\s*\(\s*\w+\s*\)/g),m=>m[1]));const calls=new Set(Array.from(c.matchAll(/^\s*(\w+)\s*\(\s*(?:\d+|\w+)\s*\)\s*$/gm),m=>m[1]).filter(name=>defs.has(name)));return /\binput\s*\(/.test(c) && /for\s+\w+\s+in\s+(?!range)/.test(c) && defs.size>=2 && calls.size>=2 && /\brandom\s*\./.test(c) && /\bif\b/.test(c) && /\belse\s*:/.test(c) && /\w+\s*=\s*\w+\s*\+/.test(c);} }
 };
 
 /* =========================================================
@@ -658,11 +739,29 @@ const ASK_LEVEL = {
   21:[ { keys:["嵌套","外层","内层","套","几瓣","几枚"], q:"外层和内层分别管什么", a:"外层管「重复几轮」，内层管「每轮做几次」。外层转 1 次，内层就完整跑一遍。比如 3 枚烟花每枚 6 瓣：外层 range(3)、内层 range(6)，一共 3×6=18 个动作。记住：内层要缩进在外层身体里（多空 4 格）！" } ],
   22:[ { keys:["while","if","一起","综合","事件","骰子","判断"], q:"while 和 if 怎么一起用", a:"while 管「一直重复」，if 管「这次做不做」。把 if 缩进在 while 身体里：while goals < 3: 一直射，身体里 if dice >= 4: 判断这脚进没进。while 让程序不停试，if 让程序挑着做——合起来就是游戏里的「事件循环」。" } ],
   23:[ { keys:["工具","组合","几个","多个","模块","def"], q:"为什么要做多个工具", a:"一个工具干一件事，多个工具组合就能干大事！做 chuan(传)、tupo(突)、shemen(射) 三个工具，再按战术顺序调用，就打出一次配合。好处是：每个工具只写一次，想用几次用几次，改起来也只改一处。这叫「模块化」，是程序员的核心武器。" } ],
-  24:[ { keys:["大任务","闭幕式","综合","拆","收官"], q:"大任务5先做什么", a:"先在「我的拆解」把闭幕式拆成模块：开场烟花→颁奖名单→颁奖词→抽奖→观众互动→收尾。再一个一个写成代码。想想你学过的：嵌套循环放烟花、for-in 点名、字符串拼颁奖词、random 抽奖、input 互动、def 带参做工具、while 控制环节。全都能用上！" } ]
+  24:[ { keys:["大任务","闭幕式","综合","拆","收官"], q:"大任务5先做什么", a:"先在「我的拆解」把闭幕式拆成模块：开场烟花→颁奖名单→颁奖词→抽奖→观众互动→收尾。再一个一个写成代码。想想你学过的：嵌套循环放烟花、for-in 点名、字符串拼颁奖词、random 抽奖、input 互动、def 带参做工具、while 控制环节。全都能用上！" } ],
+  25:[ { keys:["名单","人数","计数","一起","score"], q:"怎么一边点名一边记人数", a:"先准备 players 名单和 score=0。for name in players: 每轮 print(name)，再 score=score+1。两句都缩进，点一个人就加一次；最后的总人数 print 要和 for 对齐。" } ],
+  26:[ { keys:["二选一","if","else","随机","分支"], q:"为什么 if 和 else 只走一个", a:"条件成立走 if，不成立走 else，所以同一轮只会播一种结果。else 和 if 对齐，两个分支的身体都缩进；forward 要和 if 对齐，才能每轮都走。" } ],
+  27:[ { keys:["战术","项目","综合","先做什么"], q:"冠军战术板先做什么", a:"先写三个中文模块：做一个 def 工具、用 for-in 播报名单、用 if/else 处理一种结果。先只实现这三个模块并运行，再补颜色、移动和播报，不要一次写完整场。" } ],
+  28:[ { keys:["合计","累加","数字列表","total"], q:"怎样让程序自己算总数", a:"total 先装 0，for g in goals 每次取一个数字，再写 total=total+g。加完一定要存回 total；循环结束后再 print(total)。" } ],
+  29:[ { keys:["两个变量","比较","比分","home","away"], q:"两个变量能直接比较吗", a:"可以。home > away 会先取两个盒子里的数字再比较。比分变了，判断句式不用改；else 仍然和 if 对齐。" } ],
+  30:[ { keys:["采访","回答","列表","一起","拼接"], q:"怎样把回答放进列表播报", a:"回答先装进 fan，列表项用 team 取出。print(fan + \" 为 \" + team + \" 加油\") 就能同时使用两个盒子；只有固定文字戴引号。" } ],
+  31:[ { keys:["choice","抽签","随机阵容","重复"], q:"怎样连续抽签", a:"把 c=random.choice(colors) 放进 for 循环，每轮都会重新抽一次。抽到的 c 要在同一轮 pencolor(c)、print(c)，才有完整结果。" } ],
+  32:[ { keys:["智能","参数","函数","判断","li"], q:"函数里面为什么能写 if", a:"函数身体也是一小段程序，可以放 if/else。每次调用时 li 不同，函数里的判断就会选择不同分支；定义一次就能反复处理不同力度。" } ],
+  33:[ { keys:["夺冠","while","失败","胜利","wins"], q:"失败了为什么还能继续", a:"else 只播报、不增加 wins，所以 while wins<3 仍然成立，会进入下一轮。胜利时才 wins=wins+1，达到目标后 while 自动结束。" } ],
+  34:[ { keys:["宇宙","收官","项目","综合","先做什么"], q:"足球编程宇宙先做什么", a:"先做最小版本：input 问一句、列表播两项、一个带参数工具、一次随机和 if/else。能运行后再加统计、颜色和转弯，别一开始追求最长代码。" } ],
+  35:[ { keys:["达标","统计","total","passed"], q:"总分和达标数怎么一起统计", a:"total 每轮加本轮成绩，passed 只在达标分支加 1；最终统计放在循环后。" } ],
+  36:[ { keys:["巡回","参数","列表","tupo"], q:"列表力度怎么送进函数", a:"for li in 数字列表 每轮取一个数，tupo(li) 把当前数字送进带参工具。" } ],
+  37:[ { keys:["巡回","wins","rounds","choice"], q:"胜场和轮数有什么区别", a:"wins 只在胜利时加，rounds 每轮都加；choice 抽对手，randint 产生点数。" } ],
+  38:[ { keys:["直播间","项目","综合"], q:"冠军直播间先做什么", a:"先做互动开场、数字战报、随机赛果三段主线，再补带参工具、统计和画面。" } ],
+  39:[ { keys:["冠军杯","终极","项目"], q:"传奇冠军杯怎样开始", a:"先设计开场、挑战、结果、庆祝四步赛制，再逐个模块实现，保留能运行的版本。" } ]
 };
 let askLevel = 0;
 function openAsk(){
+  if(curLevel>=16 && curLevel<=39 && typeof openCoach17==='function'){ openCoach17(); return; }
   askLevel = curLevel;
+  document.querySelector('#ask-head .s').textContent='有不懂的就问我～ 我会引导你想，不直接给答案哦';
+  document.getElementById('ask-input').placeholder='把你的问题打在这里……';
   document.getElementById('ask-mask').classList.remove('hidden');
   const log=document.getElementById('ask-log'); log.innerHTML='';
   askBot("我是小航！这关有不懂的吗？点下面的问题，或者自己打字问我～");
@@ -683,6 +782,7 @@ function buildAskChips(){
 function sendAsk(){
   const inp=document.getElementById('ask-input');
   const q=inp.value.trim(); if(!q) return;
+  if(curLevel>=16 && curLevel<=39 && typeof submitCoach17==='function'){ submitCoach17(q); return; }
   inp.value='';
   askMe(q);
   const hit=matchAsk(q);
@@ -718,7 +818,13 @@ function recordAsk(q){
 
 function rad(d){ return d*Math.PI/180; }
 let viewScale = 1;                 // 运行时缩放（轨迹/战术图超范围时自动缩小适配）
-function toPx(x,y){ return [CX + x*viewScale, CY - y*viewScale]; }
+function toPx(x,y){
+  if(hardwareMode){
+    const p=CoCube.webToField({x,y});
+    return [20+p.x/CoCube.FIELD.width*480,20+(CoCube.FIELD.height-p.y)/CoCube.FIELD.height*320];
+  }
+  return [CX + x*viewScale, CY - y*viewScale];
+}
 /* 按内容范围自动适配缩放：操作、战术图取较大范围，超出画布则等比缩小 */
 function updateViewScale(ops, dg){
   viewScale = 1;
@@ -1479,16 +1585,16 @@ const LEVELS = [
       {code:"for c in colors:", cap:"新写法！直接把盒子里的东西一个个拿出来，c 就是拿到的那个", k:{tag:"新招式", title:"for-in 点名", body:"以前 for i in range(3) 数编号；现在 for c in colors 直接点名，c 就是拿到的那个颜色，不是编号！"}, ops:[]},
       {code:"    pencolor(c)\n    forward(50)", cap:"拿到哪个颜色 c，就换哪个颜色画一段", k:{tag:"重点", title:"拿到就用", body:"c 就是当前拿到的颜色本身，直接 pencolor(c) 换色，再 forward(50) 画一段。3 个颜色画 3 段。"}, ops:[{cmd:'forward',val:50},{cmd:'forward',val:50},{cmd:'forward',val:50}]}
     ],
-    breakSteps:["🌈 做一排颜色盒子 colors=[...]","🔁 for c in colors: 一个个点名","🖊️ 用拿到的颜色 pencolor(c)","⚽ 每种颜色画一段"],
+    breakSteps:["① 📦 先创建列表：colors = [\"red\",\"yellow\",\"green\"]","② 🔁 再逐个点名：for c in colors:（c 就是拿到的颜色）","③ ↳ 身体缩进 4 格：pencolor(c)，再 forward(50)"],
     palette:["colors = [\"red\",\"yellow\",\"green\"]","for c in colors:","    pencolor(c)","    forward(50)"],
     check(path){
       if(new Set(trailColors).size>=3) return {ok:true};
       return {ok:false, why:"need_color"};
     },
     hints:[
-      "想把列表里的东西一个个拿出来用，用 for c in colors:（c 是当前拿到的那个）。",
-      "colors 要先做好（colors=[...]），for c in colors 才能点名。",
-      "身体里用 c：pencolor(c)。c 不是编号，它就是拿到的那个东西本身。"
+      "第①步先检查：colors = [...] 是否写在 for 前面？列表先创建，才能点名。",
+      "第②步写 for c in colors:。这里的 c 是拿到的颜色本身，不是编号。",
+      "第③步把 pencolor(c) 和 forward(50) 都缩进 4 格，装进循环身体。"
     ],
     win:"你学会「直接点名」了！for c in colors 把列表里的东西一个个拿出来用——这是真 Python 里最常用的写法！",
     medal:"📋 点名家",
@@ -1820,6 +1926,541 @@ const LEVELS = [
       },
       win:"冬季银河杯闭幕式圆满落幕！烟花、颁奖、抽奖、互动全是你一手操办——你是名副其实的银河总导演！秋冬季，完美收官！",
       medal:"🏟️ 银河总导演"
+    }
+  },
+  {
+    name:"名单记分员", emoji:"🧾", concept:"for-in＋变量＋print", planet:"🏟️",
+    desc:"名单逐个点名，同时用变量记人数——把列表、变量和播报组成一条完整任务链！",
+    title:"任务：首发名单与人数播报",
+    text:"教练既要逐个喊出球员名字，也要记住已经叫了几个人。\n先用 for-in 点名，每叫一个就让计数盒子加 1，最后 print 出总人数。",
+    concept_knowledge:{ title:"本关练：列表、变量和 print 合作", body:"players 装着整张名单；for name in players 每次取出一个名字；score = score + 1 把人数存回盒子；print 负责播报名字和最后的结果。顺序很重要：名单先准备好，计数盒子先装 0，再开始点名。", scratch:"💡 这就像 Scratch 里「对名单每项」播报，同时把「人数」变量增加 1。" },
+    demo:[
+      {code:"players = [\"梅西\",\"C罗\",\"包涵\"]\nscore = 0", cap:"先准备名单，再做一个装 0 的计数盒子", k:{tag:"第一步", title:"先准备，再使用", body:"players 是名字列表，score 一开始装 0。两个盒子都准备好，后面的循环才能使用它们。"}, ops:[]},
+      {code:"for name in players:\n    print(name + \" 上场！\")", cap:"逐个取出名字，播报到谁上场", k:{tag:"第二步", title:"for-in 直接点名", body:"name 是当前取出的球员名字。每轮 print 一次，三位球员就有三句上场播报。"}, ops:[]},
+      {code:"    score = score + 1\nprint(score)\nforward(60)", cap:"每点一人就加 1；循环结束后播报总人数，再前进庆祝", k:{tag:"第三步", title:"更新后存回盒子", body:"score = score + 1 缩进在循环里，所以每点一人就加 1。最后的 print(score) 不缩进，等全部点完才说总人数。"}, ops:[{cmd:'forward',val:60}]}
+    ],
+    breakSteps:["📋 准备 players 名单，score 先装 0","🔁 for name in players: 逐个 print 播报，同时 score 加 1","📢 循环结束后 print(score)，再前进庆祝"],
+    palette:["players = [\"梅西\",\"C罗\",\"包涵\"]","score = 0","for name in players:","    print(name + \" 上场！\")","    score = score + 1","print(score)","forward(60)"],
+    check(path){
+      if(printsArr.length>=4 && segLens(path).filter(l=>l>5).length>=1) return {ok:true};
+      if(printsArr.length<4) return {ok:false, why:"no_print"};
+      return {ok:false, why:"too_short"};
+    },
+    hints:[
+      "先准备两个盒子：players 装名单，score 装 0，然后才能开始点名。",
+      "for name in players: 身体里写 print(name + \" 上场！\") 和 score = score + 1。",
+      "循环结束后，让 print(score) 和 for 对齐，再写 forward(60) 庆祝。"
+    ],
+    win:"名单和人数都播报对了！你已经能让列表、变量和 print 一起完成一件完整任务。",
+    medal:"🧾 金牌记分员",
+    homework:{
+      title:"⚽ 独立作业：我的冠军名单",
+      text:"自己选 3～5 名球员组成冠军名单：逐个播报名字，每播报一人就让计数盒子加 1。\n最后 print 出总人数，并画出至少有 2 次转弯的庆祝路线。",
+      stepsHint:"拆解：准备名单和 count=0 → for-in 逐个 print → 每轮 count=count+1 → 循环后 print(count) → forward/right 组合庆祝。",
+      emoji:"🏟️",
+      diagram:{
+        route:[[0,0],[0,60],[60,60],[60,120]],
+        segLabels:[{at:[-45,55],text:"点完名再庆祝"}],
+        goal:[60,160]
+      },
+      check(path){
+        if(printsArr.length>=4 && turns(path)>=2) return {ok:true};
+        if(printsArr.length<4) return {ok:false, why:"no_print"};
+        return {ok:false, why:"too_few_turns"};
+      },
+      win:"冠军名单全员到齐，人数也数清楚了！你把三个旧招式真正组合起来了。",
+      medal:"🏟️ 冠军领队"
+    }
+  },
+  {
+    name:"门将二选一", emoji:"🧤", concept:"if/else＋random", planet:"🥅",
+    desc:"每轮掷骰子：进了就走 if，没进就走 else——两种结果都要有播报！",
+    title:"任务：随机点球与扑救播报",
+    text:"连续进行 4 轮点球。每轮 random 掷骰子：4 以上算进球，否则算扑出。\nif/else 负责二选一，score 负责记进球数，print 负责把每轮结果说出来。",
+    concept_knowledge:{ title:"本关练：if/else 与随机事件合作", body:"random 只负责产生这轮的数字；if dice >= 4 判断走哪条路；else 接住所有不满足条件的情况。两条分支只走一条。每轮结束都 forward，不管进没进；只有进球分支里才让 score 加 1。", scratch:"💡 这就像 Scratch 的「如果…那么…否则」装进重复循环，再配一个随机数。" },
+    demo:[
+      {code:"score = 0", cap:"先做计分盒子，还没进球所以装 0", k:{tag:"准备", title:"变量先装初始值", body:"score = 0 必须先写好，后面进球时才能用 score = score + 1 更新。"}, ops:[]},
+      {code:"for i in range(4):\n    dice = random.randint(1,6)", cap:"重复 4 轮，每轮先把随机结果装进 dice", k:{tag:"复习", title:"随机结果装进盒子", body:"dice 装着这一轮的骰子点数。每轮都会重新随机一次，后面的 if 就看这个盒子做判断。"}, ops:[]},
+      {code:"    if dice >= 4:\n        score = score + 1\n        print(\"进球！\")\n    else:\n        print(\"扑出！\")\n    forward(30)", cap:"if 和 else 对齐，两种情况二选一；每轮都前进", k:{tag:"重点", title:"二选一，不会都执行", body:"dice 是 4、5、6 时走 if；1、2、3 时走 else。两个 print 不会在同一轮都执行。forward 与 if 对齐，所以每轮都会前进。"}, ops:[{cmd:'forward',val:30},{cmd:'forward',val:30},{cmd:'forward',val:30},{cmd:'forward',val:30}]}
+    ],
+    breakSteps:["🎁 score 先装 0","🎲 循环 4 轮，每轮把 random 结果装进 dice","🔀 if dice>=4 进球并记分，else 播报扑出","⚽ if/else 外面写 forward，让每轮都前进"],
+    palette:["score = 0","for i in range(4):","    dice = random.randint(1,6)","    if dice >= 4:","        score = score + 1","        print(\"进球！\")","    else:","        print(\"扑出！\")","    forward(30)"],
+    check(path){
+      if(printsArr.length>=4 && segLens(path).filter(l=>l>5).length>=4) return {ok:true};
+      return {ok:false, why:"need_more"};
+    },
+    hints:[
+      "每轮先写 dice = random.randint(1,6)，再用 if dice >= 4: 判断。",
+      "else: 要和 if 对齐；两个分支里的 print 都要再缩进 4 格。",
+      "forward(30) 放在 if/else 外面、for 里面，这样每一轮都会前进。"
+    ],
+    win:"你让程序稳稳处理了两种结果！随机制造悬念，if/else 负责选择，播报一次也没丢。",
+    medal:"🧤 二选一门将",
+    homework:{
+      title:"🥅 独立作业：六轮点球直播",
+      text:"自己设计 6 轮随机点球：掷到 5 以上播报「世界波」并记分，否则播报「再试一次」。\n每轮都前进，6 轮结束后再 print 出总进球数。",
+      stepsHint:"拆解：goals=0 → for 6轮 → 每轮 random → if dice>=5 / else 分别 print → if 里 goals+1 → 每轮 forward → 循环后 print(goals)。",
+      emoji:"🥅",
+      diagram:{
+        route:[[0,0],[0,30],[0,60],[0,90],[0,120],[0,150],[0,180]],
+        segLabels:[{at:[-70,90],text:"6轮都有结果"}],
+        goal:[0,220]
+      },
+      check(path){
+        if(printsArr.length>=7 && segLens(path).filter(l=>l>5).length>=6) return {ok:true};
+        return {ok:false, why:"need_more"};
+      },
+      win:"六轮直播完整完成！无论随机出什么，程序都能走对分支、说对结果、记好比分。",
+      medal:"🥅 点球直播员"
+    }
+  },
+  {
+    name:"冠军战术板", emoji:"🏆", concept:"旧知识小项目", planet:"🌟",
+    desc:"不教新语法：用函数、列表和 if/else 自己设计一场小型冠军赛！",
+    title:"🏆 小项目：我的冠军战术板",
+    text:"",
+    project:true,
+    concept_knowledge:{ title:"小项目：把旧招式变成自己的作品", body:"这次不学大任务那么长，也不学新语法。至少用一个 def 工具、一张列表和 for-in、一个 if/else，再配 print、pencolor 和移动指令，完成一场你自己的冠军赛。先拆成开场、进攻、播报三个小模块，再做出来。", scratch:"💡 把以前做过的自制积木、名单和条件积木重新组合，就是一个新作品。" },
+    homework:{
+      title:"🏆 小项目：我的冠军战术板",
+      text:"设计一场短小的冠军赛，必须出现：\n①至少一个 def 工具 ②一张列表配 for-in 点名 ③一个 if/else 二选一\n还要有至少 4 句播报、2 种颜色和 3 次转弯，其余剧情由你决定！",
+      stepsHint:"建议拆成：def 做进攻工具 → 列表逐个播报 → if/else 处理一种比赛结果 → 换色并完成庆祝路线。先完成最小版本，再慢慢加花样。",
+      emoji:"🏆",
+      diagram:{
+        route:[[0,0],[0,60],[50,60],[50,120],[-20,120],[-20,180]],
+        segLabels:[{at:[-60,55],text:"你的战术"},{at:[65,115],text:"自由发挥"}],
+        defenders:[[40,60],[-30,120]],
+        goal:[-20,220]
+      },
+      check(path){
+        const colors=new Set(trailColors).size, prints=printsArr.length, t=turns(path);
+        if(prints>=4 && colors>=2 && t>=3) return {ok:true};
+        if(prints<4) return {ok:false, why:"no_print"};
+        if(colors<2) return {ok:false, why:"no_color"};
+        return {ok:false, why:"too_simple"};
+      },
+      win:"你的冠军战术板完成了！没有新语法也能做出新作品——真正的进步就是会把旧知识重新组合。",
+      medal:"🏆 冠军小设计师"
+    }
+  },
+  {
+    name:"数据记分牌", emoji:"📊", concept:"数字列表＋累加", planet:"📈",
+    desc:"把每场比赛的进球放进数字列表，用 for-in 逐个加起来——程序会做小统计啦！",
+    title:"任务：计算赛季总进球",
+    text:"一个球员三场分别进 1、2、1 球。不要心算后直接把答案写死，\n让程序用 total 盒子逐个累加，最后自己算出总进球！",
+    concept_knowledge:{ title:"本关练：列表数据与累加器", body:"goals = [1,2,1] 装的是数字，不需要引号。total = 0 是累加盒子；for g in goals 每次取出一个进球数，total = total + g 把它加进去再存回。循环结束后，total 就是全部数字的合计。", scratch:"💡 这就像 Scratch 里对一串数字重复执行「将总分增加本场进球」。" },
+    demo:[
+      {code:"goals = [1,2,1]\ntotal = 0", cap:"准备数字列表和装 0 的合计盒子", k:{tag:"准备", title:"数字列表", body:"数字直接写进列表，不戴引号。total 从 0 开始，表示还没加上任何一场。"}, ops:[]},
+      {code:"for g in goals:\n    total = total + g", cap:"每场进球都加进 total，并存回盒子", k:{tag:"累加", title:"每次取一个，加一次", body:"g 依次是 1、2、1。total 也从 0 变成 1、3、4。一定要写 total = ，才能把新结果存回去。"}, ops:[]},
+      {code:"print(total)\nforward(60)", cap:"循环结束后播报总进球，再前进庆祝", k:{tag:"结果", title:"循环后再取合计", body:"print(total) 和 for 对齐，等所有比赛都加完才播报。结果就是 4。"}, ops:[{cmd:'forward',val:60}]}
+    ],
+    breakSteps:["📊 准备 goals 数字列表，total 先装 0","🔁 for g in goals: 每场都 total = total + g","📢 循环后 print(total)，再前进庆祝"],
+    palette:["goals = [1,2,1]","total = 0","for g in goals:","    total = total + g","print(total)","forward(60)"],
+    check(path){
+      if(printsArr.length>=1 && segLens(path).filter(l=>l>5).length>=1) return {ok:true};
+      return {ok:false, why:"need_more"};
+    },
+    hints:[
+      "数字列表写成 goals = [1,2,1]，数字不用引号；total 要先装 0。",
+      "for g in goals: 的身体里写 total = total + g，让每场的数都加进去。",
+      "print(total) 放在循环后面并和 for 对齐，最后加 forward(60)。"
+    ],
+    win:"程序自己算出了总进球！你已经会用列表和累加变量做真正的数据统计了。",
+    medal:"📊 数据记分员",
+    homework:{
+      title:"📈 独立作业：我的四场战绩",
+      text:"自己填 4 场比赛的进球数。逐个 print 每场进球，同时累加到 total；\n最后 print 总进球，并前进一段庆祝。",
+      stepsHint:"拆解：goals=[四个数字]、total=0 → for g in goals: print(g)、total=total+g → 循环后 print(total)、forward(60)。",
+      emoji:"📈",
+      check(path){
+        if(printsArr.length>=5 && segLens(path).filter(l=>l>5).length>=1) return {ok:true};
+        return {ok:false, why:"need_more"};
+      },
+      win:"四场战绩和总进球都出来了！你不是把答案告诉电脑，而是教会了电脑怎么算。",
+      medal:"📈 赛季分析师"
+    }
+  },
+  {
+    name:"比分裁判", emoji:"🟨", concept:"变量比较＋if/else", planet:"🥅",
+    desc:"把两队比分装进盒子，让 if/else 判断谁领先——程序变成公平的小裁判！",
+    title:"任务：判断比赛结果",
+    text:"主队 2 球、客队 1 球。用 home > away 判断主队是否领先，\n领先就播报胜利，否则播报继续加油。",
+    concept_knowledge:{ title:"本关练：变量之间比大小", body:"以前常拿变量和固定数字比较，这次 home > away 是两个变量比较。程序会先取出两个盒子里的数，再判断大小。if/else 两条路只走一条；分数改变后，不用改判断句式也能得到新结果。", scratch:"💡 这就像 Scratch 里比较两个变量，再放进「如果…那么…否则」。" },
+    demo:[
+      {code:"home = 2\naway = 1", cap:"两个盒子分别装主队和客队比分", k:{tag:"准备", title:"一队一个盒子", body:"home 和 away 是两个独立变量。先装好比分，后面才能比较。"}, ops:[]},
+      {code:"if home > away:\n    print(\"主队获胜！\")\nelse:\n    print(\"继续加油！\")", cap:"home 大于 away 走 if，否则走 else", k:{tag:"判断", title:"两个变量也能比", body:"> 表示大于。2 > 1 成立，所以播报主队获胜；如果把比分改成 1 和 2，就会走 else。"}, ops:[]},
+      {code:"forward(60)", cap:"判断完成，球员前进庆祝", k:{tag:"顺序", title:"判断后继续执行", body:"forward 不缩进在分支里，所以不管走了 if 还是 else，最后都会前进。"}, ops:[{cmd:'forward',val:60}]}
+    ],
+    breakSteps:["🎁 home 和 away 分别装两队比分","🔀 if home > away 判断，else 接住另一种结果","⚽ 分支结束后 forward 前进"],
+    palette:["home = 2","away = 1","if home > away:","    print(\"主队获胜！\")","else:","    print(\"继续加油！\")","forward(60)"],
+    check(path){
+      if(printsArr.length>=1 && segLens(path).filter(l=>l>5).length>=1) return {ok:true};
+      return {ok:false, why:"need_more"};
+    },
+    hints:[
+      "先写 home = 2、away = 1，再用 if home > away: 比较两个盒子。",
+      "else: 与 if 对齐，两个分支里的 print 都缩进 4 格。",
+      "forward(60) 放在 if/else 后面，让判断完成后继续前进。"
+    ],
+    win:"你让程序看懂了比分！比较两个变量，是很多游戏和数据统计都会用到的本领。",
+    medal:"🟨 公平小裁判",
+    homework:{
+      title:"🥅 独立作业：两场比分播报",
+      text:"设计两场比赛的比分。每场都更新 home、away，用 if/else 播报主队是否获胜，并前进一次。\n两场要有不同的比分。",
+      stepsHint:"拆解：第一场 home/away → if home>away / else print → forward；再重新装第二场比分，按同样结构判断和前进。",
+      emoji:"🥅",
+      check(path){
+        if(printsArr.length>=2 && segLens(path).filter(l=>l>5).length>=2) return {ok:true};
+        return {ok:false, why:"need_more"};
+      },
+      win:"两场比赛都判断正确！比分只是数据，你已经写出了可以反复使用的判断规则。",
+      medal:"🥅 金牌裁判"
+    }
+  },
+  {
+    name:"球迷采访团", emoji:"🎤", concept:"input＋列表＋拼接", planet:"🏟️",
+    desc:"先问球迷名字，再把他的名字带进整张球队名单的播报里——每个观众都有专属现场！",
+    title:"任务：专属球迷播报",
+    text:"input 问球迷名字，回答装进 fan。再用 for-in 逐个取出球队，\nprint 出「某位球迷为某队加油」的专属播报。",
+    concept_knowledge:{ title:"本关练：把回答带进列表循环", body:"fan = input(...) 把回答存进盒子；teams 是球队列表；for team in teams 每轮取出一支队伍。print(fan + \" 为 \" + team + \" 加油！\") 把三个文字片段接成一句。input 的回答和列表取出的内容都能参与拼接。", scratch:"💡 这就像 Scratch 先保存「回答」，再在名单循环里使用「连接」积木。" },
+    demo:[
+      {code:"fan = input(\"你叫什么名字？\")\nteams = [\"火箭队\",\"银河队\"]", cap:"问名字并保存，再准备球队列表", k:{tag:"准备", title:"回答和列表都是数据", body:"fan 装着观众输入的文字，teams 装着两支球队。两个盒子准备好，后面一起使用。"}, ops:[]},
+      {code:"for team in teams:\n    print(fan + \" 为 \" + team + \" 加油！\")", cap:"每取一队，就用 fan 和 team 拼一句专属播报", k:{tag:"组合", title:"两个盒子一起拼接", body:"team 每轮会变化，fan 保持不变。两支球队就能得到两句带观众名字的播报。"}, ops:[]},
+      {code:"forward(50)", cap:"播报结束，前进进入球场", k:{tag:"完成", title:"输入也能驱动作品", body:"同一个程序，观众输入不同名字，播报就不同。这就是互动程序！"}, ops:[{cmd:'forward',val:50}]}
+    ],
+    breakSteps:["🎤 input 问名字装进 fan，准备 teams 列表","🔁 for team in teams 逐个取队名","📢 print 拼接 fan、team 和加油文字，再前进"],
+    palette:["fan = input(\"你叫什么名字？\")","teams = [\"火箭队\",\"银河队\"]","for team in teams:","    print(fan + \" 为 \" + team + \" 加油！\")","forward(50)"],
+    check(path){
+      if(inputsArr.length>=1 && printsArr.length>=2) return {ok:true};
+      return {ok:false, why:"need_more"};
+    },
+    hints:[
+      "先把回答装进 fan = input(\"...\")，不要只写 input。",
+      "for team in teams: 每轮取一个队名，print 里同时用 fan 和 team。",
+      "文字片段要戴引号，盒子名 fan、team 不戴引号，用 + 接起来。"
+    ],
+    win:"这是专属于观众的播报！你已经会把输入、列表和文字拼接编成互动节目了。",
+    medal:"🎤 球迷小记者",
+    homework:{
+      title:"🏟️ 独立作业：我的采访现场",
+      text:"问观众两个问题，并分别 print 回答。再准备 3 个比赛环节组成的列表，\n用 for-in 逐个播报，每句都带上观众名字，最后前进庆祝。",
+      stepsHint:"拆解：fan=input 问名字、wish=input 问心愿 → print(fan)、print(wish) → events=[三个环节] → for e in events: print(fan+...+e) → forward。",
+      emoji:"🎤",
+      check(path){
+        if(inputsArr.length>=2 && printsArr.length>=5 && segLens(path).filter(l=>l>5).length>=1) return {ok:true};
+        return {ok:false, why:"need_more"};
+      },
+      win:"采访、回答和现场环节全部串起来了！你的程序已经能和观众一起完成一场演出。",
+      medal:"🏟️ 互动导演"
+    }
+  },
+  {
+    name:"随机阵容", emoji:"🎁", concept:"choice＋循环", planet:"🎲",
+    desc:"每轮从列表抽一种颜色或一名球员——同一个程序，每次阵容都可能不同！",
+    title:"任务：随机彩虹进攻",
+    text:"准备 4 种颜色，连续抽 3 次。每轮 random.choice(colors) 抽一个颜色，\npencolor 使用它，print 播报它，再前进一步。",
+    concept_knowledge:{ title:"本关练：在循环里反复抽签", body:"colors 是候选列表；random.choice(colors) 每次抽一个，结果装进 c。把抽签装进 for 循环，就能连续抽多次。注意：抽签、用颜色、播报和前进都在循环身体里，每轮都要完整执行。", scratch:"💡 这就像 Scratch 的「从列表随机选择」放进「重复执行」。" },
+    demo:[
+      {code:"colors = [\"red\",\"gold\",\"blue\",\"green\"]", cap:"先准备抽签用的颜色列表", k:{tag:"准备", title:"候选装进列表", body:"choice 要从列表里抽，所以先把所有候选颜色准备好。"}, ops:[]},
+      {code:"for i in range(3):\n    c = random.choice(colors)", cap:"重复 3 轮，每轮重新抽一个颜色装进 c", k:{tag:"抽签", title:"每轮都有新机会", body:"c 是这一轮抽到的颜色。抽完可能相同，也可能不同，这就是随机。"}, ops:[]},
+      {code:"    pencolor(c)\n    print(c)\n    forward(40)", cap:"抽到什么就用什么、播什么，再前进", k:{tag:"使用", title:"抽到的结果要用起来", body:"pencolor(c) 换色，print(c) 播报，forward(40) 画一段。三行都缩进，三轮就画三段。"}, ops:[{cmd:'forward',val:40},{cmd:'forward',val:40},{cmd:'forward',val:40}]}
+    ],
+    breakSteps:["🎁 准备 colors 候选列表","🔁 循环 3 轮，每轮 c=random.choice(colors)","🖊️ 每轮 pencolor(c)、print(c)、forward(40)"],
+    palette:["colors = [\"red\",\"gold\",\"blue\",\"green\"]","for i in range(3):","    c = random.choice(colors)","    pencolor(c)","    print(c)","    forward(40)"],
+    check(path){
+      if(printsArr.length>=3 && segLens(path).filter(l=>l>5).length>=3) return {ok:true};
+      return {ok:false, why:"need_more"};
+    },
+    hints:[
+      "先准备 colors 列表，再在循环里写 c = random.choice(colors)。",
+      "抽到结果后要用：pencolor(c)、print(c)，c 不用引号。",
+      "forward(40) 也缩进在循环里，三轮就有三段轨迹。"
+    ],
+    win:"随机彩虹进攻完成！你让列表、抽签和循环一起工作，每次运行都有新惊喜。",
+    medal:"🎁 随机阵容师",
+    homework:{
+      title:"🎲 独立作业：随机队长与四轮进攻",
+      text:"先从球员列表随机抽一名队长并 print。再进行 4 轮随机颜色进攻：\n每轮抽颜色、播报、换色并前进。",
+      stepsHint:"拆解：players列表 → captain=random.choice(players)、print(captain) → colors列表 → for 4轮：抽c、print(c)、pencolor(c)、forward。",
+      emoji:"🎲",
+      check(path){
+        if(printsArr.length>=5 && segLens(path).filter(l=>l>5).length>=4) return {ok:true};
+        return {ok:false, why:"need_more"};
+      },
+      win:"队长和四轮阵容都由程序抽出来了！你已经能做出真正有随机性的互动小游戏。",
+      medal:"🎲 幸运主教练"
+    }
+  },
+  {
+    name:"智能射门工具", emoji:"🧰", concept:"函数参数＋if/else", planet:"🚀",
+    desc:"给射门工具装上力度旋钮，再让它自己判断轻射或重射——工具也会做决定！",
+    title:"任务：会判断力度的射门函数",
+    text:"def shemen(li) 接收力度。li 达到 60 就播报大力射门，否则播报轻巧推射；\n两种力度都调用同一个工具，不用重复写判断。",
+    concept_knowledge:{ title:"本关练：让函数根据参数做判断", body:"li 是做工具时装上去的旋钮。调用 shemen(30) 时 li=30，调用 shemen(80) 时 li=80。函数里的 if li >= 60 每次读取本轮参数，所以选择会随调用改变。一个函数可以处理很多不同情况。", scratch:"💡 这就像带输入的 Scratch 自制积木，里面再放「如果…否则」。" },
+    demo:[
+      {code:"def shemen(li):", cap:"做一个带力度旋钮 li 的射门工具", k:{tag:"工具", title:"参数送进工具", body:"调用时括号里的数字会流进 li，工具身体每次拿到的力度可以不同。"}, ops:[]},
+      {code:"    if li >= 60:\n        print(\"大力射门！\")\n    else:\n        print(\"轻巧推射！\")\n    forward(li)", cap:"工具内部判断力度，并用 li 控制距离", k:{tag:"智能", title:"参数决定分支和动作", body:"if/else 和 forward 都缩进在 def 里。li 达到 60 走大力分支，否则走推射分支，最后都按 li 前进。"}, ops:[]},
+      {code:"shemen(30)\nshemen(80)", cap:"同一个工具调用两次，得到两种射门", k:{tag:"复用", title:"只改参数，不重写工具", body:"第一次 li=30，第二次 li=80。工具定义没有改，判断和动作却自动适配了。"}, ops:[{cmd:'forward',val:30},{cmd:'forward',val:80}]}
+    ],
+    breakSteps:["🧰 def shemen(li): 做带力度的工具","🔀 工具里 if li>=60 / else 分别播报，forward(li)","📣 用 shemen(30)、shemen(80) 调用两次"],
+    palette:["def shemen(li):","    if li >= 60:","        print(\"大力射门！\")","    else:","        print(\"轻巧推射！\")","    forward(li)","shemen(30)","shemen(80)"],
+    check(path){
+      if(printsArr.length>=2 && segLens(path).filter(l=>l>5).length>=2) return {ok:true};
+      return {ok:false, why:"need_more"};
+    },
+    hints:[
+      "def shemen(li): 里面同时装 if/else 和 forward(li)，都要缩进。",
+      "判断写 if li >= 60:，else 与 if 对齐；播报再缩进一层。",
+      "定义完成后写 shemen(30) 和 shemen(80)，调用时不用 def。"
+    ],
+    win:"你的工具不只会动，还会看力度做决定！这就是把函数和条件组合成的智能模块。",
+    medal:"🧰 智能工具师",
+    homework:{
+      title:"🚀 独立作业：双工具战术库",
+      text:"保留会判断力度的 shemen，再做一个 chuan(li)：力度达到 40 播报「长传」，否则「短传」。\n按自己的顺序组合调用至少 3 次。",
+      stepsHint:"拆解：def shemen(li) 带 if/else 和 forward → def chuan(li) 带另一套 if/else 和 forward → 两个工具混合调用 3 次。",
+      emoji:"🧰",
+      check(path){
+        if(printsArr.length>=3 && segLens(path).filter(l=>l>5).length>=3) return {ok:true};
+        return {ok:false, why:"need_more"};
+      },
+      win:"两个智能工具可以自由组合了！你没有复制代码，而是让每个工具自己处理不同情况。",
+      medal:"🚀 模块设计师"
+    }
+  },
+  {
+    name:"夺冠之路", emoji:"🏆", concept:"while＋随机＋分支", planet:"🌌",
+    desc:"一直挑战到赢满 3 场：成功与失败都有反馈，最后还有夺冠播报！",
+    title:"任务：三场胜利挑战",
+    text:"wins 记录胜场。while wins < 3 让挑战继续，random 决定本轮结果，\nif/else 分别处理胜利和失败，直到赢满 3 场再播报夺冠。",
+    concept_knowledge:{ title:"本关练：带完整反馈的事件循环", body:"while 负责一直挑战；dice 和 if/else 决定每轮结果；只有胜利分支让 wins 加 1。失败也会 print 并前进，所以每轮都有反馈。最后的夺冠 print 与 while 对齐，只有循环结束后才执行。", scratch:"💡 这就像「重复直到赢满3场」，里面放随机判断，外面放夺冠庆祝。" },
+    demo:[
+      {code:"wins = 0", cap:"胜场盒子从 0 开始", k:{tag:"准备", title:"目标与起点", body:"目标是 3 场胜利，所以 wins 从 0 开始，每赢一场才加 1。"}, ops:[]},
+      {code:"while wins < 3:\n    dice = random.randint(1,6)\n    if dice >= 4:\n        wins = wins + 1\n        print(\"赢一场！\")\n    else:\n        print(\"继续训练！\")", cap:"每轮都有成功或失败播报，只有胜利才加胜场", k:{tag:"循环", title:"失败不会增加 wins", body:"掷到4以上赢一场，否则继续训练。else 不改 wins，所以程序会继续挑战到目标。"}, ops:[]},
+      {code:"    forward(25)\nprint(\"夺冠啦！\")", cap:"每轮都前进；赢满 3 场后才说夺冠", k:{tag:"缩进", title:"循环内外要看清", body:"forward 缩进在 while 里，每轮都走；夺冠 print 与 while 对齐，等循环结束后才执行。"}, ops:[{cmd:'forward',val:25},{cmd:'forward',val:25},{cmd:'forward',val:25}]}
+    ],
+    breakSteps:["🎁 wins 先装 0，while wins<3 持续挑战","🎲 每轮 random，if/else 播报胜负，胜利才 wins+1","⚽ 每轮 forward，循环结束后 print 夺冠"],
+    palette:["wins = 0","while wins < 3:","    dice = random.randint(1,6)","    if dice >= 4:","        wins = wins + 1","        print(\"赢一场！\")","    else:","        print(\"继续训练！\")","    forward(25)","print(\"夺冠啦！\")"],
+    check(path){
+      if(printsArr.length>=4 && segLens(path).filter(l=>l>5).length>=3) return {ok:true};
+      return {ok:false, why:"need_more"};
+    },
+    hints:[
+      "while wins < 3: 身体里每轮都 random，并用 if/else 处理两种结果。",
+      "只有胜利分支写 wins = wins + 1；失败分支只播报，不加胜场。",
+      "最后的 print(\"夺冠啦！\") 要和 while 对齐，不能装进循环。"
+    ],
+    win:"你完成了带胜利、失败和最终夺冠的完整挑战！这已经是一个真正游戏的循环骨架。",
+    medal:"🏆 夺冠挑战者",
+    homework:{
+      title:"🌌 独立作业：四胜星际联赛",
+      text:"把目标改成赢满 4 场，每轮 5 以上才算获胜。胜负都要播报，每轮都移动，\n最后 print 出「星际冠军」并再前进庆祝。",
+      stepsHint:"拆解：wins=0 → while wins<4 → random、if dice>=5 胜利加1 / else 训练 → 每轮 forward → 循环后 print 和 forward。",
+      emoji:"🌌",
+      check(path){
+        if(printsArr.length>=5 && segLens(path).filter(l=>l>5).length>=5) return {ok:true};
+        return {ok:false, why:"need_more"};
+      },
+      win:"四胜联赛圆满完成！你能自己修改目标、条件和反馈，把事件循环变成新挑战。",
+      medal:"🌌 星际冠军"
+    }
+  },
+  {
+    name:"足球编程宇宙", emoji:"🌠", concept:"自由收官项目", planet:"🌟",
+    desc:"最终自由创作：把输入、列表、统计、随机、函数和循环组合成你的足球编程宇宙！",
+    title:"🌠 收官项目：我的足球编程宇宙",
+    text:"",
+    project:true,
+    concept_knowledge:{ title:"收官项目：从完成任务到设计作品", body:"这次主题、角色和规则由你设计。作品里至少包含：一次 input 互动、一张列表配 for-in、一个带参数的 def、一次 random、一个 if/else，再加变量统计和移动轨迹。先拆成开场、规则、互动、结果四个模块，一次只实现一个。", scratch:"💡 你不需要找一段最长代码，而要让每个模块各自清楚、能运行，再慢慢组合。" },
+    homework:{
+      title:"🌠 收官项目：我的足球编程宇宙",
+      text:"自由设计一个足球互动作品，至少包含：\n①input 观众互动 ②列表＋for-in ③带参数 def ④random ⑤if/else ⑥变量统计\n画面至少有 5 句播报、2 种颜色和 4 次转弯。先完成最小版本，再扩展剧情！",
+      stepsHint:"推荐模块：input 开场 → def 做动作 → 列表点名或统计 → random 产生事件 → if/else 判断结果 → 变量记录 → 换色庆祝。每完成一个模块就运行检查。",
+      emoji:"🌠",
+      diagram:{
+        route:[[0,0],[0,60],[60,60],[60,120],[-40,120],[-40,190],[30,190]],
+        segLabels:[{at:[-70,55],text:"你的规则"},{at:[75,120],text:"自由创作"}],
+        defenders:[[50,60],[-50,120]],
+        goal:[30,230]
+      },
+      check(path){
+        const colors=new Set(trailColors).size, prints=printsArr.length, t=turns(path);
+        if(prints>=5 && colors>=2 && t>=4 && inputsArr.length>=1) return {ok:true};
+        if(inputsArr.length<1) return {ok:false, why:"need_more"};
+        if(prints<5) return {ok:false, why:"no_print"};
+        if(colors<2) return {ok:false, why:"no_color"};
+        return {ok:false, why:"too_simple"};
+      },
+      win:"你的足球编程宇宙诞生了！从第一行 forward 到自由设计互动作品，你已经能拆解、组合、验证并创造——这就是小程序员！",
+      medal:"🌠 足球编程创造者"
+    }
+  },
+  {
+    name:"训练达标统计", emoji:"📊", concept:"数字列表＋累加＋分支", planet:"🛰️",
+    desc:"让程序读完一组训练成绩：算总分、数达标次数，还会给每次训练不同反馈！",
+    title:"任务：自动统计训练成绩",
+    text:"scores 保存三次成绩，total 累加总分，passed 记录达标次数。\nfor-in 逐次取成绩，达到 60 就加一次达标数，否则鼓励继续训练。",
+    concept_knowledge:{ title:"本关练：让同一份数据完成两种统计", body:"for s in scores 每轮取出一个成绩。total = total + s 把所有成绩累加；passed = passed + 1 只放在达标分支里。一个负责加数字，一个负责数次数，两个统计盒子分工不同。循环结束后再播报最终统计。", scratch:"💡 这就像 Scratch 里逐个读取列表：一个变量算总分，另一个变量记录满足条件的次数。" },
+    demo:[
+      {code:"scores = [35,60,80]\ntotal = 0\npassed = 0", cap:"准备成绩列表和两个统计盒子", k:{tag:"准备", title:"列表与统计起点", body:"scores 装原始成绩；total 从 0 开始累加，passed 从 0 开始数达标次数。"}, ops:[]},
+      {code:"for s in scores:\n    total = total + s\n    if s >= 60:\n        passed = passed + 1\n        print(\"达标！\")\n    else:\n        print(\"继续训练！\")", cap:"每轮先累加，再根据本轮成绩选择分支", k:{tag:"组合", title:"累加与计数的位置不同", body:"total 每轮都加本轮 s；passed 只有 s 达到 60 才加 1。else 只给反馈，不增加达标数。"}, ops:[]},
+      {code:"    forward(20)\nprint(total)\nprint(passed)", cap:"每轮移动，全部读完后播报两项统计", k:{tag:"收尾", title:"循环内外各有任务", body:"forward 在循环里，每次训练都执行；两个最终 print 与 for 对齐，全部统计完才执行一次。"}, ops:[{cmd:'forward',val:20},{cmd:'forward',val:20},{cmd:'forward',val:20}]}
+    ],
+    breakSteps:["📋 准备 scores，total=0，passed=0","🔁 for-in 每轮累加 total；if/else 判断，达标才 passed+1","📣 每轮 forward；循环后分别 print 总分和达标数"],
+    palette:["scores = [35,60,80]","total = 0","passed = 0","for s in scores:","    total = total + s","    if s >= 60:","        passed = passed + 1","        print(\"达标！\")","    else:","        print(\"继续训练！\")","    forward(20)","print(total)","print(passed)"],
+    check(path){
+      if(printsArr.length>=5 && segLens(path).filter(l=>l>5).length>=3) return {ok:true};
+      return {ok:false, why:"need_more"};
+    },
+    hints:[
+      "先准备 scores、total=0 和 passed=0，再开始 for s in scores:。",
+      "total=total+s 每轮都做；passed=passed+1 只放进 if s>=60 的身体。",
+      "两个最终 print 都和 for 对齐，全部成绩处理完后各播一次。"
+    ],
+    win:"一份训练数据同时算出了总分和达标数！你已经能让累加器与条件计数一起合作。",
+    medal:"📊 数据分析师",
+    homework:{
+      title:"🚀 独立作业：四项体能报告",
+      text:"自己设计四项训练成绩。逐轮播报达标或继续训练，累加总分并统计达标项数，\n每轮移动一次，最后播报总分与达标数。",
+      stepsHint:"拆解：四项数字列表 → total 和 passed 从 0 开始 → for-in 里累加、if/else 和达标计数 → 循环后两项最终播报。",
+      emoji:"📊",
+      check(path){
+        if(printsArr.length>=6 && segLens(path).filter(l=>l>5).length>=4) return {ok:true};
+        return {ok:false, why:"need_more"};
+      },
+      win:"你的四项体能报告完成了！换一组数据也能复用同一套统计规则。",
+      medal:"🚀 训练数据专家"
+    }
+  },
+  {
+    name:"函数巡回战术", emoji:"🧰", concept:"带参函数＋列表巡回", planet:"💫",
+    desc:"一个会判断力度的突破工具，连续处理列表里的三种力度——每轮都自动做选择！",
+    title:"任务：函数驱动巡回训练",
+    text:"def tupo(li) 接收本轮力度，达到 50 就加速突破，否则稳住节奏。\nfor li in [30,50,80] 逐轮取出力度，再调用 tupo(li)，同一工具处理三种情况。",
+    concept_knowledge:{ title:"本关练：列表把参数一批批送进函数", body:"for li in [30,50,80] 每轮直接把一个数字装进 li；tupo(li) 再把它交给同名参数。函数内部的 if/else 和 forward 都读取本轮力度，因此不需要复制三段工具代码。", scratch:"💡 这就像把一列力度依次填进同一个自制积木，每填一次，自制积木就完整执行一次。" },
+    demo:[
+      {code:"def tupo(li):\n    if li >= 50:\n        print(\"加速突破！\")\n    else:\n        print(\"稳住节奏！\")\n    forward(li)", cap:"先做一个会根据 li 判断并移动的突破工具", k:{tag:"工具", title:"定义时先写参数名", body:"li 是力度旋钮。if/else 和 forward(li) 都缩进在 def 里，调用时才收到具体数字。"}, ops:[]},
+      {code:"for li in [30,50,80]:\n    tupo(li)", cap:"列表每轮取出一个力度，调用同一个工具", k:{tag:"巡回", title:"当前项就是调用参数", body:"三轮 li 依次是 30、50、80；tupo(li) 把当前项送进函数，所以播报和距离逐轮变化。"}, ops:[{cmd:'forward',val:30},{cmd:'forward',val:50},{cmd:'forward',val:80}]}
+    ],
+    breakSteps:["🧰 def tupo(li)：工具内 if/else 判断，forward(li) 移动","📋 for li in [30,50,80]: 逐轮取力度","📣 循环里 tupo(li)，不用为三轮复制工具"],
+    palette:["def tupo(li):","    if li >= 50:","        print(\"加速突破！\")","    else:","        print(\"稳住节奏！\")","    forward(li)","for li in [30,50,80]:","    tupo(li)"],
+    check(path){
+      if(printsArr.length>=3 && segLens(path).filter(l=>l>5).length>=3) return {ok:true};
+      return {ok:false, why:"need_more"};
+    },
+    hints:[
+      "先把 tupo(li) 做完整：if/else 和 forward(li) 都属于函数身体。",
+      "for li in [30,50,80]: 里的 li 每轮直接是数字，不是列表编号。",
+      "调用写 tupo(li)，并缩进在 for 里；不要写 tupo(30) 三次。"
+    ],
+    win:"一张力度列表驱动了同一个智能工具！这就是数据、循环和函数组成的战术流水线。",
+    medal:"🧰 巡回战术师",
+    homework:{
+      title:"🚀 独立作业：突破射门双工具巡回",
+      text:"保留 tupo(li)，再做一个会判断力度的 shemen(li)。用同一张三项力度列表，\n每轮先突破、再射门，观察两个工具各自的判断与移动。",
+      stepsHint:"拆解：两个带参 def 各自含 if/else 与 forward(li) → 三项数字列表 → 循环里依次调用 tupo(li)、shemen(li)。",
+      emoji:"🧰",
+      check(path){
+        if(printsArr.length>=6 && segLens(path).filter(l=>l>5).length>=6) return {ok:true};
+        return {ok:false, why:"need_more"};
+      },
+      win:"双工具巡回完成！你没有复制代码，而是让列表把同一批参数送给两个不同工具。",
+      medal:"🚀 模块战术专家"
+    }
+  },
+  {
+    name:"幸运巡回挑战", emoji:"🎲", concept:"while＋两种随机＋统计", planet:"🎡",
+    desc:"随机抽对手、掷本轮点数，一直巡回挑战到赢满 3 场，还会记录实际挑战轮数！",
+    title:"任务：随机对手三胜巡回赛",
+    text:"opponent 每轮从对手列表抽签，dice 每轮重新掷点数。\n胜利才增加 wins；rounds 每轮都加 1，循环结束后播报夺冠与总轮数。",
+    concept_knowledge:{ title:"本关练：随机事件与两个统计盒子合作", body:"choice 决定本轮对手，randint 决定本轮点数。wins 只在胜利分支增加，rounds 每轮都增加，所以总挑战轮数可能大于 3。while 每轮结束再检查 wins，达到 3 场才退出并做最终播报。", scratch:"💡 这就像「重复直到赢满3场」：每轮重新抽对手和骰子，同时分别记录胜场与总轮数。" },
+    demo:[
+      {code:"wins = 0\nrounds = 0", cap:"胜场和实际轮数都从 0 开始", k:{tag:"统计", title:"两个盒子不同步", body:"wins 只记成功，rounds 记录所有挑战；失败时只有 rounds 会增加。"}, ops:[]},
+      {code:"while wins < 3:\n    opponent = random.choice([\"火箭队\",\"银河队\",\"风暴队\"])\n    dice = random.randint(1,6)\n    rounds = rounds + 1\n    if dice >= 4:\n        wins = wins + 1\n        print(opponent + \"：获胜！\")\n    else:\n        print(opponent + \"：继续加油！\")\n    forward(25)", cap:"每轮重新抽对手和骰子，再更新相应统计", k:{tag:"事件", title:"一轮只使用同一组随机结果", body:"opponent 和 dice 先保存，后面的判断与播报读取同一轮结果。rounds 在分支外每轮加，wins 只在胜利分支加。"}, ops:[]},
+      {code:"print(\"巡回夺冠！\")\nprint(rounds)", cap:"赢满 3 场后播报夺冠与实际轮数", k:{tag:"结束", title:"最终播报在循环外", body:"两句 print 都与 while 对齐，所以只有达到三胜后才执行。"}, ops:[{cmd:'forward',val:25},{cmd:'forward',val:25},{cmd:'forward',val:25}]}
+    ],
+    breakSteps:["🎁 wins=0、rounds=0，while wins<3 持续挑战","🎲 每轮 choice 对手＋randint 点数；rounds+1，if/else 胜负，胜利才 wins+1","📣 每轮 forward；循环后播夺冠和 rounds"],
+    palette:["wins = 0","rounds = 0","while wins < 3:","    opponent = random.choice([\"火箭队\",\"银河队\",\"风暴队\"])","    dice = random.randint(1,6)","    rounds = rounds + 1","    if dice >= 4:","        wins = wins + 1","        print(opponent + \"：获胜！\")","    else:","        print(opponent + \"：继续加油！\")","    forward(25)","print(\"巡回夺冠！\")","print(rounds)"],
+    check(path){
+      if(printsArr.length>=5 && segLens(path).filter(l=>l>5).length>=3) return {ok:true};
+      return {ok:false, why:"need_more"};
+    },
+    hints:[
+      "每轮先保存 opponent 和 dice；choice 抽列表，randint 产生数字。",
+      "rounds=rounds+1 每轮都做，wins=wins+1 只在 if 胜利分支做。",
+      "夺冠和总轮数 print 与 while 对齐，不能每轮都播。"
+    ],
+    win:"三胜巡回完成！你的程序既会制造随机挑战，也能分清胜场和总轮数。",
+    medal:"🎲 幸运巡回冠军",
+    homework:{
+      title:"🌌 独立作业：四胜银河巡回赛",
+      text:"自己换一组对手，把目标改成赢满 4 场。保留每轮随机对手、胜负反馈、轮数统计和移动，\n最后播报银河冠军与实际挑战轮数。",
+      stepsHint:"拆解：wins/rounds 起点 → while wins<4 → 每轮两种随机、rounds+1、if/else、胜利 wins+1 → 循环后两项播报。",
+      emoji:"🌌",
+      check(path){
+        if(printsArr.length>=6 && segLens(path).filter(l=>l>5).length>=4) return {ok:true};
+        return {ok:false, why:"need_more"};
+      },
+      win:"银河巡回赛夺冠！你能调整目标与内容，同时保住随机、分支和统计的完整结构。",
+      medal:"🌌 银河巡回冠军"
+    }
+  },
+  {
+    name:"冠军直播间", emoji:"🎙️", concept:"互动直播综合项目", planet:"📡",
+    desc:"设计一档自己的冠军直播：观众入场、数据战报、智能动作和随机赛果共同上场！",
+    title:"🎙️ 综合项目：我的冠军直播间",
+    text:"",
+    project:true,
+    concept_knowledge:{ title:"综合项目：按直播流程组织旧知识", body:"推荐主线：input 保存观众回答 → 数字列表配 for-in 做战报统计 → 带参数 def 做动作 → random 产生赛果 → if/else 判断并更新统计。画面至少 6 句播报、2 种颜色、4 次转弯。每个模块做完就运行，不比代码长短。", scratch:"💡 这次重点不是新积木，而是把多个自制积木、列表和判断排成一档完整节目。" },
+    homework:{
+      title:"🎙️ 综合项目：我的冠军直播间",
+      text:"完成一档有开场、有战报、有比赛结果的互动直播：\n①input 并使用回答 ②数字列表＋for-in＋统计 ③带参数 def ④random ⑤if/else\n画面至少 6 句播报、2 种颜色和 4 次转弯。先完成主线，再添加自己的解说。",
+      stepsHint:"推荐模块：观众入场 → 数据战报 → 动作工具 → 随机事件 → 结果判断与统计 → 换色庆祝。每次只实现并验证一个模块。",
+      emoji:"🎙️",
+      diagram:{
+        route:[[0,0],[0,60],[60,60],[60,120],[-30,120],[-30,180],[40,180]],
+        segLabels:[{at:[-85,55],text:"开场与战报"},{at:[75,120],text:"随机赛果"}],
+        defenders:[[45,60],[-45,120]], goal:[40,220]
+      },
+      check(path){
+        const colors=new Set(trailColors).size, prints=printsArr.length, t=turns(path);
+        if(prints>=6 && colors>=2 && t>=4 && inputsArr.length>=1) return {ok:true};
+        if(inputsArr.length<1) return {ok:false, why:"need_more"};
+        if(prints<6) return {ok:false, why:"no_print"};
+        if(colors<2) return {ok:false, why:"no_color"};
+        return {ok:false, why:"too_simple"};
+      },
+      win:"冠军直播开播成功！你把互动、数据、函数、随机和判断组织成了一条完整节目流程。",
+      medal:"🎙️ 冠军直播导演"
+    }
+  },
+  {
+    name:"传奇冠军杯", emoji:"🏆", concept:"自由创作终极项目", planet:"🌠",
+    desc:"最终冠军杯由你设计：两种专属工具、一套自己的比赛规则和一段能讲给别人听的创作故事！",
+    title:"🏆 终极项目：传奇冠军杯",
+    text:"",
+    project:true,
+    concept_knowledge:{ title:"终极项目：从组合招式到设计自己的规则", body:"主题、球队、工具和赛制由你决定。至少包含：一次 input、一张列表配 for-in、两个带参数 def、一次 random、一个 if/else 和变量统计；画面至少 6 句播报、2 种颜色、4 次转弯。先写最小比赛，再逐步扩展，最后能讲清每个模块负责什么。", scratch:"💡 不只是把旧积木堆在一起：先设计规则，再选择合适的循环、工具和分支实现它。" },
+    homework:{
+      title:"🏆 终极项目：传奇冠军杯",
+      text:"自由设计你的冠军杯作品，至少包含：\n①input 互动 ②列表＋for-in ③两个带参数 def ④random ⑤if/else ⑥变量统计\n画面至少 6 句播报、2 种颜色和 4 次转弯。规则与剧情由你决定，完成后给家人演示并讲解设计！",
+      stepsHint:"先写自己的四步赛制，再逐块实现：开场 → 阵容或数据 → 两种动作工具 → 随机赛果与判断 → 统计和庆祝。任何时刻都保留一个能运行的版本。",
+      emoji:"🏆",
+      diagram:{
+        route:[[0,0],[0,60],[60,60],[60,120],[-40,120],[-40,190],[40,190],[40,240]],
+        segLabels:[{at:[-85,55],text:"你的赛制"},{at:[80,185],text:"冠军由你定义"}],
+        defenders:[[50,60],[-50,120],[0,190]], goal:[40,270]
+      },
+      check(path){
+        const colors=new Set(trailColors).size, prints=printsArr.length, t=turns(path);
+        if(prints>=6 && colors>=2 && t>=4 && inputsArr.length>=1) return {ok:true};
+        if(inputsArr.length<1) return {ok:false, why:"need_more"};
+        if(prints<6) return {ok:false, why:"no_print"};
+        if(colors<2) return {ok:false, why:"no_color"};
+        return {ok:false, why:"too_simple"};
+      },
+      win:"传奇冠军杯由你亲手完成！从跟随任务到设计规则，你已经在用程序表达自己的想法——继续创造吧！",
+      medal:"🏆 传奇编程冠军"
     }
   }
 ];
@@ -2229,8 +2870,12 @@ function compile(src){
 /* 列表字面量求值：["red", "blue"] → ['red','blue'] */
 function evalListLiteral(str, lineNo){
   const inner = str.trim().replace(/^\[/,'').replace(/\]$/,'');
-  const items = inner.split(',').map(s=>s.trim().replace(/^["']|["']$/g,''));
-  if(items.some(s=>!s)) return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：列表里有空的东西哦，检查一下逗号。` }};
+  const items = inner.split(',').map(s=>{
+    const token=s.trim();
+    // 数字列表保留数字类型，供 total = total + g 做加法；带引号的列表项仍是文字。
+    return /^-?\d+$/.test(token) ? parseInt(token) : token.replace(/^["']|["']$/g,'');
+  });
+  if(items.some(s=>s==='')) return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：列表里有空的东西哦，检查一下逗号。` }};
   return { val: items };
 }
 
@@ -2269,14 +2914,15 @@ function evalCond(condStr, vars, lineNo){
     const v = getVar(m[1], vars, lineNo); if(v.error) return v;
     return { val: (v.val % parseInt(m[2])) === parseInt(m[3]) };
   }
-  // x == n / x < n / x > n / x >= n / x <= n
-  if(m = condStr.match(/^([a-zA-Z_]\w*)\s*(==|<|>|>=|<=)\s*(-?\d+)$/)){
-    const v = getVar(m[1], vars, lineNo); if(v.error) return v;
-    const n = parseInt(m[3]);
-    const r = {'==':v.val===n,'<':v.val<n,'>':v.val>n,'>=':v.val>=n,'<=':v.val<=n}[m[2]];
+  // 数字/变量比较：x == 2、home > away；第30关起支持两个变量比较
+  if(m = condStr.match(/^([a-zA-Z_]\w*|-?\d+)\s*(==|<|>|>=|<=)\s*([a-zA-Z_]\w*|-?\d+)$/)){
+    const read=s=>/^-?\d+$/.test(s)?{val:parseInt(s)}:getVar(s,vars,lineNo);
+    const a=read(m[1]); if(a.error) return a;
+    const b=read(m[3]); if(b.error) return b;
+    const r = {'==':a.val===b.val,'<':a.val<b.val,'>':a.val>b.val,'>=':a.val>=b.val,'<=':a.val<=b.val}[m[2]];
     return { val: r };
   }
-  return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：${show}<br>这个条件我看不懂。目前会判断：<span class="err-fix">i == 2</span>、<span class="err-fix">i &lt; 3</span>、<span class="err-fix">i &gt; 3</span>、<span class="err-fix">i % 2 == 0</span> 这样的。` }};
+  return { error:{ line:lineNo, html:`🔍 第 ${lineNo} 行：${show}<br>这个条件我看不懂。目前会判断：<span class="err-fix">i == 2</span>、<span class="err-fix">home &gt; away</span>、<span class="err-fix">i % 2 == 0</span> 这样的。` }};
 }
 
 /* 表达式求值：数字 / 变量 / a + b / a - b / a % b（操作数=数字或变量） */
@@ -2459,10 +3105,40 @@ function lev(a,b){
 /* =========================================================
    运行与动画
    ========================================================= */
-function resetTurtle(){ T={x:0,y:0,a:90}; trail=[[0,0]]; segMarks=[0]; penColor='#7ef0c0'; trailColors=[]; clearPrint(); }
-function clearPath(){ resetTurtle(); draw(); }
+function resetTurtle(){
+  T={x:0,y:0,a:90}; trail=[[0,0]]; segMarks=[0]; penColor='#7ef0c0'; trailColors=[];
+  printsArr=[]; inputsArr=[]; lastRun=null;
+  ccRealTrail=[]; ccPose={x:100,y:150,a:180}; clearPrint();
+}
+function clearPath(){ invalidateCocubePrecheck('路线已清除，请重新模拟预检'); resetTurtle(); draw(); }
+function drawSoccerField(){
+  ctx.fillStyle='#0b3528';ctx.fillRect(0,0,cv.width,cv.height);
+  ctx.fillStyle='#176b45';ctx.fillRect(20,20,480,320);
+  ctx.strokeStyle='rgba(255,255,255,.17)';ctx.lineWidth=1;
+  for(let x=50;x<300;x+=50){const [px]=toPx(x-100,150-100);ctx.beginPath();ctx.moveTo(px,20);ctx.lineTo(px,340);ctx.stroke();}
+  for(let y=50;y<200;y+=50){const py=20+(200-y)/200*320;ctx.beginPath();ctx.moveTo(20,py);ctx.lineTo(500,py);ctx.stroke();}
+  ctx.strokeStyle='rgba(255,255,255,.82)';ctx.lineWidth=2;ctx.strokeRect(20,20,480,320);
+  ctx.beginPath();ctx.moveTo(260,20);ctx.lineTo(260,340);ctx.stroke();
+  ctx.beginPath();ctx.arc(260,180,42,0,Math.PI*2);ctx.stroke();
+  ctx.fillStyle='rgba(255,255,255,.8)';ctx.beginPath();ctx.arc(260,180,3,0,7);ctx.fill();
+  ctx.strokeRect(20,100,80,160);ctx.strokeRect(420,100,80,160);
+  const task=hardwareMode&&CoCube.LEVELS[curLevel]?CoCube.LEVELS[curLevel].tasks[isHomework?'homework':'imitate']:null;
+  if(task){
+    ctx.strokeStyle='rgba(255,233,173,.75)';ctx.lineWidth=3;ctx.setLineDash([8,7]);ctx.beginPath();
+    task.expectedPath.forEach((p,i)=>{const [x,y]=toPx(p[0],p[1]);i?ctx.lineTo(x,y):ctx.moveTo(x,y);});ctx.stroke();ctx.setLineDash([]);
+    const used=new Set();
+    task.expectedPath.forEach((p,i)=>{const key=p.join(',');if(used.has(key))return;used.add(key);const [x,y]=toPx(p[0],p[1]);
+      ctx.fillStyle=i===0?'#7ef0c0':'#ffe9ad';ctx.beginPath();ctx.arc(x,y,6,0,7);ctx.fill();
+      ctx.font='bold 12px "Microsoft YaHei"';ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillStyle='#fff';const f=CoCube.webToField({x:p[0],y:p[1]});ctx.fillText(`${String.fromCharCode(65+i)} (${f.x},${f.y})`,x,y-15);
+    });
+  }
+  ctx.fillStyle='rgba(255,255,255,.7)';ctx.font='11px "Microsoft YaHei"';ctx.textAlign='left';ctx.fillText('Y ↑ 地图上方 / 车头初始 180°',25,354);
+  ctx.textAlign='right';ctx.fillText('X → 300',496,354);
+}
 function drawBg(){
   ctx.clearRect(0,0,cv.width,cv.height);
+  if(hardwareMode){ drawSoccerField(); return; }
   // 作业模式：画球场战术示意图
   if(isHomework && LEVELS[curLevel].homework && LEVELS[curLevel].homework.diagram){
     drawTacticsBoard(LEVELS[curLevel].homework.diagram);
@@ -2574,17 +3250,151 @@ function draw(){
       ctx.stroke();
     }
   }
-  const [tx,ty]=toPx(T.x,T.y);
-  ctx.save(); ctx.translate(tx,ty); ctx.rotate(rad(90-T.a));
+  if(hardwareMode && ccRealTrail.length>1){
+    ctx.strokeStyle='#fbbf24';ctx.lineWidth=4;ctx.lineJoin='round';ctx.beginPath();
+    ccRealTrail.forEach((p,i)=>{const [x,y]=toPx(p[0],p[1]);i?ctx.lineTo(x,y):ctx.moveTo(x,y);});ctx.stroke();
+  }
+  const shown=hardwareMode&&ccPose&&ccRealTrail.length ? {...CoCube.fieldToWeb(ccPose),a:CoCube.coCubeAngleToWeb(ccPose.a)} : T;
+  const [tx,ty]=toPx(shown.x,shown.y);
+  ctx.save(); ctx.translate(tx,ty); ctx.rotate(rad(90-shown.a));
   ctx.font=`${Math.max(14, Math.round(30*viewScale))}px serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
   ctx.fillText(currentEmoji(),0,0);
+  if(hardwareMode&&ccRealTrail.length){ctx.strokeStyle='#fbbf24';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,17,0,7);ctx.stroke();}
   ctx.restore();
 }
-function currentEmoji(){ return isHomework ? '⚽' : LEVELS[curLevel].emoji; }
+function currentEmoji(){ return hardwareMode ? '🤖' : (isHomework ? '⚽' : LEVELS[curLevel].emoji); }
+
+/* =========================================================
+   CoCube 实体双轨：精确预检 → 人工确认 → 单步回执 → 独立进度
+   ========================================================= */
+let ccSave=loadCocubeSave(), ccTransportKind='mock';
+function loadCocubeSave(){try{const s=JSON.parse(localStorage.getItem('bh_cocube')||'{}');return {version:1,progress:s.progress||{},records:s.records||[]};}catch(e){return {version:1,progress:{},records:[]};}}
+function persistCocube(){localStorage.setItem('bh_cocube',JSON.stringify(ccSave));}
+function ccConfig(){return hardwareMode?CoCube.LEVELS[curLevel]:null;}
+function ccPhase(){return isHomework?'homework':'imitate';}
+function ccTask(){const c=ccConfig();return c?c.tasks[ccPhase()]:null;}
+function setCocubeStatus(text,bad){const el=document.getElementById('cc-status');el.textContent=text;el.style.color=bad?'#ffd0d0':'';}
+function updateCocubeUI(){
+  if(!hardwareMode)return;
+  const connected=!!(ccTransport&&ccTransport.connected), ready=!!(ccRunner&&ccRunner.ready);
+  const state=document.getElementById('cc-state');
+  state.className='cc-state'+(ccPrechecked||ready?' ok':'');
+  state.textContent=ccExecuting?'机器人执行中':ccPrechecked?(ready?'可以上机':'预检通过 · 待连接'):(ready?'机器人就绪 · 待预检':'尚未预检');
+  const run=document.getElementById('btn-cc-run');
+  run.disabled=ccExecuting||!ccPrechecked||!connected||!ready;
+  run.textContent=ccExecuting?'正在逐步执行…':!ccPrechecked?'先完成模拟预检':!connected?'请先连接机器人':!ready?'等待机器人 READY':'🤖 让机器人运行';
+  document.getElementById('btn-cc-stop').disabled=!ccExecuting;
+  document.getElementById('btn-cc-connect').disabled=ccExecuting;
+  document.getElementById('btn-cc-connect').textContent=connected?'已连接 · 重新连接':(ccTransportKind==='mock'?'连接模拟机器人':'连接真实 CoCube');
+  document.getElementById('btn-run').disabled=ccExecuting;
+  document.getElementById('btn-check').disabled=ccExecuting||!ccPlan;
+  document.getElementById('editor').disabled=ccExecuting;
+}
+function invalidateCocubePrecheck(message){
+  if(!hardwareMode)return;
+  if(ccExecuting){stopCocube();return;}
+  ccPlan=null;ccPrechecked=false;updateCocubeUI();
+  if(message)setCocubeStatus(message);
+}
+function precheckCocube(showSuccess){
+  if(!hardwareMode||!ccPlan)return false;
+  const src=document.getElementById('editor').value;
+  const result=CoCube.validatePlan(ccPlan,ccConfig(),ccPhase(),src);
+  if(!result.ok){
+    ccPrechecked=false;setCocubeStatus('预检未通过：'+result.message,true);showWarn(result.message);coachThink(result.message);updateCocubeUI();return false;
+  }
+  ccPrechecked=true;
+  setCocubeStatus(`✅ 模拟预检通过：${ccPlan.steps.length} 个运动动作，目标点与终点朝向都正确。连接机器人并确认摆放后即可上机。`);
+  document.getElementById('cc-progress').textContent='实体执行是逐步发送的；任何一步无回执、断连或点急停，都不会记为完成。';
+  if(showSuccess)coachGood('✅ 模拟预检通过！代码和地图目标点完全一致。现在可以连接 CoCube，确认车头朝地图上方后上场。');
+  updateCocubeUI();return true;
+}
+async function disconnectCocube(){
+  if(ccRunner&&ccRunner.running)await ccRunner.stop().catch(()=>{});
+  if(ccTransport)await ccTransport.disconnect().catch(()=>{});
+  ccTransport=null;ccRunner=null;ccExecuting=false;
+}
+async function changeCocubeTransport(){
+  await disconnectCocube();ccTransportKind=document.getElementById('cc-transport').value;ccPrechecked=false;ccPlan=null;
+  setCocubeStatus('连接方式已切换，请重新模拟预检。真实模式需要 Chrome / Edge、localhost 或 HTTPS。');updateCocubeUI();
+}
+function onCocubePose(msg){
+  if(!Number.isFinite(msg.x)||!Number.isFinite(msg.y)||!Number.isFinite(msg.a))return;
+  ccPose={x:msg.x,y:msg.y,a:msg.a};const p=CoCube.fieldToWeb(ccPose);
+  if(!ccRealTrail.length)ccRealTrail=[[0,0]];
+  const last=ccRealTrail[ccRealTrail.length-1];
+  if(msg.type==='DONE'||Math.hypot(last[0]-p.x,last[1]-p.y)>1)ccRealTrail.push([p.x,p.y]);
+  document.getElementById('cc-progress').textContent=`实机回传：X=${ccPose.x}，Y=${ccPose.y}，朝向=${ccPose.a}°`;draw();
+}
+function onCocubeProgress(type,data){
+  if(type==='step'){
+    const s=data.step;document.getElementById('cc-progress').textContent=`第 ${s.seq} / ${data.total} 步：${s.type==='MOVE'?`移动到 (${s.target.x}, ${s.target.y})`:`转向 ${s.angle}°`}，等待 DONE 回执…`;
+  }else if(type==='ack'){
+    setCocubeStatus(`✅ 第 ${data.step.seq} 步已收到 DONE，再发送下一步。`);
+  }else if(type==='stopped'){
+    setCocubeStatus('已收到机器人 STOPPED 回执。');
+  }else if(type==='disconnect'){
+    ccExecuting=false;ccPrechecked=false;setCocubeStatus('连接断开：'+data.reason+'。本次不记完成，请重新预检。',true);updateCocubeUI();
+  }
+}
+async function connectCocube(){
+  if(!hardwareMode)return;
+  await disconnectCocube();ccTransportKind=document.getElementById('cc-transport').value;
+  setCocubeStatus(ccTransportKind==='mock'?'正在启动模拟机器人…':'正在打开系统蓝牙选择框，请选择 CoCube…');
+  try{
+    ccTransport=ccTransportKind==='mock'?new CoCube.MockTransport({latency:120}):new CoCube.BLETransport(navigator);
+    ccRunner=new CoCube.Runner(ccTransport,{onPose:onCocubePose,onProgress:onCocubeProgress});
+    await ccTransport.connect();await ccRunner.waitReady();
+    setCocubeStatus(ccTransportKind==='mock'?'✅ 模拟机器人 READY。这是软件链路验收，不会记实体勋章。':'✅ 真实 CoCube READY。请核对 A 点和车头方向，再上机。');updateCocubeUI();
+  }catch(err){
+    setCocubeStatus('连接失败：'+err.message,true);coachOops(err.message);await disconnectCocube();updateCocubeUI();
+  }
+}
+async function runCocube(){
+  if(!ccPrechecked||!ccPlan||!ccRunner||!ccRunner.ready||ccExecuting){setCocubeStatus('还不能上机：请先完成模拟预检并连接 READY 的机器人。',true);return;}
+  const ok=window.confirm('请家长确认：\n1. CoCube 中心在 A=(100,150)\n2. 车头朝地图上方（180°）\n3. 路线已清空，孩子手不靠近轮子\n\n确认开始实体运行？');
+  if(!ok)return;
+  ccExecuting=true;ccRealTrail=[[0,0]];ccPose={x:100,y:150,a:180};draw();updateCocubeUI();
+  setCocubeStatus('🤖 实体执行开始。每次只发一步，收到 DONE 才发下一步。');
+  try{
+    await ccRunner.run(ccPlan);
+    const final=ccPlan.finalField, angle=ccPlan.final.a;
+    const posOk=Math.hypot(ccPose.x-final.x,ccPose.y-final.y)<=8;
+    const angleOk=CoCube.angleDelta(ccPose.a,CoCube.webAngleToCoCube(angle))<=8;
+    if(!posOk||!angleOk)throw new Error(`实机终点偏差超过容差：期望 (${final.x}, ${final.y}) / ${CoCube.webAngleToCoCube(angle)}°，实际 (${ccPose.x}, ${ccPose.y}) / ${ccPose.a}°。本次不记完成。`);
+    completeCocubeLevel();
+  }catch(err){
+    ccPrechecked=false;setCocubeStatus('执行未完成：'+err.message+' 请排除原因后重新模拟预检。',true);coachOops(err.message);
+  }finally{ccExecuting=false;updateCocubeUI();}
+}
+async function stopCocube(){
+  if(!hardwareMode)return;
+  ccPrechecked=false;
+  try{if(ccRunner)await ccRunner.stop();}catch(e){}
+  ccExecuting=false;setCocubeStatus('🛑 已急停，本次不记完成。检查场地并重新模拟预检后再试。',true);coachOops('已急停。先确认机器人和场地安全，再继续。');updateCocubeUI();
+}
+function completeCocubeLevel(){
+  const isMock=ccTransportKind==='mock', ph=ccPhase();
+  if(!isMock){
+    if(!ccSave.progress[curLevel])ccSave.progress[curLevel]={};
+    ccSave.progress[curLevel][ph]={done:true,completedAt:Date.now(),code:document.getElementById('editor').value,actual:{...ccPose}};
+    ccSave.records.push({level:curLevel,phase:ph,at:Date.now(),steps:ccPlan.steps.length});ccSave.records=ccSave.records.slice(-100);persistCocube();
+  }
+  if(ph==='imitate'){
+    coachGood(isMock?'✅ 模拟链路验收完成！未记实体勋章。接下来看看独立任务。':'🎉 真实 CoCube 模仿跑位完成！实体进度已保存，接下来独立挑战。');
+    setTimeout(startHomework,1400);return;
+  }
+  document.getElementById('win-emoji').textContent=isMock?'🧪':'🤖';
+  document.getElementById('win-title').textContent=isMock?'模拟链路验收成功！':'CoCube 实体挑战成功！';
+  document.getElementById('win-text').textContent=isMock?'全部指令、回执和终点判定均已跑通。模拟模式不记实体勋章；换真实 CoCube 再完成一次即可获得。':'孩子写的同一套 Python 风格代码，已经在真实足球地图上完成跑位。实体进度已独立保存，虚拟进度不变。';
+  document.getElementById('win-medal').textContent=isMock?'🧪 软件验收记录（非实体勋章）':'🤖 CoCube '+ccConfig().name+' · 实机完成';
+  document.getElementById('win-next').style.display=curLevel<1?'':'none';
+  document.getElementById('win-mask').classList.remove('hidden');burstStars();
+}
 
 function runCode(){
   const src = document.getElementById('editor').value;
-  stopAnim(); resetTurtle(); hideErr();
+  invalidateCocubePrecheck(); stopAnim(); resetTurtle(); hideErr();
   const res = compile(src);
   coachReset();
   if(res.error){
@@ -2618,9 +3428,18 @@ function runCode(){
   if(res.warn){ showWarn(res.warn.text); }
   coachSay("代码读明白啦，看它动！","");
   queue = res.ops.slice();
+  if(hardwareMode){
+    const built=CoCube.buildPlan(queue,CoCube.LEVELS[curLevel]);
+    if(!built.ok){
+      showErr('🤖 '+built.error.message);coachOops('这次先不让机器人上场：'+built.error.message);
+      document.getElementById('btn-check').disabled=true;queue=[];draw();return;
+    }
+    ccPlan=built.plan;viewScale=1;
+  }
   // 自动适配缩放：轨迹/战术图超范围时缩小到画布内
   const hwDg = (isHomework && LEVELS[curLevel].homework && LEVELS[curLevel].homework.diagram) ? LEVELS[curLevel].homework.diagram : null;
-  updateViewScale(queue, hwDg);
+  if(!hardwareMode) updateViewScale(queue, hwDg);
+  lastRun={code:src,level:curLevel,phase};
   printsArr = res.prints ? res.prints.slice() : [];   // 记录 print 输出（判定用）
   inputsArr = res.inputs ? res.inputs.slice() : [];   // 记录 input 问答（判定+埋点用，第16关）
   runAttempts++;
@@ -2658,6 +3477,7 @@ function applyOp(op, done, delay){
 }
 function stopAnim(){ running=false; if(animTimer){clearTimeout(animTimer); animTimer=null;} }
 function onRunEnd(){
+  if(hardwareMode){ precheckCocube(true); return; }
   /* 作业关主动报过关状态（v0.23.0）：动画播完若已达标，直接告诉他「能过关啦」，消除"球进了却不知过没过"的茫然；仍由他自己点检查 */
   if(isHomework){
     let ok=false;
@@ -2694,6 +3514,7 @@ function hideErr(){ const e=document.getElementById('err-tip'); e.innerHTML=''; 
 
 /* ---------- 检查答案 ---------- */
 function checkAnswer(){
+  if(hardwareMode){ precheckCocube(true); return; }
   const lv = LEVELS[curLevel];
   const checkFn = isHomework ? lv.homework.check : lv.check;
   const result = checkFn(trail);
@@ -2793,7 +3614,7 @@ function onHomeworkWin(){
   coachGood("🎉 " + hw.win);
 }
 function closeWin(){ document.getElementById('win-mask').classList.add('hidden'); }
-function nextLevel(){ closeWin(); openLevel(curLevel+1); }
+function nextLevel(){ closeWin(); hardwareMode?openCocubeLevel(curLevel+1):openLevel(curLevel+1); }
 function burstStars(){
   for(let i=0;i<10;i++){
     const s=document.createElement('div');
@@ -2860,7 +3681,7 @@ function demoDraw(){
   const [tx,ty]=dToPx(dT.x,dT.y);
   demoCtx.save(); demoCtx.translate(tx,ty); demoCtx.rotate(rad(90-dT.a));
   demoCtx.font=`${Math.max(12, Math.round(22*dScale))}px serif`; demoCtx.textAlign='center'; demoCtx.textBaseline='middle';
-  demoCtx.fillText(LEVELS[curLevel].emoji==='⚽'?'⚽':'🚀',0,0);
+  demoCtx.fillText(hardwareMode?'🤖':(LEVELS[curLevel].emoji==='⚽'?'⚽':'🚀'),0,0);
   demoCtx.restore();
 }
 function demoApplyOps(ops, done){
@@ -3068,16 +3889,16 @@ function placeBreakCard(origIdx, cardEl){
    ③ 模仿写（隐藏演示代码，但显示他排好的拆解步骤作参照）
    ========================================================= */
 function startImitate(){
-  phase='imitate'; isHomework=false; peeked=false;
-  updateStepbar();
+  phase='imitate'; isHomework=false; peeked=false;ccPlan=null;ccPrechecked=false;
+  updateStepbar();updateCocubeUI();
   const lv=LEVELS[curLevel];
   document.getElementById('demo-panel').classList.add('hidden'); // 隐藏演示代码
   document.getElementById('break-panel').classList.add('hidden'); // 隐藏互动排序区
   document.getElementById('work-wrap').classList.remove('hidden');
   document.getElementById('work-title').textContent='⌨️ 第三步：自己敲代码（照着你拆解的步骤写）';
-  document.getElementById('m-emoji').textContent=lv.emoji;
-  document.getElementById('m-title').textContent=lv.title;
-  document.getElementById('m-text').textContent=lv.text;
+  document.getElementById('m-emoji').textContent=hardwareMode?'🤖':lv.emoji;
+  document.getElementById('m-title').textContent=hardwareMode?ccTask().title:lv.title;
+  document.getElementById('m-text').textContent=hardwareMode?ccTask().text:lv.text;
   // 显示参照步骤条（他刚才排好的中文步骤，A方案：只显示中文，让他自己翻译成代码）
   const rs=document.getElementById('ref-steps');
   rs.classList.remove('hidden');
@@ -3108,24 +3929,24 @@ function peekDemo(){
    ④ 独立作业（足球主题，全程自己拆解+写）
    ========================================================= */
 function startHomework(){
-  phase='homework'; isHomework=true; peeked=false;
-  updateStepbar();
+  phase='homework'; isHomework=true; peeked=false;ccPlan=null;ccPrechecked=false;
+  updateStepbar();updateCocubeUI();
   const lv=LEVELS[curLevel];
   const hw=lv.homework;
   document.getElementById('demo-panel').classList.add('hidden');
   document.getElementById('break-panel').classList.add('hidden');
   document.getElementById('work-wrap').classList.remove('hidden');
-  document.getElementById('work-title').textContent='⚽ 第四步：独立作业（全靠你自己！）';
-  document.getElementById('m-emoji').textContent=hw.emoji;
-  document.getElementById('m-title').textContent=hw.title;
-  document.getElementById('m-text').textContent=hw.text+"\n\n💪 "+hw.stepsHint;
+  document.getElementById('work-title').textContent=hardwareMode?'🤖 第四步：CoCube 独立挑战（全靠你自己！）':'⚽ 第四步：独立作业（全靠你自己！）';
+  document.getElementById('m-emoji').textContent=hardwareMode?'🤖':hw.emoji;
+  document.getElementById('m-title').textContent=hardwareMode?ccTask().title:hw.title;
+  document.getElementById('m-text').textContent=hardwareMode?ccTask().text:hw.text+"\n\n💪 "+hw.stepsHint;
   // 独立作业：隐藏参照步骤条和计划区（这次要自己想、自己拆解）
   document.getElementById('ref-steps').classList.add('hidden');
   document.getElementById('plan-zone').classList.add('hidden');
   document.getElementById('editor').value='';
   document.getElementById('peek-tip').classList.add('hidden');
   resetTurtle(); draw(); hideErr();
-  coachThink(`⚽ ${hw.title}！\n这次没有演示、没有步骤提示，全靠你自己。先在心里把任务拆解成小步骤，再一步一步写成代码。运行后能看到球员跑动的结果哦！我相信你能行！`);
+  coachThink(hardwareMode?'🤖 这次没有演示和步骤提示。先在心里拆任务，再写代码；模拟全对以后，机器人才会上场。':`⚽ ${hw.title}！\n这次没有演示、没有步骤提示，全靠你自己。先在心里把任务拆解成小步骤，再一步一步写成代码。运行后能看到球员跑动的结果哦！我相信你能行！`);
   document.getElementById('work-wrap').scrollIntoView({behavior:'smooth', block:'start'});
 }
 
@@ -3180,6 +4001,37 @@ const CHEAT_CARD = {
     { name:"for-in 点名播报", code:"for p in [\"梅西\", \"包涵\"]:\n    print(p)" },
     { name:"拼接颁奖词", code:"name = \"包涵\"\nprint(name + \" 获得金球奖！\")" },
     { name:"random 抽奖", code:"dice = random.randint(1,6)\nprint(dice)" }
+  ],
+  27:[ // 第28关 · 小项目：只给旧知识模板，不代替孩子搭完整作品
+    { name:"def 进攻工具", code:"def jingong(li):\n    forward(li)\njingong(60)" },
+    { name:"for-in 名单播报", code:"players = [\"梅西\",\"包涵\"]\nfor name in players:\n    print(name + \" 上场！\")" },
+    { name:"if / else 比赛结果", code:"dice = random.randint(1,6)\nif dice >= 4:\n    print(\"进球！\")\nelse:\n    print(\"再试一次！\")" },
+    { name:"换颜色", code:"pencolor(\"gold\")" }
+  ],
+  34:[ // 第35关 · 收官项目：每张卡只提供一个可独立运行的旧知识模板
+    { name:"input 开场互动", code:"name = input(\"你支持哪支球队？\")\nprint(name + \"，欢迎入场！\")" },
+    { name:"for-in 阵容播报", code:"players = [\"梅西\",\"包涵\"]\nfor name in players:\n    print(name + \" 上场！\")" },
+    { name:"def 带参数工具", code:"def jingong(li):\n    forward(li)\njingong(60)" },
+    { name:"random＋if/else 赛果", code:"dice = random.randint(1,6)\nif dice >= 4:\n    print(\"进球！\")\nelse:\n    print(\"再试一次！\")" },
+    { name:"变量统计", code:"goals = [1,2,1]\ntotal = 0\nfor g in goals:\n    total = total + g\nprint(total)" },
+    { name:"颜色与转弯", code:"pencolor(\"gold\")\nforward(50)\nright(90)" }
+  ],
+  38:[ // 第39关 · 冠军直播间：只提供独立旧知识模板，不代做完整节目
+    { name:"input 欢迎观众", code:"fan = input(\"你支持哪队？\")\nprint(fan + \"，欢迎来到直播间！\")" },
+    { name:"数字战报统计", code:"goals = [1,2,1]\ntotal = 0\nfor g in goals:\n    total = total + g\nprint(total)" },
+    { name:"def 带参数动作", code:"def jingong(li):\n    forward(li)\njingong(60)" },
+    { name:"random＋if/else 赛果", code:"dice = random.randint(1,6)\nif dice >= 4:\n    print(\"进球！\")\nelse:\n    print(\"再试一次！\")" },
+    { name:"双统计小模板", code:"passed = 0\npassed = passed + 1\nprint(passed)" },
+    { name:"颜色与转弯", code:"pencolor(\"cyan\")\nforward(50)\nright(90)" }
+  ],
+  39:[ // 第40关 · 传奇冠军杯：每个模板独立运行，赛制与组合由孩子设计
+    { name:"input 冠军杯互动", code:"fan = input(\"你的冠军口号是什么？\")\nprint(fan)" },
+    { name:"for-in 阵容或数据", code:"players = [\"梅西\",\"包涵\"]\nfor name in players:\n    print(name + \" 上场！\")" },
+    { name:"带参工具一：突破", code:"def tupo(li):\n    forward(li)\ntupo(50)" },
+    { name:"带参工具二：射门", code:"def shemen(li):\n    forward(li)\nshemen(80)" },
+    { name:"random＋if/else 规则", code:"dice = random.randint(1,6)\nif dice >= 5:\n    print(\"世界波！\")\nelse:\n    print(\"继续挑战！\")" },
+    { name:"变量统计", code:"score = 0\nscore = score + 1\nprint(score)" },
+    { name:"颜色与转弯", code:"pencolor(\"gold\")\nforward(50)\nright(90)" }
   ]
 };
 
@@ -3261,17 +4113,33 @@ function todayStr(){ const n=new Date(); return n.getFullYear()+'-'+(n.getMonth(
 function pickDrills(){
   let maxLv=0;
   Object.keys(save.unlocked||{}).forEach(k=>{ if(save.unlocked[k]) maxLv=Math.max(maxLv,+k); });
-  const hist={};   // 汇总全部关卡的报错分型：errKind → 次数
+  const hist={}, recent7={}, days30={}, now=Date.now();
   Object.keys(track).forEach(k=>{
-    const errs=track[k].errors||{};
+    const d=track[k], errs=d.errors||{};
     Object.keys(errs).forEach(t=>{ const kind=t.split(':')[0]; hist[kind]=(hist[kind]||0)+errs[t]; });
+    (Array.isArray(d.errorEvents)?d.errorEvents:[]).forEach(e=>{
+      const at=Number(e&&e.at); if(!e||!e.type||!Number.isFinite(at)) return;
+      const age=(now-at)/86400000, kind=String(e.type).split(':')[0];
+      if(age<=7) recent7[kind]=(recent7[kind]||0)+1;
+      else if(age<=30) days30[kind]=(days30[kind]||0)+1;
+    });
   });
   const seen=save.drillSeen||[];
   const pool=DRILLS.map((d,i)=>({d:d,i:i})).filter(x=>x.d.minLv<=maxLv);
-  // 错题驱动（+1000）> 最近没出过（+100）> 随机打散；取前 2
-  const score=x=> (hist[x.d.err]?1000+hist[x.d.err]:0) + (seen.indexOf(x.i)<0?100:0) + Math.random()*10;
-  pool.sort((a,b)=>score(b)-score(a));
-  return pool.slice(0,2).map(x=>x.i);
+  // 近7天 > 近30天 > 有上限的历史错题 > 轮换；单次集中故障不再永久霸榜。
+  const score=x=>{
+    const kind=x.d.err;
+    const recent=recent7[kind]?1200+Math.min(recent7[kind],5)*30:0;
+    const month=days30[kind]?600+Math.min(days30[kind],5)*20:0;
+    const legacy=hist[kind]?120+Math.min(hist[kind],10)*2:0;
+    return recent+month+legacy+(seen.indexOf(x.i)<0?100:0)+Math.random()*10;
+  };
+  const ranked=pool.sort((a,b)=>score(b)-score(a));
+  if(!ranked.length) return [];
+  const first=ranked[0];
+  // 两题尽量覆盖不同错型，避免同一天重复练同一个知识点。
+  const second=ranked.find(x=>x.i!==first.i&&x.d.err!==first.d.err)||ranked.find(x=>x.i!==first.i);
+  return second?[first.i,second.i]:[first.i];
 }
 function maybeDrill(lv){
   if(window.__noDrill) return;                 // E2E 驱动关闭
@@ -3354,6 +4222,7 @@ function insertCmd(cmd){
   const before=ed.value.slice(0,pos), after=ed.value.slice(pos);
   const ins = cmd + '\n';
   ed.value = before + ins + after;
+  invalidateCocubePrecheck('小积木已插入，代码变化后需要重新模拟预检。');
   ed.focus();
   ed.selectionStart = ed.selectionEnd = pos + ins.length;
 }
@@ -3399,7 +4268,22 @@ const LEVEL_FORMULAS = {
   21:'<span class="fk">📌 嵌套循环 = 大圈套小圈</span>\n\n<span class="fk">for</span> j <span class="fk">in</span> range(3):      <span class="fc">← 外层：放3枚</span>\n    <span class="fk">for</span> i <span class="fk">in</span> range(6):  <span class="fc">← 内层：炸6瓣(缩进)</span>\n        forward(30)\n        right(60)\n    right(120)      <span class="fc">← 内层跑完换方向</span>\n\n<span class="fk">💡 外层转1次，内层跑一整遍。</span>\n<span class="fk">3 × 6 = 18 个动作！</span>\n\n🎆 <span class="fc">生活比喻：</span>\n   阅兵：几个方阵(外)，每方阵几排(内)',
   22:'<span class="fk">📌 while+if = 一直做 + 挑着做</span>\n\ngoals = 0\n<span class="fk">while</span> goals < 3:        <span class="fc">← 一直射到进3球</span>\n    dice = random.randint(1,6)\n    <span class="fk">if</span> dice >= 4:         <span class="fc">← 掷到4才算进</span>\n        goals = goals + 1\n        print("进球啦")\n    forward(30)\n\n<span class="fk">💡 while管重复，if管判断，random管悬念。</span>\n\n🥅 <span class="fc">生活比喻：</span>\n   一直投篮(while)，进了才算(if)，</span>\n   进不进看手感(random)',
   23:'<span class="fk">📌 工具箱 = 多个 def 组合调用</span>\n\n<span class="fk">def</span> chuan(li):      <span class="fc">← 做传球工具</span>\n    forward(li)\n<span class="fk">def</span> shemen(li):    <span class="fc">← 做射门工具</span>\n    forward(li)\n\nchuan(50)        <span class="fc">← 用：拧50</span>\nshemen(80)       <span class="fc">← 用：拧80</span>\n\n<span class="fk">💡 每个工具做一件事，组合起来做大事！</span>\n\n🧰 <span class="fc">生活比喻：</span>\n   工具箱：锤子、螺丝刀各管一样，</span>\n   配合起来能造大东西',
-  24:'<span class="fk">📌 大任务5 = 秋冬季全部招式大综合</span>\n\n嵌套循环烟花 + for-in 点名 + 字符串颁奖词\n+ random 抽奖 + input 互动 + def 工具 + while 环节\n\n<span class="fk">💡 先在「我的拆解」拆模块，</span>\n<span class="fk">再一个一个写成代码。</span>\n\n🏟️ <span class="fc">这是你的冬季收官大作，</span>\n<span class="fc">做完请给爸爸妈妈完整演示一遍！</span>'
+  24:'<span class="fk">📌 大任务5 = 秋冬季全部招式大综合</span>\n\n嵌套循环烟花 + for-in 点名 + 字符串颁奖词\n+ random 抽奖 + input 互动 + def 工具 + while 环节\n\n<span class="fk">💡 先在「我的拆解」拆模块，</span>\n<span class="fk">再一个一个写成代码。</span>\n\n🏟️ <span class="fc">这是你的冬季收官大作，</span>\n<span class="fc">做完请给爸爸妈妈完整演示一遍！</span>',
+  25:'<span class="fk">📌 点名 + 计数 = 一条任务链</span>\n\nplayers = ["梅西","C罗"]\nscore = 0\n<span class="fk">for</span> name <span class="fk">in</span> players:\n    print(name)\n    score = score + 1\nprint(score)\n\n<span class="fk">💡 先准备盒子，再循环使用；</span>\n<span class="fk">每点一人，人数就存回去加 1。</span>',
+  26:'<span class="fk">📌 random 出结果，if/else 做选择</span>\n\ndice = random.randint(1,6)\n<span class="fk">if</span> dice >= 4:\n    print("进球")\n<span class="fk">else</span>:\n    print("扑出")\n\n<span class="fk">💡 if 和 else 对齐，二选一；</span>\n<span class="fk">两个分支的身体都再缩进 4 格。</span>',
+  27:'<span class="fk">📌 小项目 = 旧招式重新组合</span>\n\ndef 工具 + 列表 for-in + if/else\n+ print 播报 + 颜色 + 移动\n\n<span class="fk">💡 先做能运行的最小版本，</span>\n<span class="fk">再一次只添加一个模块。</span>\n\n🏆 <span class="fc">没有新语法，也能做出新作品！</span>',
+  28:'<span class="fk">📌 数字列表 + 累加器 = 自动求总数</span>\n\nscores = [2,1,3]\ntotal = 0\n<span class="fk">for</span> n <span class="fk">in</span> scores:\n    total = total + n\nprint(total)\n\n<span class="fk">💡 total 像记分牌：每取到一个数字，</span>\n<span class="fk">就把它加上并存回去；最后再看总分。</span>',
+  29:'<span class="fk">📌 两个变量也能直接比大小</span>\n\nred = 3\nblue = 2\n<span class="fk">if</span> red > blue:\n    print("红队领先")\n<span class="fk">else</span>:\n    print("红队没领先")\n\n<span class="fk">💡 比较的是盒子里的数；换比分，</span>\n<span class="fk">不用换判断句式。</span>',
+  30:'<span class="fk">📌 采访回答 + 列表项 = 专属播报</span>\n\nfan = input("你叫什么？")\nteams = ["火箭","银河"]\n<span class="fk">for</span> team <span class="fk">in</span> teams:\n    print(fan + " 支持 " + team)\n\n<span class="fk">💡 fan 和 team 是变量，不戴引号；</span>\n<span class="fk">固定文字戴引号，用 + 接起来。</span>',
+  31:'<span class="fk">📌 choice = 从列表里随机抽一个</span>\n\ncolors = ["red","gold","cyan"]\n<span class="fk">for</span> i <span class="fk">in</span> range(3):\n    c = random.choice(colors)\n    pencolor(c)\n    print(c)\n\n<span class="fk">💡 抽签放进循环，每轮都会重新抽；</span>\n<span class="fk">可能重复，这正是随机的特点。</span>',
+  32:'<span class="fk">📌 带参数的工具也会自己做判断</span>\n\n<span class="fk">def</span> tupo(li):\n    <span class="fk">if</span> li >= 50:\n        print("全力突破")\n    <span class="fk">else</span>:\n        print("控制节奏")\n    forward(li)\n\ntupo(70)\n\n<span class="fk">💡 每次调用传入不同 li，</span>\n<span class="fk">同一个工具就能做不同选择。</span>',
+  33:'<span class="fk">📌 while + 计数 = 达到目标才停</span>\n\nwins = 0\n<span class="fk">while</span> wins < 3:\n    dice = random.randint(1,6)\n    <span class="fk">if</span> dice >= 4:\n        wins = wins + 1\n    <span class="fk">else</span>:\n        print("继续挑战")\n\n<span class="fk">💡 只有胜利才加 1，失败也会继续；</span>\n<span class="fk">条件不再成立时，循环自动结束。</span>',
+  34:'<span class="fk">📌 收官项目 = 把旧招式组成你的作品</span>\n\ninput 互动 + for-in 阵容 + def 参数工具\n+ random 赛果 + if/else + 变量统计\n\n<span class="fk">💡 先完成六个小模块并分别运行，</span>\n<span class="fk">再组合、加颜色和动作，最后完整演示。</span>\n\n🌌 <span class="fc">不比谁代码最长，比谁能讲清自己的设计！</span>',
+  35:'<span class="fk">📌 一份数据可以做两种统计</span>\n\nscores = [40,70,90]\ntotal = 0\npassed = 0\n<span class="fk">for</span> s <span class="fk">in</span> scores:\n    total = total + s\n    <span class="fk">if</span> s >= 60:\n        passed = passed + 1\n\n<span class="fk">💡 total 每项都加成绩；</span>\n<span class="fk">passed 只有达标才加 1。</span>',
+  36:'<span class="fk">📌 列表巡回 = 数据逐个送进同一工具</span>\n\n<span class="fk">def</span> tupo(li):\n    forward(li)\n<span class="fk">for</span> li <span class="fk">in</span> [20,40,60]:\n    tupo(li)\n\n<span class="fk">💡 li 每轮是当前数字，</span>\n<span class="fk">调用把它送进函数，工具无需复制。</span>',
+  37:'<span class="fk">📌 胜场与轮数要分开记</span>\n\nwins = 0\nrounds = 0\n<span class="fk">while</span> wins < 3:\n    opponent = random.choice(["火箭","银河"])\n    dice = random.randint(1,6)\n    rounds = rounds + 1\n\n<span class="fk">💡 choice 管对手，randint 管点数；</span>\n<span class="fk">rounds 每轮加，wins 胜利才加。</span>',
+  38:'<span class="fk">📌 冠军直播 = 一条清楚的节目主线</span>\n\ninput 开场 → 数字战报统计 → 带参工具\n→ random 赛果 → if/else → 收尾庆祝\n\n<span class="fk">💡 每完成一段就运行，</span>\n<span class="fk">先让流程完整，再丰富解说和画面。</span>',
+  39:'<span class="fk">📌 传奇冠军杯 = 自己设计规则</span>\n\n开场 → 阵容或数据 → 两种动作工具\n→ 随机挑战与判断 → 统计 → 冠军庆祝\n\n<span class="fk">💡 先想怎样算成功、成功后记什么，</span>\n<span class="fk">再选择旧招式实现，不比代码长短。</span>'
 };
 function fillKnowledgePanel(lv){
   const ck = lv.concept_knowledge;
@@ -3450,7 +4334,8 @@ const save = load();
 function load(){
   try{
     const s = JSON.parse(localStorage.getItem('bh_py')||'{}');
-    return { progress: s.progress||{}, unlocked: s.unlocked||{0:true} };
+    // 保留特训星级、轮换记录、天数等全部字段，刷新页面后也能接着累计。
+    return Object.assign({},s,{ progress:s.progress||{}, unlocked:s.unlocked||{0:true} });
   }catch(e){ return { progress:{}, unlocked:{0:true} }; }
 }
 function persist(){ localStorage.setItem('bh_py', JSON.stringify(save)); }
@@ -3480,7 +4365,22 @@ const UNLOCK_CODES = {
   21:"烟花矩阵",     // 第22关 · 烟花矩阵（嵌套循环进阶）
   22:"直到进球",     // 第23关 · 直到进球（while+if 综合）
   23:"战术工具",     // 第24关 · 战术工具箱（函数组合进阶）
-  24:"银河闭幕"      // 第25关 · 大任务5 冬季银河杯闭幕式（综合）
+  24:"银河闭幕",     // 第25关 · 大任务5 冬季银河杯闭幕式（综合）
+  25:"名单记分",     // 第26关 · 名单记分员（for-in＋变量＋print）
+  26:"二选一",       // 第27关 · 门将二选一（if/else＋random）
+  27:"冠军战术",     // 第28关 · 冠军战术板（旧知识小项目）
+  28:"数据合计",     // 第29关 · 数据记分牌（数字列表＋累加）
+  29:"比分裁判",     // 第30关 · 比分裁判（变量比较＋if/else）
+  30:"球迷采访",     // 第31关 · 球迷采访团（input＋列表＋拼接）
+  31:"随机阵容",     // 第32关 · 随机阵容（choice＋循环）
+  32:"智能工具",     // 第33关 · 智能射门工具（函数参数＋if/else）
+  33:"夺冠之路",     // 第34关 · 夺冠之路（while＋随机＋分支）
+  34:"编程宇宙",     // 第35关 · 足球编程宇宙（自由收官项目）
+  35:"训练达标",     // 第36关 · 训练达标统计（数字列表＋双统计）
+  36:"巡回战术",     // 第37关 · 函数巡回战术（带参函数＋列表巡回）
+  37:"幸运巡回",     // 第38关 · 幸运巡回挑战（while＋两种随机＋统计）
+  38:"冠军直播",     // 第39关 · 冠军直播间（互动直播综合项目）
+  39:"传奇冠军"      // 第40关 · 传奇冠军杯（自由创作终极项目）
 };
 let pendingUnlock = -1;
 function openUnlock(i){
@@ -3523,11 +4423,16 @@ function toggleCodeBook(){
 
 function buildMap(){
   const wrap=document.getElementById('levels'); wrap.innerHTML='';
+  const review=document.createElement('details');review.id='completed-levels';review.className='completed-levels';
+  const reviewList=document.createElement('div');reviewList.id='completed-list';
+  let completedCount=0;
   LEVELS.forEach((lv,i)=>{
-    const unlocked = !!save.unlocked[i];
-    const done = save.progress[i];
+    const unlocked = !!save.unlocked[i], done = !!save.progress[i];
+    const ccDone=!!(ccSave.progress[i]&&ccSave.progress[i].homework&&ccSave.progress[i].homework.done);
+    const supported=!!CoCube.LEVELS[i];
     const card=document.createElement('div');
-    card.className='level-card'+(done?' done':'')+(!unlocked?' locked':'');
+    card.dataset.level=i;
+    card.className='level-card'+(done?' done':'')+(ccDone?' cocube-done':'')+(!unlocked?' locked':'');
     card.innerHTML=`
       <div class="planet">${lv.planet}</div>
       <div class="info">
@@ -3535,15 +4440,40 @@ function buildMap(){
         <span class="concept">${lv.concept}</span>
         <div class="desc">${unlocked?lv.desc:'🔒 输入口令解锁（找爸爸要）'}</div>
       </div>
-      <div class="badge">${done?'🏅':unlocked?'▶':'🔒'}</div>`;
+      ${supported&&unlocked?`<div class="level-entries">
+        <button class="entry-btn" title="原来的虚拟 Python 关卡">🐍 虚拟 Python <span class="entry-state">${done?'🏅 已完成':'▶ 进入'}</span></button>
+        <button class="entry-btn cocube" data-cocube="${i}" title="同一编程概念的 CoCube 实体挑战">🤖 CoCube <span class="entry-state">${ccDone?'🏅 实体完成':'▶ 进入'}</span></button>
+      </div>`:`<div class="badge">${done?'🏅':unlocked?'▶':'🔒'}</div>`}`;
     if(unlocked) card.onclick=()=>openLevel(i);
     else card.onclick=()=>openUnlock(i);
-    wrap.appendChild(card);
+    const ccBtn=card.querySelector('[data-cocube]');
+    if(ccBtn)ccBtn.onclick=e=>{e.stopPropagation();openCocubeLevel(i);};
+    if(done){reviewList.appendChild(card);completedCount++;}
+    else wrap.appendChild(card);
   });
+  if(completedCount){
+    const summary=document.createElement('summary');
+    summary.innerHTML=`🏅 已完成 ${completedCount} 关 <span class="review-tip">展开回顾 ▾</span>`;
+    review.addEventListener('toggle',()=>{summary.querySelector('.review-tip').textContent=review.open?'收起回顾 ▴':'展开回顾 ▾';});
+    review.appendChild(summary);review.appendChild(reviewList);wrap.appendChild(review);
+  }
 }
 function openLevel(i){
   curLevel=i; runAttempts=0; stuckCount=0;
   maybeDrill(i);   // ⚡ 每日特训：今天第一次进关先热身（v0.17.0，内部有每日一次闸门）
+  openLevelMode(i,false);
+}
+function openCocubeLevel(i){
+  curLevel=i; runAttempts=0; stuckCount=0;
+  maybeDrill(i);
+  openLevelMode(i,true);
+}
+function openLevelMode(i,hardware){
+  disconnectCocube();hardwareMode=!!hardware&&!!CoCube.LEVELS[i];ccPlan=null;ccPrechecked=false;ccExecuting=false;
+  document.getElementById('cocube-panel').classList.toggle('hidden',!hardwareMode);
+  document.getElementById('btn-run').textContent=hardwareMode?'▶ 模拟运行':'▶ 运行';
+  document.getElementById('btn-check').textContent=hardwareMode?'✅ 模拟预检':'🔍 检查';
+  document.getElementById('editor').disabled=false;
   phase='demo'; isHomework=false; peeked=false;
   const lv=LEVELS[i];
   // 埋点：记录进入本关时间 + 本次会话起点（活跃时长用）
@@ -3551,9 +4481,10 @@ function openLevel(i){
   d.sessionStart=Date.now(); persistTrack();
   document.getElementById('map').classList.add('hidden');
   document.getElementById('stage').classList.remove('hidden');
-  document.getElementById('lv-label').textContent=`第${i+1}关 · ${lv.concept}`;
+  document.getElementById('lv-label').textContent=`第${i+1}关 · ${lv.concept}${hardwareMode?' · 🤖 CoCube 实体模式':''}`;
   document.getElementById('editor').value='';
   document.getElementById('btn-check').disabled=true;
+  if(hardwareMode){ccTransportKind=document.getElementById('cc-transport').value;setCocubeStatus('第 1 步：看演示、拆解并写代码。点「模拟运行」后，系统会核对每个目标点；预检通过才开放上机。');updateCocubeUI();}
   // 第0步：填充知识点常驻面板（任何环节都能看）
   fillKnowledgePanel(lv);
 
@@ -3582,9 +4513,9 @@ function openLevel(i){
   }
 
   // ===== 普通关卡 =====
-  document.getElementById('m-emoji').textContent=lv.emoji;
-  document.getElementById('m-title').textContent=lv.title;
-  document.getElementById('m-text').textContent=lv.text;
+  document.getElementById('m-emoji').textContent=hardwareMode?'🤖':lv.emoji;
+  document.getElementById('m-title').textContent=hardwareMode?ccTask().title:lv.title;
+  document.getElementById('m-text').textContent=hardwareMode?ccTask().text:lv.text;
   // 重置各环节显示
   document.getElementById('demo-panel').classList.remove('hidden');
   document.getElementById('break-panel').classList.add('hidden');
@@ -3596,11 +4527,11 @@ function openLevel(i){
   updateStepbar();
   resetTurtle(); draw(); coachReset(); hideErr();
   renderDemoStatic();
-  coachSay(`欢迎来到「${lv.name}」！先点「▶ 播放演示」看我怎么做。看完演示，点代码还能看每一行的解释哦！`,"");
+  coachSay(hardwareMode?`🤖 欢迎来到 CoCube「${ccConfig().name}」！先看演示，再写同一套 Python 风格代码。模拟全对后，机器人才能上场。`:`欢迎来到「${lv.name}」！先点「▶ 播放演示」看我怎么做。看完演示，点代码还能看每一行的解释哦！`,"");
   window.scrollTo({top:0,behavior:'smooth'});
 }
 function goMap(){
-  stopAnim(); stopDemo();
+  stopAnim(); stopDemo();disconnectCocube();
   document.getElementById('stage').classList.add('hidden');
   document.getElementById('map').classList.remove('hidden');
   buildMap();
@@ -3620,17 +4551,20 @@ function buildReportText(){
   let out = `📊 包涵学习报告 · ${dateStr}\n`;
   out += `═══════════════════════════════\n`;
   const keys = Object.keys(track).map(Number).sort((a,b)=>a-b);
-  if(keys.length===0){ return out + `（还没有学习记录，先让包涵玩一关吧）\n`; }
+  const ccDone=Object.keys(ccSave.progress).filter(i=>ccSave.progress[i].homework&&ccSave.progress[i].homework.done);
+  out += `🤖 CoCube 实体进度：${ccDone.length?ccDone.map(i=>`第${+i+1}关✅`).join('、'):'尚未完成实机关卡'}（独立存储 bh_cocube；模拟验收不计入）\n`;
+  if(keys.length===0){ return out + `（还没有虚拟学习记录，先让包涵玩一关吧）\n`; }
   keys.forEach(i=>{
-    const d = track[i];
+    const d = track[i], cc=ccSave.progress[i]||{};
     const lvName = LEVELS[i] ? `第${i+1}关 · ${LEVELS[i].name}（${LEVELS[i].concept}）` : `第${i+1}关`;
-    out += `\n【${lvName}】${d.done?'✅已完成':'🔄进行中'}\n`;
+    out += `\n【${lvName}】${d.done?'✅虚拟已完成':'🔄虚拟进行中'}｜🤖模仿${cc.imitate&&cc.imitate.done?'✅':'—'} / 独立${cc.homework&&cc.homework.done?'✅':'—'}\n`;
     out += `  ①看演示：播放${d.demoPlay}次｜点代码看解释${d.codeClick}次\n`;
     out += `  ②拆解：尝试${d.breakTry}次${d.breakTry===0?'（一次排对）':''}\n`;
     out += `  ③模仿写：卡${d.imitateStuck}次｜偷看${d.imitatePeek}次｜运行${d.imitateRun}次成功\n`;
     out += `  ④独立作业：尝试${d.hwTry}次｜卡${d.hwStuck}次\n`;
     if(d.cheatUse){ out += `  🆘急救卡：用模板${d.cheatUse}次（大任务语法模板，用得多说明在滚动遗忘，属于正常求助）\n`; }
     if(d.askCount){ out += `  ⑤问小航：${d.askCount}次（问了：${(d.coachAsk||[]).slice(-6).join('、')}）\n`; }
+    if(i>=16 && i<=39 && d.askDetails && d.askDetails.length && typeof Coach17!=='undefined'){ out += Coach17.reportSummary(d)+'\n'; }
     if(d.conceptMiss){ out += `  ⚠️概念软闸：轨迹达标但没用核心招式 ${d.conceptMiss}次（可能绕过了本关概念，建议家长看一眼他用的方法）\n`; }
     const errKeys = Object.keys(d.errors||{});
     if(errKeys.length){
@@ -3648,6 +4582,12 @@ function buildReportText(){
     }
   });
   out += `═══════════════════════════════\n`;
+  const recent={}, weekAgo=Date.now()-7*86400000;
+  keys.forEach(i=>(Array.isArray(track[i].errorEvents)?track[i].errorEvents:[]).forEach(e=>{
+    if(e&&e.type&&Number(e.at)>=weekAgo){ const kind=String(e.type).split(':')[0]; recent[kind]=(recent[kind]||0)+1; }
+  }));
+  const recentKeys=Object.keys(recent).sort((a,b)=>recent[b]-recent[a]);
+  if(recentKeys.length){ out += `🕒 近7天错题（优先复习）：${recentKeys.map(k=>`${k}(${recent[k]}次)`).join('、')}\n`; }
   if(save.drillDays || save.drillSkips){ out += `⚡ 每日特训（找茬复习，防滚动遗忘）：热身${save.drillDays||0}天｜跳过${save.drillSkips||0}次｜累计答对${save.drillRight||0}题｜⭐${save.drillStars||0}颗\n`; }
   out += `（请 AI 教练根据以上数据，分析包涵的掌握情况并调整后续教学大纲/关卡难度）\n`;
   return out;
@@ -3664,6 +4604,8 @@ function copyReport(){
 }
 
 /* ---------- 初始化 ---------- */
+// 代码一旦变化，旧预检立即失效；实机执行中编辑会先急停。
+document.getElementById('editor').addEventListener('input',()=>invalidateCocubePrecheck('代码已修改，请重新模拟预检。'));
 // Tab 键 = 缩进（插入4个空格）；Shift+Tab = 减缩进。默认 Tab 会跳到下一个按钮，需拦截。
 document.getElementById('editor').addEventListener('keydown', function(e){
   if(e.key !== 'Tab') return;
@@ -3687,5 +4629,9 @@ document.getElementById('editor').addEventListener('keydown', function(e){
 buildMap();
 resetTurtle();
 </script>
+<script src="coach18_25.js"></script>
+<script src="coach26_35.js"></script>
+<script src="coach36_40.js"></script>
+<script src="coach17.js"></script>
 </body>
 </html>
